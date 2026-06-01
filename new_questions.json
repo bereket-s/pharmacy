@@ -1,0 +1,752 @@
+[
+  {
+    "id": "q_new_001",
+    "domain": "PHARM",
+    "difficulty": "medium",
+    "question": "Which of the following is the appropriate antidote for Unfractionated Heparin (UFH)?",
+    "options": [
+      "A. Vitamin K",
+      "B. Protamine sulfate",
+      "C. Idarucizumab",
+      "D. Flumazenil"
+    ],
+    "correct": 1,
+    "explanation": "Protamine sulfate is the specific antidote for Unfractionated Heparin (UFH). UFH is an indirect thrombin inhibitor that can cause Heparin-induced thrombocytopenia (HIT).",
+    "reference": "Dr. Kabsha - Anticoagulant"
+  },
+  {
+    "id": "q_new_002",
+    "domain": "PHARM",
+    "difficulty": "easy",
+    "question": "What is the recommended dose of Enoxaparin (LMWH) for the treatment of VTE and NSTEMI?",
+    "options": [
+      "A. 1 mg/kg/dose BID or 1.5 mg/kg/dose OD",
+      "B. 40 mg OD",
+      "C. 0.5 mg/kg/dose BID",
+      "D. 30 mg OD"
+    ],
+    "correct": 0,
+    "explanation": "The general dose of Enoxaparin for the treatment of VTE and NSTEMI is 1 mg/kg/dose BID or 1.5 mg/kg/dose OD. 40 mg OD is typically used for prophylaxis.",
+    "reference": "Dr. Kabsha - Anticoagulant"
+  },
+  {
+    "id": "q_new_003",
+    "domain": "PHARM",
+    "difficulty": "easy",
+    "question": "Which of the following drugs is an oral direct thrombin inhibitor?",
+    "options": [
+      "A. Rivaroxaban",
+      "B. Apixaban",
+      "C. Dabigatran",
+      "D. Warfarin"
+    ],
+    "correct": 2,
+    "explanation": "Dabigatran is an oral direct thrombin inhibitor. It can cause GI side effects (dyspepsia) and is contraindicated in renal failure. Rivaroxaban and Apixaban are direct factor Xa inhibitors.",
+    "reference": "Dr. Kabsha - Anticoagulant"
+  },
+  {
+    "id": "q_new_004",
+    "domain": "PHARM",
+    "difficulty": "medium",
+    "question": "What is the specific antidote for the reversal of Dabigatran?",
+    "options": [
+      "A. Vitamin K",
+      "B. Andexanet alfa",
+      "C. Protamine sulfate",
+      "D. Idarucizumab"
+    ],
+    "correct": 3,
+    "explanation": "Idarucizumab is the specific antidote for Dabigatran. Andexanet alfa is used for factor Xa inhibitors.",
+    "reference": "Dr. Kabsha - Anticoagulant"
+  },
+  {
+    "id": "q_new_005",
+    "domain": "PHARM",
+    "difficulty": "medium",
+    "question": "What is the target INR range for a patient on Warfarin therapy with a mechanical mitral valve?",
+    "options": [
+      "A. 2.0 - 3.0",
+      "B. 2.5 - 3.5",
+      "C. 1.5 - 2.5",
+      "D. 3.0 - 4.0"
+    ],
+    "correct": 1,
+    "explanation": "The normal range of INR on Warfarin therapy is 2-3. However, for a mechanical mitral valve, the target INR is 2.5-3.5.",
+    "reference": "Dr. Kabsha - Anticoagulant"
+  },
+  {
+    "id": "q_new_006",
+    "domain": "PHARM",
+    "difficulty": "hard",
+    "question": "A patient on Warfarin is prescribed Amiodarone. What pharmacokinetic interaction is expected?",
+    "options": [
+      "A. Amiodarone induces CYP2C9, decreasing the effect of Warfarin",
+      "B. Amiodarone inhibits CYP2C9, increasing the effect of Warfarin",
+      "C. Amiodarone induces CYP3A4, decreasing the effect of Warfarin",
+      "D. Amiodarone inhibits VKORC1 directly"
+    ],
+    "correct": 1,
+    "explanation": "Amiodarone is a CYP2C9 inhibitor. It will increase the effect of Warfarin, leading to an elevated INR. When starting amiodarone, the Warfarin dose should be reduced by 30-50%.",
+    "reference": "Dr. Kabsha - Anticoagulant"
+  },
+  {
+    "id": "q_new_007",
+    "domain": "PHARM",
+    "difficulty": "medium",
+    "question": "How long before surgery should Enoxaparin (LMWH) be stopped?",
+    "options": [
+      "A. 4-6 hours",
+      "B. 12 hours",
+      "C. 24 hours",
+      "D. 5 days"
+    ],
+    "correct": 2,
+    "explanation": "Enoxaparin (LMWH) should be stopped 24 hours (1 day) before surgery. UFH is stopped 4-6 hours before, and Warfarin/Clopidogrel are stopped 5 days before.",
+    "reference": "Dr. Kabsha - Anticoagulant"
+  },
+  {
+    "id": "q_new_008",
+    "domain": "PHARM",
+    "difficulty": "medium",
+    "question": "How long before surgery should Warfarin be stopped?",
+    "options": [
+      "A. 1 day",
+      "B. 3 days",
+      "C. 5 days",
+      "D. 7 days"
+    ],
+    "correct": 2,
+    "explanation": "Warfarin and Clopidogrel should be stopped 5 days before surgery to allow for adequate synthesis of new clotting factors and platelets.",
+    "reference": "Dr. Kabsha - Anticoagulant"
+  },
+  {
+    "id": "q_new_009",
+    "domain": "PHARM",
+    "difficulty": "hard",
+    "question": "Calculate the CHA2DS2-VASc score for a 76-year-old male with hypertension, hyperlipidemia, and coronary artery disease.",
+    "options": [
+      "A. 1",
+      "B. 3",
+      "C. 4",
+      "D. 6"
+    ],
+    "correct": 2,
+    "explanation": "Age >= 75 is 2 points, Hypertension is 1 point, Vascular disease (coronary artery disease) is 1 point. Total = 4. Hyperlipidemia does not give points.",
+    "reference": "Dr. Kabsha - Anticoagulant"
+  },
+  {
+    "id": "q_new_010",
+    "domain": "PHARM",
+    "difficulty": "medium",
+    "question": "Which parenteral direct thrombin inhibitor is preferred in cases of Heparin-Induced Thrombocytopenia (HIT)?",
+    "options": [
+      "A. Bivalirudin",
+      "B. Argatroban",
+      "C. Fondaparinux",
+      "D. Enoxaparin"
+    ],
+    "correct": 1,
+    "explanation": "Argatroban is a parenteral direct thrombin inhibitor specifically used in the case of Heparin-Induced Thrombocytopenia (HIT).",
+    "reference": "Dr. Kabsha - Anticoagulant"
+  },
+  {
+    "id": "q_new_011",
+    "domain": "CLIN",
+    "difficulty": "easy",
+    "question": "A patient is to be started on Abacavir. Which pharmacogenomic test must be performed to avoid severe hypersensitivity?",
+    "options": [
+      "A. HLA-B*1502",
+      "B. HLA-B*5801",
+      "C. HLA-B*5701",
+      "D. CYP2C19"
+    ],
+    "correct": 2,
+    "explanation": "HLA-B*5701 must be tested before starting Abacavir. If positive, the drug should be avoided due to the risk of severe hypersensitivity (Stevens-Johnson syndrome).",
+    "reference": "Dr. Kabsha - Pharmacogenomics"
+  },
+  {
+    "id": "q_new_012",
+    "domain": "CLIN",
+    "difficulty": "medium",
+    "question": "An Asian patient is being started on Carbamazepine. Which allele testing is recommended to prevent severe cutaneous reactions?",
+    "options": [
+      "A. HLA-B*5701",
+      "B. HLA-B*1502",
+      "C. HLA-B*5801",
+      "D. CYP2D6"
+    ],
+    "correct": 1,
+    "explanation": "HLA-B*1502 testing is required before initiating Carbamazepine or Oxcarbazepine, especially in Asian populations, to prevent Stevens-Johnson syndrome.",
+    "reference": "Dr. Kabsha - Pharmacogenomics"
+  },
+  {
+    "id": "q_new_013",
+    "domain": "CLIN",
+    "difficulty": "medium",
+    "question": "Clopidogrel is a prodrug that requires activation by which cytochrome P450 enzyme?",
+    "options": [
+      "A. CYP2C9",
+      "B. CYP3A4",
+      "C. CYP2C19",
+      "D. CYP2D6"
+    ],
+    "correct": 2,
+    "explanation": "Clopidogrel requires activation by CYP2C19. Poor metabolizers (e.g., CYP2C19*2 or *3) will have reduced antiplatelet effect and no activation. It also interacts with Omeprazole (a CYP2C19 inhibitor).",
+    "reference": "Dr. Kabsha - Pharmacogenomics"
+  },
+  {
+    "id": "q_new_014",
+    "domain": "CLIN",
+    "difficulty": "hard",
+    "question": "Which two genes are primarily responsible for the genetic variability in Warfarin metabolism and sensitivity?",
+    "options": [
+      "A. CYP2C19 and CYP2D6",
+      "B. CYP2C9 and VKORC1",
+      "C. CYP3A4 and TPMT",
+      "D. UGT1A1 and SLCO1B1"
+    ],
+    "correct": 1,
+    "explanation": "Warfarin metabolism is affected by CYP2C9 (decreased metabolism with *2 or *3 alleles) and sensitivity is determined by VKORC1. Both contribute to bleeding risks.",
+    "reference": "Dr. Kabsha - Pharmacogenomics"
+  },
+  {
+    "id": "q_new_015",
+    "domain": "CLIN",
+    "difficulty": "medium",
+    "question": "Codeine is converted into its active metabolite, morphine, by which enzyme?",
+    "options": [
+      "A. CYP3A4",
+      "B. CYP2C19",
+      "C. CYP2D6",
+      "D. CYP1A2"
+    ],
+    "correct": 2,
+    "explanation": "Codeine is an antitussive prodrug converted to morphine (analgesic) by CYP2D6. Poor metabolizers will have reduced opioid response, while rapid metabolizers may suffer from toxicity.",
+    "reference": "Dr. Kabsha - Pharmacogenomics"
+  },
+  {
+    "id": "q_new_016",
+    "domain": "CLIN",
+    "difficulty": "medium",
+    "question": "Trastuzumab (Herceptin) is effective only if the breast cancer patient tests positive for which gene?",
+    "options": [
+      "A. KRAS",
+      "B. BRCA1",
+      "C. HER2",
+      "D. EGFR"
+    ],
+    "correct": 2,
+    "explanation": "Trastuzumab and Pertuzumab target the HER2 receptor and must only be used in patients who are HER2 positive.",
+    "reference": "Dr. Kabsha - Pharmacogenomics"
+  },
+  {
+    "id": "q_new_017",
+    "domain": "CLIN",
+    "difficulty": "hard",
+    "question": "Testing for Thiopurine methyltransferase (TPMT) deficiency is recommended before using which drug to avoid severe myelosuppression?",
+    "options": [
+      "A. Capecitabine",
+      "B. Azathioprine",
+      "C. Irinotecan",
+      "D. Simvastatin"
+    ],
+    "correct": 1,
+    "explanation": "Azathioprine and 6-Mercaptopurine are metabolized by TPMT. Deficiency in TPMT increases the risk of severe myelosuppression.",
+    "reference": "Dr. Kabsha - Pharmacogenomics"
+  },
+  {
+    "id": "q_new_018",
+    "domain": "CLIN",
+    "difficulty": "hard",
+    "question": "A patient with colorectal cancer is considered for Cetuximab therapy. What must be the status of the KRAS mutation for the therapy to be effective?",
+    "options": [
+      "A. KRAS must be positive (mutated)",
+      "B. KRAS must be negative (wild-type)",
+      "C. KRAS status does not affect Cetuximab",
+      "D. Both KRAS and BRAF must be positive"
+    ],
+    "correct": 1,
+    "explanation": "Cetuximab and Panitumumab target EGFR. If the KRAS gene is mutated (positive), the patient will have no response. Therefore, KRAS must be negative for efficacy.",
+    "reference": "Dr. Kabsha - Pharmacogenomics"
+  },
+  {
+    "id": "q_new_019",
+    "domain": "CLIN",
+    "difficulty": "medium",
+    "question": "Which genetic polymorphism increases the risk of severe myopathy when a patient is prescribed Simvastatin?",
+    "options": [
+      "A. UGT1A1*28",
+      "B. SLCO1B1",
+      "C. IL28B",
+      "D. DPD"
+    ],
+    "correct": 1,
+    "explanation": "SLCO1B1 polymorphism reduces the hepatic uptake of Simvastatin, leading to higher plasma concentrations and an increased risk of myopathy.",
+    "reference": "Dr. Kabsha - Pharmacogenomics"
+  },
+  {
+    "id": "q_new_020",
+    "domain": "CLIN",
+    "difficulty": "medium",
+    "question": "Patients with UGT1A1*28 polymorphism are at increased risk of neutropenia when treated with which chemotherapy agent?",
+    "options": [
+      "A. Irinotecan",
+      "B. 5-Fluorouracil",
+      "C. Capecitabine",
+      "D. Cisplatin"
+    ],
+    "correct": 0,
+    "explanation": "Irinotecan is metabolized by UGT1A1. The *28 variant leads to reduced enzyme activity and a higher risk of severe neutropenia.",
+    "reference": "Dr. Kabsha - Pharmacogenomics"
+  },
+  {
+    "id": "q_new_021",
+    "domain": "HERB",
+    "difficulty": "easy",
+    "question": "Which herbal supplement is commonly used to treat urinary symptoms associated with Benign Prostatic Hyperplasia (BPH)?",
+    "options": [
+      "A. Black cohosh",
+      "B. Saw palmetto",
+      "C. Echinacea",
+      "D. Cranberry"
+    ],
+    "correct": 1,
+    "explanation": "Saw palmetto is used to treat urinary symptoms of BPH. Side effects include dizziness, headache, and GI upset.",
+    "reference": "Dr. Kabsha - Herbal"
+  },
+  {
+    "id": "q_new_022",
+    "domain": "HERB",
+    "difficulty": "easy",
+    "question": "A menopausal woman experiencing hot flashes is looking for an herbal remedy. Which of the following contains a high concentration of estrogen-like compounds?",
+    "options": [
+      "A. Milk thistle",
+      "B. Feverfew",
+      "C. Black cohosh",
+      "D. Valerian"
+    ],
+    "correct": 2,
+    "explanation": "Black cohosh contains a high concentration of estrogenic compounds and is used to treat painful menstruation or hot flashes caused by menopause.",
+    "reference": "Dr. Kabsha - Herbal"
+  },
+  {
+    "id": "q_new_023",
+    "domain": "HERB",
+    "difficulty": "medium",
+    "question": "Which herbal medicine is primarily used for the prophylaxis and treatment of migraine headaches?",
+    "options": [
+      "A. Feverfew",
+      "B. Ginkgo biloba",
+      "C. St. John's Wort",
+      "D. Ginseng"
+    ],
+    "correct": 0,
+    "explanation": "Feverfew is commonly used to treat and prevent migraine headaches.",
+    "reference": "Dr. Kabsha - Herbal"
+  },
+  {
+    "id": "q_new_024",
+    "domain": "HERB",
+    "difficulty": "easy",
+    "question": "Which of the following herbal supplements acts as an immunostimulant and is used as supportive therapy for common cold and respiratory tract infections?",
+    "options": [
+      "A. Garlic",
+      "B. Echinacea",
+      "C. Fish oil",
+      "D. Chamomile"
+    ],
+    "correct": 1,
+    "explanation": "Echinacea acts as an immunostimulant and is used as supportive therapy for respiratory tract infections, common cold, and flu.",
+    "reference": "Dr. Kabsha - Herbal"
+  },
+  {
+    "id": "q_new_025",
+    "domain": "HERB",
+    "difficulty": "hard",
+    "question": "Which of the following herbal supplements acts as a liver microsomal enzyme inducer and can decrease the INR of a patient on Warfarin?",
+    "options": [
+      "A. Garlic",
+      "B. Ginkgo biloba",
+      "C. St. John's Wort",
+      "D. Saw palmetto"
+    ],
+    "correct": 2,
+    "explanation": "St. John's Wort is a potent liver enzyme inducer. It interacts with Warfarin by increasing its metabolism, thereby decreasing the INR and increasing clot risk.",
+    "reference": "Dr. Kabsha - Herbal"
+  },
+  {
+    "id": "q_new_026",
+    "domain": "HERB",
+    "difficulty": "medium",
+    "question": "Which natural product combination is most commonly used for the management of Osteoarthritis?",
+    "options": [
+      "A. Chondroitin + Glucosamine",
+      "B. Fish oil + Red yeast rice",
+      "C. Folic acid + Vitamin E",
+      "D. Silymarin + Aloe vera"
+    ],
+    "correct": 0,
+    "explanation": "Chondroitin and Glucosamine are commonly used natural supplements to treat Osteoarthritis.",
+    "reference": "Dr. Kabsha - Herbal"
+  },
+  {
+    "id": "q_new_027",
+    "domain": "HERB",
+    "difficulty": "easy",
+    "question": "Which plant is used to treat nausea and vomiting, exhibiting an effect similar to Ondansetron?",
+    "options": [
+      "A. Kava Kava",
+      "B. Thyme",
+      "C. Ginger (Zingiber officinalis)",
+      "D. Pomegranate"
+    ],
+    "correct": 2,
+    "explanation": "Ginger (Zingiber officinalis) is a natural antiemetic used to treat nausea and vomiting.",
+    "reference": "Dr. Kabsha - Herbal"
+  },
+  {
+    "id": "q_new_028",
+    "domain": "HERB",
+    "difficulty": "medium",
+    "question": "What is the active constituent of Milk Thistle, used as a supportive treatment in liver disease?",
+    "options": [
+      "A. Silymarin",
+      "B. Barbaloin",
+      "C. Colchicine",
+      "D. Aescin"
+    ],
+    "correct": 0,
+    "explanation": "Silymarin is the active constituent of Milk Thistle, which is used as a supportive therapy in liver diseases.",
+    "reference": "Dr. Kabsha - Herbal"
+  },
+  {
+    "id": "q_new_029",
+    "domain": "HERB",
+    "difficulty": "medium",
+    "question": "Which herbal products are known for their sedative properties and are used to treat anxiety?",
+    "options": [
+      "A. Valerian and Kava Kava",
+      "B. Echinacea and Garlic",
+      "C. Ginseng and Thyme",
+      "D. Black cohosh and Cranberry"
+    ],
+    "correct": 0,
+    "explanation": "Valerian and Kava Kava are herbal remedies known for their sedative effects and are used to treat anxiety and depression. Note that Kava Kava is hepatotoxic.",
+    "reference": "Dr. Kabsha - Herbal"
+  },
+  {
+    "id": "q_new_030",
+    "domain": "HERB",
+    "difficulty": "hard",
+    "question": "Which of the following groups of natural products can be used for the treatment of Amebiasis?",
+    "options": [
+      "A. Garlic, black tea, and coconut water",
+      "B. Fish oil and red yeast rice",
+      "C. Chamomile, lavender, and lemon",
+      "D. Ginkgo biloba and Ginseng"
+    ],
+    "correct": 0,
+    "explanation": "Garlic, black tea, coconut water, curcumin, and ipecac are mentioned as herbal remedies used for Amebiasis.",
+    "reference": "Dr. Kabsha - Herbal"
+  },
+  {
+    "id": "q_new_031",
+    "domain": "PHARM",
+    "difficulty": "medium",
+    "question": "The positive symptoms of Schizophrenia (psychosis) are primarily associated with hyperactivity in which dopamine pathway?",
+    "options": [
+      "A. Nigrostriatal pathway",
+      "B. Mesolimbic pathway",
+      "C. Mesocortical pathway",
+      "D. Tuberoinfundibular pathway"
+    ],
+    "correct": 1,
+    "explanation": "The Mesolimbic dopamine pathway is responsible for the positive symptoms of psychosis in Schizophrenia.",
+    "reference": "Dr. Kabsha - CNS"
+  },
+  {
+    "id": "q_new_032",
+    "domain": "PHARM",
+    "difficulty": "medium",
+    "question": "Which atypical antipsychotic requires strict monitoring of the Absolute Neutrophil Count (ANC) and WBC due to the risk of agranulocytosis?",
+    "options": [
+      "A. Olanzapine",
+      "B. Aripiprazole",
+      "C. Clozapine",
+      "D. Quetiapine"
+    ],
+    "correct": 2,
+    "explanation": "Clozapine can cause severe agranulocytosis. It is mandatory to monitor ANC and WBC counts. It also lowers the seizure threshold.",
+    "reference": "Dr. Kabsha - CNS"
+  },
+  {
+    "id": "q_new_033",
+    "domain": "PHARM",
+    "difficulty": "hard",
+    "question": "Which medication was the first FDA-approved treatment for Tardive Dyskinesia (TD)?",
+    "options": [
+      "A. Benztropine",
+      "B. Diphenhydramine",
+      "C. Valbenazine",
+      "D. Amantadine"
+    ],
+    "correct": 2,
+    "explanation": "Valbenazine is the first FDA-approved medication for the treatment of Tardive Dyskinesia.",
+    "reference": "Dr. Kabsha - CNS"
+  },
+  {
+    "id": "q_new_034",
+    "domain": "PHARM",
+    "difficulty": "hard",
+    "question": "Which of the following medications is a Catechol-O-Methyltransferase (COMT) inhibitor used in Parkinson's disease but carries a risk of hepatotoxicity?",
+    "options": [
+      "A. Selegiline",
+      "B. Entacapone",
+      "C. Tolcapone",
+      "D. Ropinirole"
+    ],
+    "correct": 2,
+    "explanation": "Tolcapone is a COMT inhibitor used in Parkinson's disease, but its use is limited by severe hepatotoxicity.",
+    "reference": "Dr. Kabsha - CNS"
+  },
+  {
+    "id": "q_new_035",
+    "domain": "PHARM",
+    "difficulty": "medium",
+    "question": "The 'cheese reaction' leading to a hypertensive crisis is a dangerous food-drug interaction associated with which class of antidepressants?",
+    "options": [
+      "A. Selective Serotonin Reuptake Inhibitors (SSRIs)",
+      "B. Tricyclic Antidepressants (TCAs)",
+      "C. Monoamine Oxidase Inhibitors (MAOIs)",
+      "D. Serotonin-Norepinephrine Reuptake Inhibitors (SNRIs)"
+    ],
+    "correct": 2,
+    "explanation": "MAOIs interact with tyramine-containing foods (like aged cheese). Tyramine is a catecholamine-releasing agent, and MAOIs inhibit its metabolism, leading to a massive release of norepinephrine and a hypertensive crisis.",
+    "reference": "Dr. Kabsha - CNS"
+  },
+  {
+    "id": "q_new_036",
+    "domain": "PHARM",
+    "difficulty": "easy",
+    "question": "Which of the following side effects are classically associated with Tricyclic Antidepressants (TCAs) due to their receptor blockade profile?",
+    "options": [
+      "A. Hypertensive crisis and insomnia",
+      "B. Dry mouth, blurred vision, and urinary retention",
+      "C. Nausea, vomiting, and diarrhea",
+      "D. Agranulocytosis and seizures"
+    ],
+    "correct": 1,
+    "explanation": "TCAs block acetylcholine receptors, causing prominent anticholinergic side effects such as dry mouth, blurred vision, urinary retention, and constipation.",
+    "reference": "Dr. Kabsha - CNS"
+  },
+  {
+    "id": "q_new_037",
+    "domain": "PHARM",
+    "difficulty": "medium",
+    "question": "When switching a patient from Fluoxetine to an MAOI, how long should the washout period be to avoid Serotonin Syndrome?",
+    "options": [
+      "A. 1 week",
+      "B. 2 weeks",
+      "C. 5-6 weeks",
+      "D. 12 weeks"
+    ],
+    "correct": 2,
+    "explanation": "While most SSRIs require a 2-week washout period before starting an MAOI, Fluoxetine requires a 5-6 week washout period due to its very long half-life.",
+    "reference": "Dr. Kabsha - CNS"
+  },
+  {
+    "id": "q_new_038",
+    "domain": "PHARM",
+    "difficulty": "medium",
+    "question": "Lithium toxicity can be precipitated by which electrolyte imbalance?",
+    "options": [
+      "A. Hypercalcemia",
+      "B. Hypokalemia",
+      "C. Hyponatremia",
+      "D. Hypermagnesemia"
+    ],
+    "correct": 2,
+    "explanation": "Lithium is handled similarly to sodium by the kidneys. Hyponatremia (low sodium) leads to increased reabsorption of lithium in the proximal tubule, causing lithium toxicity.",
+    "reference": "Dr. Kabsha - CNS"
+  },
+  {
+    "id": "q_new_039",
+    "domain": "PHARM",
+    "difficulty": "easy",
+    "question": "Which antiepileptic drug is considered the drug of choice for Absence (petit mal) seizures by blocking T-type calcium channels?",
+    "options": [
+      "A. Phenytoin",
+      "B. Ethosuximide",
+      "C. Carbamazepine",
+      "D. Gabapentin"
+    ],
+    "correct": 1,
+    "explanation": "Ethosuximide acts uniquely by blocking T-type calcium channels in the thalamus, making it the drug of choice specifically for Absence (petit mal) seizures.",
+    "reference": "Dr. Kabsha - CNS"
+  },
+  {
+    "id": "q_new_040",
+    "domain": "PHARM",
+    "difficulty": "medium",
+    "question": "What is the first-line intravenous treatment for Status Epilepticus?",
+    "options": [
+      "A. Phenytoin",
+      "B. Valproic acid",
+      "C. Lorazepam",
+      "D. Levetiracetam"
+    ],
+    "correct": 2,
+    "explanation": "The first-line therapy for Status Epilepticus is an IV benzodiazepine, preferably IV Lorazepam (or IM Midazolam, or rectal Diazepam).",
+    "reference": "Dr. Kabsha - CNS"
+  },
+  {
+    "id": "q_new_041",
+    "domain": "PHARM",
+    "difficulty": "medium",
+    "question": "Which of the following vaccines is a LIVE attenuated vaccine?",
+    "options": [
+      "A. Hepatitis B vaccine",
+      "B. Inactivated Influenza Vaccine (IIV)",
+      "C. Measles, Mumps, Rubella (MMR)",
+      "D. Tetanus toxoid"
+    ],
+    "correct": 2,
+    "explanation": "MMR is a live attenuated vaccine. Mnemonic: 'ROME Is MY Best Place To go Yet' (Rubella, Oral Polio, Measles, Epidemic typhus, Influenza LAIV, Mumps, Yellow fever, BCG, Plague, Typhoid oral, Varicella).",
+    "reference": "Dr. Kabsha - Vaccines"
+  },
+  {
+    "id": "q_new_042",
+    "domain": "PHARM",
+    "difficulty": "easy",
+    "question": "Live attenuated vaccines are contraindicated in which of the following patient populations?",
+    "options": [
+      "A. Patients over 65 years old",
+      "B. Pregnant women and severely immunocompromised patients",
+      "C. Patients with diabetes mellitus",
+      "D. Patients with mild upper respiratory infections"
+    ],
+    "correct": 1,
+    "explanation": "Live vaccines should not be given to pregnant women or immunocompromised patients (e.g., CD4 < 200, receiving chemotherapy, or taking biologic agents) because they can cause the actual disease in these populations.",
+    "reference": "Dr. Kabsha - Vaccines"
+  },
+  {
+    "id": "q_new_043",
+    "domain": "PHARM",
+    "difficulty": "hard",
+    "question": "A patient receives a Live Attenuated Influenza Vaccine (LAIV). How long should they wait before starting an Influenza Antiviral Drug (IAD) like Oseltamivir?",
+    "options": [
+      "A. 24 hours",
+      "B. 48 hours",
+      "C. 1 week",
+      "D. 2 weeks"
+    ],
+    "correct": 3,
+    "explanation": "If LAIV is administered, the patient must wait 2 weeks before taking an IAD. Conversely, if an IAD is stopped, the patient must wait 48 hours before taking LAIV.",
+    "reference": "Dr. Kabsha - Vaccines"
+  },
+  {
+    "id": "q_new_044",
+    "domain": "PHARM",
+    "difficulty": "medium",
+    "question": "At what age is the Influenza vaccine absolutely contraindicated?",
+    "options": [
+      "A. Children younger than 6 months",
+      "B. Children younger than 2 years",
+      "C. Adults older than 65 years",
+      "D. Pregnant women in the 1st trimester"
+    ],
+    "correct": 0,
+    "explanation": "The Influenza vaccine is not used for infants younger than 6 months. Pregnant women and older adults are high-risk and strongly recommended to receive the inactivated flu vaccine.",
+    "reference": "Dr. Kabsha - Vaccines"
+  },
+  {
+    "id": "q_new_045",
+    "domain": "PHARM",
+    "difficulty": "hard",
+    "question": "A patient presents with a major, contaminated wound. Their last Tetanus toxoid (Td) dose was more than 5 years ago, and their prior vaccination history is completely unknown. What is the correct prophylaxis?",
+    "options": [
+      "A. Td only",
+      "B. No treatment needed",
+      "C. Td + Tetanus immunoglobulin (TIG)",
+      "D. TIG only"
+    ],
+    "correct": 2,
+    "explanation": "For major wounds with an unknown tetanus vaccination history, both Td (vaccine) and TIG (immunoglobulin) must be administered.",
+    "reference": "Dr. Kabsha - Vaccines"
+  },
+  {
+    "id": "q_new_046",
+    "domain": "PHARM",
+    "difficulty": "medium",
+    "question": "During which period of pregnancy is the Tdap vaccine ideally recommended to be administered?",
+    "options": [
+      "A. First 12 weeks of gestation",
+      "B. During the second trimester only",
+      "C. Between 27 and 36 weeks gestation",
+      "D. Immediately post-partum"
+    ],
+    "correct": 2,
+    "explanation": "The Tdap vaccine is recommended during each pregnancy, ideally administered between 27 and 36 weeks gestation (the last 3 months) to maximize maternal antibody response and passive transfer to the infant.",
+    "reference": "Dr. Kabsha - Vaccines"
+  },
+  {
+    "id": "q_new_047",
+    "domain": "PHARM",
+    "difficulty": "easy",
+    "question": "According to the vaccination schedule, which vaccine must be given within 12 hours from birth?",
+    "options": [
+      "A. BCG",
+      "B. Oral Polio Vaccine (OPV)",
+      "C. Hepatitis B vaccine",
+      "D. MMR"
+    ],
+    "correct": 2,
+    "explanation": "The Hepatitis B vaccine should be administered within 12 hours from birth. Preterm babies might have this delayed until they reach 2 kg or 30 days old.",
+    "reference": "Dr. Kabsha - Vaccines"
+  },
+  {
+    "id": "q_new_048",
+    "domain": "PHARM",
+    "difficulty": "medium",
+    "question": "What is a known immediate adverse event of the Human Papillomavirus (HPV) vaccine that requires patients to remain seated for 15 minutes after administration?",
+    "options": [
+      "A. Anaphylaxis",
+      "B. Seizures",
+      "C. Syncope (fainting)",
+      "D. Severe injection site erythema"
+    ],
+    "correct": 2,
+    "explanation": "The HPV vaccine can cause syncope (fainting). Therefore, it is recommended that patients remain seated for at least 15 minutes after receiving the vaccine.",
+    "reference": "Dr. Kabsha - Vaccines"
+  },
+  {
+    "id": "q_new_049",
+    "domain": "PHARM",
+    "difficulty": "hard",
+    "question": "While most vaccines are stored in a refrigerator (2-8°C), which of the following vaccines must be stored frozen at < -15°C?",
+    "options": [
+      "A. Hepatitis B vaccine",
+      "B. Zostavax (Zoster vaccine live)",
+      "C. Tetanus toxoid",
+      "D. Pneumococcal Polysaccharide Vaccine (PPSV)"
+    ],
+    "correct": 1,
+    "explanation": "Most vaccines require refrigeration (2-8°C), but Zostavax (Live Zoster Vaccine) and Oral Polio Vaccine (OPV) require freezing (< -15°C and -20°C respectively).",
+    "reference": "Dr. Kabsha - Vaccines"
+  },
+  {
+    "id": "q_new_050",
+    "domain": "PHARM",
+    "difficulty": "easy",
+    "question": "How many doses make up the full series for the Hepatitis A vaccine?",
+    "options": [
+      "A. 1 dose",
+      "B. 2 doses",
+      "C. 3 doses",
+      "D. 4 doses"
+    ],
+    "correct": 1,
+    "explanation": "The Hepatitis A vaccine is given in a total of 2 doses. By contrast, the Hepatitis B vaccine series consists of 3 doses.",
+    "reference": "Dr. Kabsha - Vaccines"
+  }
+]

@@ -428,19 +428,7 @@ const App = (() => {
   const openDoc = async (docId) => {
     navigate('library');
     let entry = docFileStore[docId];
-
-    // Entry exists but has no bytes yet — fetch from Firebase Storage
-    if (entry && !entry.arrayBuffer && typeof DB !== 'undefined' && DB.isAvailable()) {
-      showToast('📥 Loading PDF from cloud…', 'info', 3000);
-      try {
-        const stored = await DB.getPdf(docId);
-        if (stored) { entry = { arrayBuffer: stored.arrayBuffer, name: stored.name }; docFileStore[docId] = entry; renderLibraryList(); }
-      } catch(e) { console.warn('Cloud DB read failed:', e); }
-    }
-
-    // Not in memory at all — try fetching from DB
     if (!entry && typeof DB !== 'undefined') {
-      showToast('📥 Loading PDF from cloud…', 'info', 3000);
       try {
         const stored = await DB.getPdf(docId);
         if (stored) { entry = { arrayBuffer: stored.arrayBuffer, name: stored.name }; docFileStore[docId] = entry; renderLibraryList(); }
@@ -475,15 +463,9 @@ const App = (() => {
     if (typeof DB === 'undefined' || !DB.isAvailable()) return;
     try {
       const all = await DB.getAllPdfs();
-      all.forEach(pdf => {
-        // Firebase returns metadata stubs (arrayBuffer = null until opened)
-        // Keep stub in docFileStore so the library list shows the document
-        if (!docFileStore[pdf.id]) {
-          docFileStore[pdf.id] = { arrayBuffer: pdf.arrayBuffer, name: pdf.name };
-        }
-      });
+      all.forEach(pdf => { docFileStore[pdf.id] = { arrayBuffer: pdf.arrayBuffer, name: pdf.name }; });
       renderLibraryList();
-    } catch(e) { console.warn('Cloud DB restore failed:', e); }
+    } catch(e) { console.warn('IndexedDB restore failed:', e); }
   };
 
   // ── Quiz bookmark toggle ─────────────────────────────────
