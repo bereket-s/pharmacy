@@ -1380,7 +1380,7 @@ input[type=range]::-webkit-slider-thumb {
 @media (max-width: 900px) {
   .sidebar { transform: translateX(-100%); }
   .sidebar.open { transform: translateX(0); }
-  .sidebar-overlay { display: block; }
+  .sidebar-overlay.open { display: block; }
   .main-content { margin-left: 0; }
   .mobile-header { display: flex; }
   .view { padding: 20px 16px; }

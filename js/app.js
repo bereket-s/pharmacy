@@ -53,6 +53,7 @@ const App = (() => {
     document.querySelector(`[data-view="${view}"]`)?.classList.add('active');
     currentView = view;
     document.getElementById('sidebar')?.classList.remove('open');
+    document.getElementById('sidebar-overlay')?.classList.remove('open');
     if (view === 'dashboard') renderDashboard();
     if (view === 'analytics') renderAnalytics();
     if (view === 'bookmarks') renderBookmarks();
@@ -512,8 +513,14 @@ const App = (() => {
     }));
 
     // Mobile sidebar
-    document.getElementById('menu-btn')?.addEventListener('click', () => document.getElementById('sidebar')?.classList.toggle('open'));
-    document.getElementById('sidebar-overlay')?.addEventListener('click', () => document.getElementById('sidebar')?.classList.remove('open'));
+    document.getElementById('menu-btn')?.addEventListener('click', () => {
+      document.getElementById('sidebar')?.classList.toggle('open');
+      document.getElementById('sidebar-overlay')?.classList.toggle('open');
+    });
+    document.getElementById('sidebar-overlay')?.addEventListener('click', () => {
+      document.getElementById('sidebar')?.classList.remove('open');
+      document.getElementById('sidebar-overlay')?.classList.remove('open');
+    });
 
     // Practice
     initPracticeControls();
