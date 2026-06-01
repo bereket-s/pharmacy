@@ -456,6 +456,11 @@ const App = (() => {
       setEl('reader-doc-title', name.replace(/\.pdf$/i, ''));
       document.getElementById('reader-empty-state')?.classList.add('hidden');
       document.getElementById('pdf-reader-wrap')?.classList.remove('hidden');
+      
+      // Auto-scroll to PDF reader on mobile
+      if (window.innerWidth <= 900) {
+        document.querySelector('.pdf-reader-area')?.scrollIntoView({ behavior: 'smooth' });
+      }
     });
   };
 

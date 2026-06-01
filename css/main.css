@@ -1235,6 +1235,7 @@ input[type=range]::-webkit-slider-thumb {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  min-height: 60vh;
 }
 
 .reader-toolbar {
