@@ -24,6 +24,25 @@ const App = (() => {
   // In-memory PDF store — populated from IndexedDB on startup
   const docFileStore = {};
 
+  // ── Sync Logic ───────────────────────────────────────────
+  const openSyncModal = () => {
+    document.getElementById('sidebar')?.classList.remove('open');
+    document.getElementById('sidebar-overlay')?.classList.remove('open');
+    const uid = localStorage.getItem('pharmprep_uid') || '';
+    const input = document.getElementById('current-sync-code');
+    if (input) input.value = uid;
+    document.getElementById('sync-modal')?.classList.add('show');
+  };
+
+  const applySyncCode = () => {
+    const code = document.getElementById('new-sync-code')?.value.trim();
+    if (!code) return;
+    if (confirm("Are you sure? Your current local stats and PDFs will be unlinked, and this device will use the cloud storage of the code you entered.")) {
+      localStorage.setItem('pharmprep_uid', code);
+      location.reload();
+    }
+  };
+
   // ── Helpers ─────────────────────────────────────────────
   const setEl    = (id, text)       => { const e = document.getElementById(id); if (e) e.textContent = text; };
   const setStyle = (id, prop, val)  => { const e = document.getElementById(id); if (e) e.style[prop] = val; };
@@ -677,7 +696,8 @@ const App = (() => {
     toggleQuizBookmark, reviewQuestion,
     renderBookmarks, removeBookmark,
     renderAnalytics, renderLibraryList,
-    openDoc, deleteDoc
+    openDoc, deleteDoc,
+    openSyncModal, applySyncCode
   };
 })();
 
