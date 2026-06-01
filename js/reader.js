@@ -102,16 +102,25 @@ const Reader = (() => {
       const page = await pdfDoc.getPage(pageNum);
       const viewport = page.getViewport({ scale: currentScale });
 
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
+      // Handle high-DPI (Retina) displays for crisp text on mobile
+      const outputScale = window.devicePixelRatio || 1;
+      canvas.width = Math.floor(viewport.width * outputScale);
+      canvas.height = Math.floor(viewport.height * outputScale);
+      canvas.style.width = Math.floor(viewport.width) + "px";
+      canvas.style.height = Math.floor(viewport.height) + "px";
 
       // Apply dark background for dark-mode PDF reading
       ctx.fillStyle = '#12192b';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+      const transform = outputScale !== 1 
+        ? [outputScale, 0, 0, outputScale, 0, 0] 
+        : null;
+
       renderTask = page.render({
         canvasContext: ctx,
-        viewport,
+        transform: transform,
+        viewport: viewport,
         background: 'transparent'
       });
 
