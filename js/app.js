@@ -48,8 +48,7 @@ const App = (() => {
   const setStyle = (id, prop, val)  => { const e = document.getElementById(id); if (e) e.style[prop] = val; };
 
   const makeDocId = (file) =>
-    'doc_' + btoa(unescape(encodeURIComponent(file.name + file.size)))
-             .replace(/[^a-zA-Z0-9]/g, '').slice(0, 20);
+    file.name.replace(/[^a-zA-Z0-9.\-_ ()]/g, '_');
 
   const formatTime = (s) => `${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;
   const formatDuration = (ms) => {
@@ -471,13 +470,16 @@ const App = (() => {
       document.getElementById('pdf-upload-input')?.click();
       return;
     }
-    await Reader.openFromArrayBuffer(entry.arrayBuffer, entry.name, docId, 'pdf-canvas', ({name}) => {
+    await Reader.openFromArrayBuffer(entry.arrayBuffer, entry.name, docId, 'pdf-canvas', ({name, totalPages}) => {
+      Storage.addLibraryItem({ id: docId, totalPages });
       setEl('reader-doc-title', name.replace(/\.pdf$/i, ''));
       document.getElementById('reader-empty-state')?.classList.add('hidden');
       document.getElementById('pdf-reader-wrap')?.classList.remove('hidden');
       
       // Switch to reader view on mobile
       document.querySelector('.library-layout')?.classList.add('doc-open');
+      
+      renderLibraryList(); // update sidebar UI with true page count
     });
   };
 
@@ -503,6 +505,19 @@ const App = (() => {
         // Cloud returns metadata stubs (arrayBuffer = null until opened)
         if (!docFileStore[pdf.id]) {
           docFileStore[pdf.id] = { arrayBuffer: pdf.arrayBuffer, name: pdf.name };
+        }
+        
+        // Automatically add to local metadata if missing (for shared global DB)
+        const metaList = Storage.getLibraryMeta();
+        if (!metaList.find(m => m.id === pdf.id)) {
+          Storage.addLibraryItem({
+            id: pdf.id,
+            name: pdf.name,
+            size: 0,
+            totalPages: 1,
+            lastPage: 1,
+            addedAt: pdf.savedAt
+          });
         }
       });
       renderLibraryList();
@@ -617,10 +632,14 @@ const App = (() => {
           // Open first in reader
           if (!firstOpened) {
             firstOpened = true;
-            await Reader.openFromArrayBuffer(buf, file.name, docId, 'pdf-canvas', ({name}) => {
+            await Reader.openFromArrayBuffer(buf, file.name, docId, 'pdf-canvas', ({name, totalPages}) => {
+              Storage.addLibraryItem({ id: docId, totalPages });
               setEl('reader-doc-title', name.replace(/\.pdf$/i, ''));
               document.getElementById('reader-empty-state')?.classList.add('hidden');
               document.getElementById('pdf-reader-wrap')?.classList.remove('hidden');
+              
+              document.querySelector('.library-layout')?.classList.add('doc-open');
+              renderLibraryList();
             });
           }
 

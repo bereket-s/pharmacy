@@ -51,10 +51,6 @@
         <span class="nav-icon">⭐</span>
         <span data-i18n="nav_bookmarks">Bookmarks</span>
       </a>
-      <a href="#" class="nav-item" onclick="App.openSyncModal(); return false;">
-        <span class="nav-icon">🔗</span>
-        <span data-i18n="nav_sync">Sync Devices</span>
-      </a>
     </nav>
 
     <div class="sidebar-footer">
@@ -459,34 +455,6 @@
   </div>
 
 </div><!-- /quiz-overlay -->
-
-<!-- ═══════════════════════════════════════════════════════
-     SYNC MODAL
-═══════════════════════════════════════════════════════ -->
-<div class="modal" id="sync-modal">
-  <div class="modal-content" style="max-width:400px">
-    <h2>Link Your Devices</h2>
-    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px">To see your PDFs on another device, you need to link them using your unique Sync Code. This acts like a secret password for your anonymous account.</p>
-    
-    <div style="background:var(--bg-card); padding:16px; border-radius:8px; margin-bottom: 16px; border: 1px solid var(--border)">
-      <p style="margin-bottom:8px; color:var(--text-secondary); font-weight:600; font-size:0.8rem">1. Your Code (This Device):</p>
-      <div style="display:flex; gap:8px">
-        <input type="text" id="current-sync-code" readonly style="flex:1; background:var(--bg-base); border:1px solid var(--border); color:var(--primary); font-weight:bold; padding:8px 10px; border-radius:6px; letter-spacing:0.5px; font-size:0.8rem; text-align:center" />
-        <button class="btn" onclick="navigator.clipboard.writeText(document.getElementById('current-sync-code').value); App.showToast('Copied to clipboard!', 'success')" style="padding:6px 12px; font-size:0.8rem">Copy</button>
-      </div>
-    </div>
-    
-    <div style="background:var(--bg-card); padding:16px; border-radius:8px; margin-bottom: 20px; border: 1px solid var(--border)">
-      <p style="margin-bottom:8px; color:var(--text-secondary); font-weight:600; font-size:0.8rem">2. Link Another Device:</p>
-      <p style="margin-bottom:12px; color:var(--text-muted); font-size:0.75rem">Paste the code from your other device here to sync them.</p>
-      <input type="text" id="new-sync-code" placeholder="Paste Sync Code here..." style="width:100%; background:var(--bg-base); border:1px solid var(--border); color:var(--text-primary); padding:10px; border-radius:6px; margin-bottom:12px; font-size:0.85rem" />
-      <button class="btn btn-primary btn-full" onclick="App.applySyncCode()">Link & Sync Now</button>
-      <p style="color:var(--error); font-size:0.7rem; margin-top:10px; line-height:1.4">Warning: This will replace this device's current local data and switch it to use the cloud storage of the code you enter.</p>
-    </div>
-    
-    <button class="btn btn-full" onclick="document.getElementById('sync-modal').classList.remove('show')">Cancel</button>
-  </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════════
      TOAST NOTIFICATIONS

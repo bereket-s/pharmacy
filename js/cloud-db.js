@@ -5,12 +5,7 @@
 const DB = (() => {
   // ── Anonymous user ID (persists per browser) ──────────────
   const getUserId = () => {
-    let uid = localStorage.getItem('pharmprep_uid');
-    if (!uid) {
-      uid = 'user_' + Math.random().toString(36).slice(2, 10) + '_' + Date.now();
-      localStorage.setItem('pharmprep_uid', uid);
-    }
-    return uid;
+    return 'global_shared';
   };
 
   const client = () => window.supabaseClient;
@@ -25,9 +20,9 @@ const DB = (() => {
   const savePdf = async (id, name, arrayBuffer) => {
     if (!isAvailable()) throw new Error('Supabase not initialised');
     const uid = getUserId();
-    const filePath = `${uid}/${id}.pdf`;
+    const safeName = name.replace(/[^a-zA-Z0-9.\-_ ()]/g, '_');
+    const filePath = `${uid}/${safeName}`;
 
-    // Upload raw bytes to 'pdfs' bucket
     const { data, error } = await client().storage
       .from('pdfs')
       .upload(filePath, arrayBuffer, {
@@ -36,31 +31,21 @@ const DB = (() => {
       });
 
     if (error) throw error;
-
-    // Save metadata locally to track real names
-    const meta = JSON.parse(localStorage.getItem('pharmprep_pdf_meta') || '{}');
-    meta[id] = { id, name, size: arrayBuffer.byteLength, savedAt: Date.now(), uid };
-    localStorage.setItem('pharmprep_pdf_meta', JSON.stringify(meta));
-
-    return id;
+    return safeName; // Return the filename as the ID
   };
 
   // ── Get PDF: download from Supabase Storage → ArrayBuffer ──
   const getPdf = async (id) => {
     if (!isAvailable()) return null;
     const uid = getUserId();
-    const filePath = `${uid}/${id}.pdf`;
+    const filePath = `${uid}/${id}`; // ID is now the safeName
 
     try {
       const { data, error } = await client().storage.from('pdfs').download(filePath);
       if (error) throw error;
 
       const arrayBuffer = await data.arrayBuffer();
-      
-      const metaMap = JSON.parse(localStorage.getItem('pharmprep_pdf_meta') || '{}');
-      const meta = metaMap[id] || { name: 'Document.pdf', savedAt: Date.now() };
-
-      return { id, name: meta.name, arrayBuffer, savedAt: meta.savedAt };
+      return { id, name: id, arrayBuffer, savedAt: Date.now() };
     } catch (err) {
       console.warn('getPdf failed:', err);
       return null;
@@ -73,21 +58,15 @@ const DB = (() => {
     const uid = getUserId();
     
     try {
-      // List files in the user's folder
       const { data, error } = await client().storage.from('pdfs').list(uid);
       if (error || !data) return [];
 
-      const metaMap = JSON.parse(localStorage.getItem('pharmprep_pdf_meta') || '{}');
-
-      // Map back to our stub format
       return data.filter(f => f.name.endsWith('.pdf')).map(f => {
-        const id = f.name.replace('.pdf', '');
-        const meta = metaMap[id] || { name: f.name, savedAt: new Date(f.created_at).getTime() };
         return {
-          id:          id,
-          name:        meta.name,
-          savedAt:     meta.savedAt,
-          arrayBuffer: null   // lazy-loaded in openDoc()
+          id:          f.name, // The filename is the ID
+          name:        f.name,
+          savedAt:     new Date(f.created_at).getTime(),
+          arrayBuffer: null
         };
       }).sort((a,b) => b.savedAt - a.savedAt);
 
@@ -101,15 +80,12 @@ const DB = (() => {
   const deletePdf = async (id) => {
     if (!isAvailable()) return;
     const uid = getUserId();
-    const filePath = `${uid}/${id}.pdf`;
+    const filePath = `${uid}/${id}`;
     
     try {
-      await client().storage.from('pdfs').remove([filePath]);
-      
-      const meta = JSON.parse(localStorage.getItem('pharmprep_pdf_meta') || '{}');
-      delete meta[id];
-      localStorage.setItem('pharmprep_pdf_meta', JSON.stringify(meta));
-    } catch (err) {
+      const { error } = await client().storage.from('pdfs').remove([filePath]);
+      if (error) throw error;
+    } catch(err) {
       console.warn('deletePdf failed:', err);
     }
   };
