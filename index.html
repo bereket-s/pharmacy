@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PharmPrep UAE — Pharmacy License Exam Study App</title>
+  <meta name="description" content="Interactive study app for the UAE pharmacy license exam. Practice questions, detailed explanations, and reference material for MOHAP pharmacy licensing.">
+  <meta name="theme-color" content="#0891b2">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     MOBILE SIDEBAR OVERLAY
+═══════════════════════════════════════════════════════ -->
+<div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+<div id="app">
+
+  <!-- ═══════════════════════════════════════════════════
+       SIDEBAR
+  ═══════════════════════════════════════════════════ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <span class="logo-icon">💊</span>
+        <div>
+          <span class="logo-text">PharmPrep</span>
+          <span class="logo-sub">UAE</span>
+        </div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="#dashboard" class="nav-item active" data-view="dashboard">
+        <span class="nav-icon">🏠</span>
+        <span data-i18n="nav_dashboard">Dashboard</span>
+      </a>
+      <a href="#practice" class="nav-item" data-view="practice">
+        <span class="nav-icon">❓</span>
+        <span data-i18n="nav_practice">Practice Questions</span>
+      </a>
+      <a href="#library" class="nav-item" data-view="library">
+        <span class="nav-icon">📚</span>
+        <span data-i18n="nav_library">Reference Library</span>
+      </a>
+      <a href="#analytics" class="nav-item" data-view="analytics">
+        <span class="nav-icon">📊</span>
+        <span data-i18n="nav_analytics">My Analytics</span>
+      </a>
+      <a href="#bookmarks" class="nav-item" data-view="bookmarks">
+        <span class="nav-icon">⭐</span>
+        <span data-i18n="nav_bookmarks">Bookmarks</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="streak-badge">
+        <span class="streak-fire">🔥</span>
+        <div>
+          <span class="streak-num" id="streak-count">0</span>
+          <span class="streak-label" data-i18n="streak_label">day streak</span>
+        </div>
+      </div>
+      <div class="bottom-controls">
+        <button id="theme-toggle" class="control-btn" title="Toggle Light/Dark">🌙</button>
+        <button id="lang-toggle" class="control-btn" title="Toggle Language / ቋንቋ ቀይር">አማ</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════════════════════════
+       MAIN CONTENT
+  ═══════════════════════════════════════════════════ -->
+  <main class="main-content">
+
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+      <button class="menu-btn" id="menu-btn">☰</button>
+      <span class="mobile-logo">💊 PharmPrep UAE</span>
+    </header>
+
+    <!-- ─────────────────────────────────────────────────
+         DASHBOARD VIEW
+    ───────────────────────────────────────────────── -->
+    <section class="view active" id="view-dashboard">
+      <div class="view-header">
+        <h1 id="dash-greeting">Welcome back! 👋</h1>
+        <p class="view-subtitle">UAE Pharmacy License Exam Prep · <span id="dash-today-date"></span></p>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-value" id="dash-today-answered">0</span>
+          <span class="stat-label" data-i18n="stat_today">Questions Today</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="dash-today-accuracy">—</span>
+          <span class="stat-label" data-i18n="stat_accuracy">Today's Accuracy</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="dash-total-answered">0</span>
+          <span class="stat-label" data-i18n="stat_total">Total Answered</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="dash-streak-count">0</span>
+          <span class="stat-label" data-i18n="stat_streak">🔥 Day Streak</span>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <button class="btn btn-primary btn-lg" onclick="App.navigate('practice')">
+          <span data-i18n="btn_practice">❓ Start Practice</span>
+        </button>
+        <button class="btn btn-ghost btn-lg" onclick="App.navigate('library')">
+          <span data-i18n="btn_library">📚 Open Library</span>
+        </button>
+        <button class="btn btn-ghost btn-lg" onclick="App.startQuiz({ count: 1, mode: 'study' })">
+          <span data-i18n="btn_random">🎲 Random Question</span>
+        </button>
+      </div>
+
+      <!-- Domain Progress -->
+      <p class="section-title" data-i18n="section_domains">📚 Domain Progress</p>
+      <div class="domain-grid" id="domain-progress-grid"></div>
+
+      <p class="section-title" data-i18n="section_attention">⚠️ Needs Attention</p>
+      <div class="mistakes-list" id="mistakes-list">
+        <!-- Filled dynamically -->
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────────────
+         PRACTICE VIEW
+    ───────────────────────────────────────────────── -->
+    <section class="view" id="view-practice">
+      <div class="view-header">
+        <h1>Practice Questions</h1>
+        <p class="view-subtitle">Filter by domain & difficulty, choose your mode, and test yourself.</p>
+      </div>
+
+      <div class="practice-grid">
+        <!-- Left: Filters -->
+        <div>
+          <!-- Domain Filter -->
+          <div class="practice-section">
+            <h3>Domain</h3>
+            <div class="filter-group">
+              <button class="domain-filter-btn active" data-domain="ALL">All Domains</button>
+              <button class="domain-filter-btn" data-domain="PHARM">⚗️ Pharmacology</button>
+              <button class="domain-filter-btn" data-domain="CLIN">🏥 Clinical</button>
+              <button class="domain-filter-btn" data-domain="LAW">⚖️ UAE Drug Law</button>
+              <button class="domain-filter-btn" data-domain="PHSCI">🔬 Pharm Sciences</button>
+              <button class="domain-filter-btn" data-domain="PRAC">💊 Practice</button>
+              <button class="domain-filter-btn" data-domain="CALC">🧮 Calculations</button>
+              <button class="domain-filter-btn" data-domain="THER">🩺 Therapeutics</button>
+            </div>
+          </div>
+
+          <!-- Difficulty Filter -->
+          <div class="practice-section">
+            <h3>Difficulty</h3>
+            <div class="filter-group">
+              <button class="diff-filter-btn active" data-diff="ALL">All Levels</button>
+              <button class="diff-filter-btn" data-diff="easy" style="--c:#22c55e">🟢 Easy</button>
+              <button class="diff-filter-btn" data-diff="medium" style="--c:#f59e0b">🟡 Medium</button>
+              <button class="diff-filter-btn" data-diff="hard" style="--c:#ef4444">🔴 Hard</button>
+            </div>
+          </div>
+
+          <!-- Mode Selection -->
+          <div class="practice-section">
+            <h3 data-i18n="lbl_mode">Study Mode</h3>
+            <div class="filter-group">
+              <button class="mode-btn active" data-mode="study">
+                <span data-i18n="study_mode_label">📖 Study Mode</span><br><small style="font-weight:400;color:var(--text-muted)" data-i18n="study_mode_hint">See explanation after each answer</small>
+              </button>
+              <button class="mode-btn" data-mode="exam">
+                <span data-i18n="exam_mode_label">⏱️ Exam Mode</span><br><small style="font-weight:400;color:var(--text-muted)" data-i18n="exam_mode_hint">Timed — see results at end</small>
+              </button>
+            </div>
+          </div>
+
+          <div class="practice-section">
+            <h3 data-i18n="lbl_num_q">Number of Questions</h3>
+            <div class="count-slider-wrap">
+              <input type="range" id="question-count-slider" min="1" max="28" value="10">
+              <span class="count-display" id="question-count-display">10</span>
+            </div>
+            <small style="color:var(--text-muted);font-size:0.72rem;margin-top:4px;display:block">
+              <span id="pool-count-display">28</span> questions available with selected filters
+            </small>
+          </div>
+        </div>
+
+        <!-- Right: Preview & Start -->
+        <div>
+          <div class="quiz-preview-card card">
+            <span style="font-size:2.5rem">🎯</span>
+            <h2 style="font-size:1.1rem; margin-top:8px; font-weight:700" data-i18n="ready_practice">Ready to Practice?</h2>
+            <p>Your session will include <strong id="question-count-display-preview" style="color:var(--primary)">10</strong> questions from the selected domain.</p>
+            <button id="start-quiz-btn" class="btn btn-primary btn-lg btn-full" style="margin-top:16px">
+              <span data-i18n="btn_start">🚀 Start Session</span>
+            </button>
+          </div>
+
+          <!-- Tips card -->
+          <div class="card" style="margin-top:16px; background: var(--gold-dim); border-color: rgba(244,164,53,0.2)">
+            <h3 style="font-size:0.82rem; color:var(--gold); margin-bottom:10px; text-transform:uppercase; letter-spacing:1px">💡 Quick Tips</h3>
+            <ul style="font-size:0.82rem; color:var(--text-secondary); line-height:1.7; padding-left:16px">
+              <li>Press <kbd style="background:rgba(255,255,255,0.08);padding:1px 6px;border-radius:4px">1–4</kbd> to select an option by keyboard</li>
+              <li>Press <kbd style="background:rgba(255,255,255,0.08);padding:1px 6px;border-radius:4px">→</kbd> or <kbd style="background:rgba(255,255,255,0.08);padding:1px 6px;border-radius:4px">Enter</kbd> for next question</li>
+              <li>Tap <kbd style="background:rgba(255,255,255,0.08);padding:1px 6px;border-radius:4px">☆</kbd> to bookmark questions you want to revisit</li>
+              <li>Study Mode shows explanations immediately after each answer</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────────────
+         LIBRARY VIEW
+    ───────────────────────────────────────────────── -->
+    <section class="view" id="view-library">
+      <div class="view-header">
+        <h1>Reference Library</h1>
+        <p class="view-subtitle">Upload your UAE pharmacy exam reference PDFs for an in-app reading experience.</p>
+      </div>
+
+      <!-- Hidden file input -->
+      <input type="file" id="pdf-upload-input" accept="application/pdf" multiple style="display:none">
+
+      <div class="library-layout">
+        <!-- Sidebar: Document list -->
+        <div class="library-sidebar">
+          <h3>📄 My Documents</h3>
+          <div id="library-doc-list">
+            <!-- Filled dynamically -->
+          </div>
+          <button id="upload-pdf-btn" class="btn btn-primary btn-full" style="margin-top:14px">
+            ⬆️ Upload PDF
+          </button>
+          <p style="font-size:0.72rem;color:var(--text-muted);margin-top:8px;text-align:center">
+            PDFs are processed locally — nothing is uploaded to any server.
+          </p>
+        </div>
+
+        <!-- PDF Reader -->
+        <div class="pdf-reader-area">
+          <!-- Toolbar -->
+          <div class="reader-toolbar">
+            <span id="reader-doc-title" style="font-size:0.82rem;color:var(--text-secondary);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">No document open</span>
+
+            <!-- Page nav -->
+            <div class="reader-toolbar-group">
+              <button class="reader-btn" id="reader-prev-btn" disabled>◀</button>
+              <input type="number" class="reader-page-input" id="reader-page-input" value="1" min="1">
+              <span id="reader-page-display" style="font-size:0.8rem;color:var(--text-muted);white-space:nowrap">/ —</span>
+              <button class="reader-btn" id="reader-next-btn" disabled>▶</button>
+            </div>
+
+            <!-- Zoom -->
+            <div class="reader-toolbar-group">
+              <button class="reader-btn" id="reader-zoom-out-btn">−</button>
+              <span id="reader-zoom-display" style="font-size:0.78rem;color:var(--text-muted);min-width:36px;text-align:center">140%</span>
+              <button class="reader-btn" id="reader-zoom-in-btn">+</button>
+              <button class="reader-btn" id="reader-zoom-reset-btn" title="Reset zoom">↺</button>
+            </div>
+          </div>
+
+          <!-- Status (loading) -->
+          <div id="reader-status" style="display:none;align-items:center;justify-content:center;padding:40px;color:var(--text-secondary);font-size:0.88rem;gap:10px">
+            <div class="spinner"></div>
+            <span>Loading PDF...</span>
+          </div>
+
+          <!-- Empty state -->
+          <div class="reader-empty-state" id="reader-empty-state">
+            <span class="empty-icon">📖</span>
+            <h3>No document open</h3>
+            <p>Upload a PDF from your device to start reading. Your reading progress is automatically saved.</p>
+            <button class="btn btn-primary" onclick="document.getElementById('pdf-upload-input').click()">
+              ⬆️ Upload PDF
+            </button>
+          </div>
+
+          <!-- PDF Canvas -->
+          <div id="pdf-reader-wrap" class="pdf-canvas-wrap hidden">
+            <canvas id="pdf-canvas"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────────────
+         ANALYTICS VIEW
+    ───────────────────────────────────────────────── -->
+    <section class="view" id="view-analytics">
+      <div class="view-header">
+        <h1>My Analytics</h1>
+        <p class="view-subtitle">Track your performance across domains and identify areas to focus on.</p>
+      </div>
+
+      <!-- Top stats row -->
+      <div class="analytics-stats-row">
+        <div class="analytics-stat-card">
+          <div class="val" id="analytics-total">0</div>
+          <div class="lbl">Total Answered</div>
+        </div>
+        <div class="analytics-stat-card" style="--vc: var(--gold)">
+          <div class="val" id="analytics-accuracy" style="color:var(--gold)">—</div>
+          <div class="lbl">Overall Accuracy</div>
+        </div>
+        <div class="analytics-stat-card">
+          <div class="val" id="analytics-streak" style="color:#f97316">—</div>
+          <div class="lbl">Current Streak</div>
+        </div>
+        <div class="analytics-stat-card">
+          <canvas id="overall-ring-canvas" width="100" height="100" style="display:block;margin:0 auto"></canvas>
+        </div>
+      </div>
+
+      <!-- Charts grid -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h3>Accuracy by Domain</h3>
+          <canvas id="radar-canvas" width="280" height="260"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3>Domain Breakdown</h3>
+          <canvas id="bar-canvas" width="280" height="260"></canvas>
+        </div>
+        <div class="chart-card" style="grid-column: 1 / -1">
+          <h3>7-Day Accuracy Trend</h3>
+          <canvas id="line-canvas" width="600" height="220"></canvas>
+        </div>
+      </div>
+
+      <!-- Weak areas -->
+      <p class="section-title" data-i18n="weak_areas">⚠️ Weak Areas to Focus On</p>
+      <div id="weak-areas-list">
+        <!-- Filled dynamically -->
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────────────
+         BOOKMARKS VIEW
+    ───────────────────────────────────────────────── -->
+    <section class="view" id="view-bookmarks">
+      <div class="view-header">
+        <h1 data-i18n="bm_title">Bookmarked Questions</h1>
+        <p class="view-subtitle" data-i18n="bm_subtitle">Questions you've saved for review. Click any card to practice it.</p>
+      </div>
+
+      <div class="bookmarks-grid" id="bookmarks-grid">
+        <!-- Filled dynamically -->
+      </div>
+    </section>
+
+  </main><!-- /main-content -->
+</div><!-- /#app -->
+
+<!-- ═══════════════════════════════════════════════════════
+     QUIZ OVERLAY (full-screen)
+═══════════════════════════════════════════════════════ -->
+<div class="quiz-overlay" id="quiz-overlay">
+
+  <!-- Quiz Top Bar -->
+  <div class="quiz-top-bar">
+    <button class="quiz-close-btn" id="quiz-close-btn" title="Exit quiz (Esc)">✕</button>
+    <div class="quiz-progress-bar-wrap">
+      <div id="quiz-progress-fill" style="width:0%"></div>
+    </div>
+    <span id="quiz-progress-text" style="font-size:0.8rem;color:var(--text-muted);font-weight:700">1 / 10</span>
+    <div id="quiz-timer" style="display:none">
+      ⏱️ <span id="quiz-timer-val">1:30</span>
+    </div>
+  </div>
+
+  <!-- Quiz Main Content -->
+  <div id="quiz-main">
+    <div class="quiz-content-wrap">
+
+      <!-- Meta row -->
+      <div class="quiz-meta">
+        <span id="quiz-domain-badge"></span>
+        <span class="quiz-meta-sep">·</span>
+        <span id="quiz-diff-badge"></span>
+        <button class="quiz-bookmark-btn" id="quiz-bookmark-btn" title="Bookmark this question">☆</button>
+      </div>
+
+      <!-- Question card -->
+      <div class="quiz-question-card">
+        <span id="quiz-result-icon"></span>
+        <p id="quiz-question-text">Loading question...</p>
+      </div>
+
+      <!-- Options -->
+      <div class="quiz-options" id="quiz-options">
+        <!-- Filled dynamically -->
+      </div>
+
+      <!-- Explanation (slides in after answering) -->
+      <div class="quiz-explanation" id="quiz-explanation">
+        <div class="explanation-header">
+          <span>💡</span>
+          <span>Explanation</span>
+        </div>
+        <div id="quiz-explanation-text"></div>
+        <div id="quiz-explanation-ref"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Quiz Bottom Bar (Next button) -->
+  <div class="quiz-bottom-bar">
+    <button id="quiz-next-btn" class="btn btn-primary btn-lg" style="display:none;min-width:220px">
+      <span data-i18n="quiz_next">Next Question →</span>
+    </button>
+  </div>
+
+  <!-- Results Screen -->
+  <div id="quiz-results" class="hidden">
+    <div class="result-hero">
+      <canvas id="result-ring-canvas" width="160" height="160"></canvas>
+      <div id="result-grade-msg"></div>
+      <span id="result-score"></span>
+      <span id="result-accuracy"></span>
+    </div>
+
+    <div class="result-stats">
+      <div class="result-stat">
+        <div class="v" id="result-duration">—</div>
+        <div class="l">Time Taken</div>
+      </div>
+    </div>
+
+    <div class="result-domain-breakdown" id="result-domain-breakdown">
+      <!-- Domain breakdown rows -->
+    </div>
+
+    <div class="result-actions">
+      <button id="result-retry-btn" class="btn btn-primary btn-lg">
+        <span data-i18n="quiz_try_again">🔁 Try Again</span>
+      </button>
+      <button id="result-close-btn" class="btn btn-ghost btn-lg">
+        <span data-i18n="quiz_done">✅ Done</span>
+      </button>
+    </div>
+  </div>
+
+</div><!-- /quiz-overlay -->
+
+<!-- ═══════════════════════════════════════════════════════
+     TOAST NOTIFICATIONS
+═══════════════════════════════════════════════════════ -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCRIPTS (order matters)
+═══════════════════════════════════════════════════════ -->
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- App Scripts -->
+<script src="js/data.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/cloud-db.js"></script>
+<script src="js/quiz.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/reader.js"></script>
+<script src="js/app.js"></script>
+
+<script>
+  // Set today's date in dashboard subtitle
+  document.addEventListener('DOMContentLoaded', () => {
+    const el = document.getElementById('dash-today-date');
+    if (el) {
+      el.textContent = new Date().toLocaleDateString('en-AE', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      });
+    }
+
+    // Sync question count preview label
+    const slider = document.getElementById('question-count-slider');
+    const preview = document.getElementById('question-count-display-preview');
+    const countDisplay = document.getElementById('question-count-display');
+    if (slider && preview) {
+      const sync = () => { if (preview) preview.textContent = countDisplay?.textContent || slider.value; };
+      slider.addEventListener('input', () => setTimeout(sync, 0));
+      // Also observe the count display
+      if (countDisplay) {
+        const obs = new MutationObserver(sync);
+        obs.observe(countDisplay, { childList: true, characterData: true, subtree: true });
+      }
+      sync();
+    }
+  });
+</script>
+
+</body>
+</html>
