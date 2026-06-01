@@ -1160,7 +1160,12 @@ input[type=range]::-webkit-slider-thumb {
   min-height: 600px;
 }
 
-@media (max-width: 900px) { .library-layout { grid-template-columns: 1fr; } }
+@media (max-width: 900px) { 
+  .library-layout { grid-template-columns: 1fr; } 
+  .library-layout.doc-open .library-sidebar { display: none; }
+  .library-layout:not(.doc-open) .pdf-reader-area { display: none; }
+  .reader-mobile-back { display: block !important; }
+}
 
 .library-sidebar {
   background: var(--bg-card);

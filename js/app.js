@@ -457,10 +457,8 @@ const App = (() => {
       document.getElementById('reader-empty-state')?.classList.add('hidden');
       document.getElementById('pdf-reader-wrap')?.classList.remove('hidden');
       
-      // Auto-scroll to PDF reader on mobile
-      if (window.innerWidth <= 900) {
-        document.querySelector('.pdf-reader-area')?.scrollIntoView({ behavior: 'smooth' });
-      }
+      // Switch to reader view on mobile
+      document.querySelector('.library-layout')?.classList.add('doc-open');
     });
   };
 
@@ -472,6 +470,7 @@ const App = (() => {
     Reader.close();
     document.getElementById('pdf-reader-wrap')?.classList.add('hidden');
     document.getElementById('reader-empty-state')?.classList.remove('hidden');
+    document.querySelector('.library-layout')?.classList.remove('doc-open');
     setEl('reader-doc-title', 'No document open');
     renderLibraryList();
     showToast('Document removed', 'info');
