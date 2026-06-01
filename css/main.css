@@ -8,12 +8,12 @@
 
 /* ── Design Tokens — Light Theme (default) ─────────────── */
 :root {
-  --bg-base:       #f0f5fa;
-  --bg-surface:    #ffffff;
-  --bg-card:       rgba(0,0,0,0.03);
-  --bg-card-hover: rgba(0,0,0,0.06);
-  --border:        rgba(0,0,0,0.09);
-  --border-hover:  rgba(0,0,0,0.18);
+  --bg-base:       #e2e8f0;
+  --bg-surface:    #f8fafc;
+  --bg-card:       rgba(0,0,0,0.04);
+  --bg-card-hover: rgba(0,0,0,0.08);
+  --border:        rgba(0,0,0,0.1);
+  --border-hover:  rgba(0,0,0,0.2);
 
   --primary:       #0891b2;
   --primary-dim:   rgba(8,145,178,0.1);
@@ -32,10 +32,10 @@
   --text-muted:    #94a3b8;
 
   /* Semantic surface tokens (overridden in dark mode) */
-  --bg-sidebar:    rgba(255,255,255,0.94);
-  --bg-nav:        rgba(248,250,252,0.96);
-  --bg-toast:      rgba(255,255,255,0.97);
-  --bg-reader:     #e8eef5;
+  --bg-sidebar:    rgba(241,245,249,0.96);
+  --bg-nav:        rgba(241,245,249,0.98);
+  --bg-toast:      rgba(248,250,252,0.97);
+  --bg-reader:     #cbd5e1;
   --track-bg:      rgba(0,0,0,0.08);
   --opt-border:    rgba(0,0,0,0.13);
   --scrollbar-c:   rgba(0,0,0,0.15);
@@ -99,15 +99,12 @@ body {
   overflow-x: hidden;
 }
 
-/* Animated background (light) */
+/* Animated background (light) - simplified */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background:
-    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(8,145,178,0.05) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 80% 90%, rgba(217,119,6,0.03) 0%, transparent 60%),
-    linear-gradient(180deg, var(--bg-base) 0%, #ddeaf5 100%);
+  background: var(--bg-base);
   pointer-events: none;
   z-index: 0;
 }
