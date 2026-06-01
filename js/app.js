@@ -564,8 +564,13 @@ const App = (() => {
           const docId = makeDocId(file);
           const buf   = await file.arrayBuffer();
 
-          // Save to IndexedDB
-          try { if (typeof DB !== 'undefined') await DB.savePdf(docId, file.name, buf); } catch(e){ console.warn('DB save failed:', e); }
+          // Save to Cloud DB
+          try { 
+            if (typeof DB !== 'undefined') await DB.savePdf(docId, file.name, buf); 
+          } catch(e) { 
+            console.error('Cloud DB save failed:', e); 
+            showToast(`Cloud Error: ${e.message}`, 'error', 5000);
+          }
 
           // Keep in memory
           docFileStore[docId] = { arrayBuffer: buf, name: file.name };
