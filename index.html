@@ -337,36 +337,68 @@
         <p class="view-subtitle">Review all MCQ questions extracted from your PDFs. The correct answer is highlighted in green. Delete any questions that were extracted incorrectly.</p>
       </div>
 
-      <!-- Filter bar -->
-      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:20px">
-        <select id="q-filter-doc" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);padding:8px 12px;border-radius:8px;font-size:0.82rem;flex:1;min-width:160px">
-          <option value="ALL">📂 All Documents</option>
-        </select>
-        <select id="q-filter-domain" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);padding:8px 12px;border-radius:8px;font-size:0.82rem">
-          <option value="ALL">🏷️ All Domains</option>
-          <option value="PHARM">⚗️ Pharmacology</option>
-          <option value="CLIN">🏥 Clinical</option>
-          <option value="LAW">⚖️ Drug Law</option>
-          <option value="PHSCI">🔬 Pharm Sci</option>
-          <option value="PRAC">💊 Practice</option>
-          <option value="CALC">🧭 Calculations</option>
-          <option value="THER">🩺 Therapeutics</option>
-          <option value="REG">📋 Regulation</option>
-          <option value="HERB">🌿 Herbal</option>
-        </select>
-        <span id="q-count-badge" style="font-size:0.78rem;color:var(--text-muted);white-space:nowrap">0 questions</span>
-        <button class="btn" onclick="App.deleteAllExtractedQuestions()" style="border-color:var(--error);color:var(--error);font-size:0.78rem;padding:6px 12px">Delete All</button>
+      <!-- Extraction History Summary -->
+      <div id="extraction-history-panel" style="margin-bottom:24px">
+        <!-- Filled by renderExtractionHistory() -->
       </div>
 
-      <!-- Questions list -->
-      <div id="extracted-questions-list">
-        <div class="empty-state">
-          <span class="empty-icon">🧠</span>
-          <h3>No extracted questions yet</h3>
-          <p>Go to the Library tab, upload a PDF with your Gemini API key saved, and questions will appear here automatically.</p>
+      <!-- Tab switcher -->
+      <div style="display:flex;gap:8px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px">
+        <button id="tab-history-btn" onclick="App.showExtractionTab('history')"
+          style="background:var(--primary);color:#fff;border:none;padding:7px 16px;border-radius:8px;font-size:0.82rem;font-weight:600;cursor:pointer">
+          📋 History
+        </button>
+        <button id="tab-questions-btn" onclick="App.showExtractionTab('questions')"
+          style="background:var(--bg-card);color:var(--text-secondary);border:1px solid var(--border);padding:7px 16px;border-radius:8px;font-size:0.82rem;font-weight:600;cursor:pointer">
+          🧠 Browse Questions
+        </button>
+      </div>
+
+      <!-- History tab (default) -->
+      <div id="tab-history" style="display:block">
+        <div id="extraction-history-list">
+          <div class="empty-state">
+            <span class="empty-icon">📋</span>
+            <h3>No extraction history yet</h3>
+            <p>Upload a PDF and the app will record each extraction with full stats here.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Questions tab -->
+      <div id="tab-questions-panel" style="display:none">
+        <!-- Filter bar -->
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:20px">
+          <select id="q-filter-doc" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);padding:8px 12px;border-radius:8px;font-size:0.82rem;flex:1;min-width:160px">
+            <option value="ALL">📂 All Documents</option>
+          </select>
+          <select id="q-filter-domain" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);padding:8px 12px;border-radius:8px;font-size:0.82rem">
+            <option value="ALL">🏷️ All Domains</option>
+            <option value="PHARM">⚗️ Pharmacology</option>
+            <option value="CLIN">🏥 Clinical</option>
+            <option value="LAW">⚖️ Drug Law</option>
+            <option value="PHSCI">🔬 Pharm Sci</option>
+            <option value="PRAC">💊 Practice</option>
+            <option value="CALC">🧭 Calculations</option>
+            <option value="THER">🩺 Therapeutics</option>
+            <option value="REG">📋 Regulation</option>
+            <option value="HERB">🌿 Herbal</option>
+          </select>
+          <span id="q-count-badge" style="font-size:0.78rem;color:var(--text-muted);white-space:nowrap">0 questions</span>
+          <button class="btn" onclick="App.deleteAllExtractedQuestions()" style="border-color:var(--error);color:var(--error);font-size:0.78rem;padding:6px 12px">Delete All</button>
+        </div>
+
+        <!-- Questions list -->
+        <div id="extracted-questions-list">
+          <div class="empty-state">
+            <span class="empty-icon">🧠</span>
+            <h3>No extracted questions yet</h3>
+            <p>Go to the Library tab, upload a PDF with your Gemini API key saved, and questions will appear here automatically.</p>
+          </div>
         </div>
       </div>
     </section>
+
 
     <!-- ─────────────────────────────────────────────────
          ANALYTICS VIEW

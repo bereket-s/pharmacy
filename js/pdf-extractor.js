@@ -111,20 +111,25 @@ ${text.substring(0, 8000)}`;
 
     // Extract text from all pages
     const pages = await extractTextFromPdf(arrayBuffer);
+    const totalPages = pages.length;
     const chunks = chunkPages(pages, 6000);
     const allQuestions = [];
     const seenQuestions = new Set();
+    let failedChunks = 0;
+    let duplicatesSkipped = 0;
+    let rawExtracted = 0; // before dedup/validation
 
     for (let i = 0; i < chunks.length; i++) {
       onProgress && onProgress(i + 1, chunks.length, allQuestions.length);
 
       try {
         const questions = await extractMcqsFromText(chunks[i], docName, apiKey);
+        rawExtracted += questions.length;
 
         for (const q of questions) {
           // Deduplicate by question text
           const key = q.question?.trim().toLowerCase().substring(0, 60);
-          if (!key || seenQuestions.has(key)) continue;
+          if (!key || seenQuestions.has(key)) { duplicatesSkipped++; continue; }
           seenQuestions.add(key);
 
           // Validate structure
@@ -154,7 +159,7 @@ ${text.substring(0, 8000)}`;
         }
       } catch (err) {
         console.warn(`Chunk ${i + 1} extraction failed:`, err);
-        // Continue with remaining chunks even if one fails
+        failedChunks++;
       }
 
       // Small delay between API calls to respect rate limits
@@ -163,8 +168,31 @@ ${text.substring(0, 8000)}`;
       }
     }
 
+    // Quality score: % of questions with all 4 non-empty options + a real explanation
+    const qualityScore = allQuestions.length === 0 ? 0 : Math.round(
+      (allQuestions.filter(q =>
+        q.options.every(o => o.trim().length > 0) &&
+        q.explanation &&
+        q.explanation !== 'See source document for details.'
+      ).length / allQuestions.length) * 100
+    );
+
     onProgress && onProgress(chunks.length, chunks.length, allQuestions.length);
-    return allQuestions;
+
+    return {
+      questions: allQuestions,
+      meta: {
+        docId,
+        docName,
+        totalPages,
+        chunksProcessed: chunks.length,
+        failedChunks,
+        duplicatesSkipped,
+        totalFound: allQuestions.length,
+        qualityScore,
+        extractedAt: Date.now()
+      }
+    };
   };
 
   return { extractQuestionsFromPdf, getApiKey, setApiKey, hasApiKey };

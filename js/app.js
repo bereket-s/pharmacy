@@ -72,39 +72,53 @@ const App = (() => {
     showToast('✅ Gemini API key saved! Upload a PDF to extract questions.', 'success', 4000);
   };
 
+  // ── Extraction History ───────────────────────────────────
+  const HISTORY_KEY = 'pharmprep_extraction_history';
+
+  const saveExtractionHistory = (meta) => {
+    const history = getExtractionHistory();
+    const idx = history.findIndex(h => h.docId === meta.docId);
+    if (idx >= 0) history.splice(idx, 1);
+    history.unshift(meta);
+    if (history.length > 50) history.splice(50);
+    try { localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); } catch(e) {}
+  };
+
+  const getExtractionHistory = () => {
+    try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch { return []; }
+  };
+
   // ── Extract questions from a PDF buffer ──────────────────
   const extractQuestionsFromDoc = async (arrayBuffer, docName, docId) => {
-    if (typeof PdfExtractor === 'undefined' || !PdfExtractor.hasApiKey()) return;
+    if (typeof PdfExtractor === 'undefined' || !PdfExtractor.hasApiKey()) return null;
 
-    const progressEl  = document.getElementById('extraction-progress');
-    const statusEl    = document.getElementById('extraction-status-text');
-    const barEl       = document.getElementById('extraction-progress-bar');
+    const progressEl = document.getElementById('extraction-progress');
+    const statusEl   = document.getElementById('extraction-status-text');
+    const barEl      = document.getElementById('extraction-progress-bar');
 
     if (progressEl) progressEl.style.display = 'block';
 
     try {
-      const questions = await PdfExtractor.extractQuestionsFromPdf(
-        arrayBuffer,
-        docName,
-        docId,
+      const result = await PdfExtractor.extractQuestionsFromPdf(
+        arrayBuffer, docName, docId,
         (current, total, found) => {
           const pct = total > 0 ? Math.round((current / total) * 100) : 0;
-          if (statusEl) statusEl.textContent = `Chunk ${current}/${total} — ${found} questions found so far`;
+          if (statusEl) statusEl.textContent = `Scanning chunk ${current}/${total} · ${found} questions found`;
           if (barEl) barEl.style.width = pct + '%';
         }
       );
 
+      const { questions, meta } = result;
+
+      // Save extraction history
+      saveExtractionHistory(meta);
+
       if (questions.length > 0) {
-        // Save to cloud
         if (typeof CloudQuestions !== 'undefined') {
           await CloudQuestions.saveQuestionsForDoc(docId, docName, questions);
         }
-
-        // Add to in-memory question bank immediately
         AppData.QUESTIONS = AppData.QUESTIONS.filter(q => q.docId !== docId || !q.id.startsWith('extracted_'));
         AppData.QUESTIONS.push(...questions);
-
-        // Update library list to show question count
         renderLibraryList();
         if (document.getElementById('view-questions')?.classList.contains('active')) {
           renderExtractedQuestions();
@@ -113,9 +127,12 @@ const App = (() => {
       } else {
         showToast(`No MCQ questions found in "${docName}"`, 'info', 4000);
       }
+
+      return meta;
     } catch (err) {
       console.error('Extraction error:', err);
       showToast(`Extraction failed: ${err.message}`, 'error', 6000);
+      return null;
     } finally {
       if (progressEl) progressEl.style.display = 'none';
       if (barEl) barEl.style.width = '0%';
@@ -189,7 +206,7 @@ const App = (() => {
     if (view === 'analytics') renderAnalytics();
     if (view === 'bookmarks') renderBookmarks();
     if (view === 'practice')  renderPracticeSetup();
-    if (view === 'questions') renderExtractedQuestions();
+    if (view === 'questions') { renderExtractionHistory(); }
   };
 
   // ── Dashboard ────────────────────────────────────────────
@@ -532,6 +549,113 @@ const App = (() => {
     Storage.toggleBookmark(questionId);
     renderBookmarks();
     showToast('Bookmark removed', 'info');
+  };
+
+  // ── Extracted Questions Review ───────────────────────────
+  // ── Extraction History Rendering ─────────────────────────
+  const renderExtractionHistory = () => {
+    const list = document.getElementById('extraction-history-list');
+    if (!list) return;
+
+    const history = getExtractionHistory();
+
+    // Also build a summary header from all extracted questions in memory
+    const totalQs = AppData.QUESTIONS.filter(q => q.id.startsWith('extracted_')).length;
+    const summaryPanel = document.getElementById('extraction-history-panel');
+    if (summaryPanel && totalQs > 0) {
+      const avgQuality = history.length > 0
+        ? Math.round(history.reduce((s, h) => s + (h.qualityScore || 0), 0) / history.length)
+        : 0;
+      const qColor = avgQuality >= 80 ? '#10b981' : avgQuality >= 50 ? '#f59e0b' : '#ef4444';
+      summaryPanel.innerHTML = `
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:4px">
+          <div class="card" style="text-align:center;padding:16px 12px">
+            <div style="font-size:1.8rem;font-weight:800;color:var(--primary)">${totalQs}</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);margin-top:4px">Total Questions</div>
+          </div>
+          <div class="card" style="text-align:center;padding:16px 12px">
+            <div style="font-size:1.8rem;font-weight:800;color:#10b981">${history.length}</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);margin-top:4px">Files Extracted</div>
+          </div>
+          <div class="card" style="text-align:center;padding:16px 12px">
+            <div style="font-size:1.8rem;font-weight:800;color:${qColor}">${avgQuality}%</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);margin-top:4px">Avg Quality Score</div>
+          </div>
+          <div class="card" style="text-align:center;padding:16px 12px">
+            <div style="font-size:1.8rem;font-weight:800;color:var(--gold)">${history.reduce((s,h) => s + (h.totalPages||0), 0)}</div>
+            <div style="font-size:0.72rem;color:var(--text-muted);margin-top:4px">Pages Scanned</div>
+          </div>
+        </div>`;
+    } else if (summaryPanel) {
+      summaryPanel.innerHTML = '';
+    }
+
+    if (!history.length) {
+      list.innerHTML = `<div class="empty-state"><span class="empty-icon">📋</span><h3>No extraction history yet</h3><p>Upload a PDF and the app will record each extraction with full stats here.</p></div>`;
+      return;
+    }
+
+    list.innerHTML = history.map(h => {
+      const date  = new Date(h.extractedAt).toLocaleString();
+      const qScore = h.qualityScore || 0;
+      const qColor = qScore >= 80 ? '#10b981' : qScore >= 50 ? '#f59e0b' : '#ef4444';
+      const qLabel = qScore >= 80 ? 'High' : qScore >= 50 ? 'Medium' : 'Low';
+      const failWarn = h.failedChunks > 0
+        ? `<span style="color:#f59e0b;font-size:0.7rem">⚠️ ${h.failedChunks} chunk(s) failed</span>` : '';
+
+      return `<div class="card" style="margin-bottom:14px;border-left:3px solid ${qColor}">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:700;color:var(--text-primary);font-size:0.92rem;margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">📄 ${h.docName}</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:10px">🕐 ${date}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+              <span style="font-size:0.75rem;background:var(--primary)22;color:var(--primary);padding:3px 10px;border-radius:8px;font-weight:600">✅ ${h.totalFound} questions</span>
+              <span style="font-size:0.75rem;background:#06b6d422;color:#06b6d4;padding:3px 10px;border-radius:8px">📄 ${h.totalPages} pages</span>
+              ${h.duplicatesSkipped > 0 ? `<span style="font-size:0.75rem;background:#f59e0b22;color:#f59e0b;padding:3px 10px;border-radius:8px">⏭ ${h.duplicatesSkipped} duplicates skipped</span>` : ''}
+              ${failWarn}
+            </div>
+          </div>
+          <div style="text-align:center;flex-shrink:0">
+            <div style="font-size:1.6rem;font-weight:800;color:${qColor};line-height:1">${qScore}%</div>
+            <div style="font-size:0.65rem;color:${qColor};font-weight:600">${qLabel} Quality</div>
+            <div style="font-size:0.62rem;color:var(--text-muted);margin-top:2px">${h.chunksProcessed} chunks</div>
+          </div>
+        </div>
+        <!-- Quality bar -->
+        <div style="margin-top:12px;background:var(--bg-base);border-radius:4px;height:5px;overflow:hidden">
+          <div style="height:100%;width:${qScore}%;background:${qColor};transition:width 0.5s ease"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px">
+          <span style="font-size:0.65rem;color:var(--text-muted)">Quality Score (% of questions with complete options + explanation)</span>
+          <button onclick="App.reExtractDoc('${h.docId}')"
+            style="background:none;border:1px solid var(--primary);color:var(--primary);border-radius:6px;padding:3px 10px;cursor:pointer;font-size:0.7rem">
+            🔄 Re-extract
+          </button>
+        </div>
+      </div>`;
+    }).join('');
+  };
+
+  const showExtractionTab = (tab) => {
+    const histBtn  = document.getElementById('tab-history-btn');
+    const questBtn = document.getElementById('tab-questions-btn');
+    const histTab  = document.getElementById('tab-history');
+    const questTab = document.getElementById('tab-questions-panel');
+    if (!histTab || !questTab) return;
+
+    if (tab === 'history') {
+      histTab.style.display  = 'block';
+      questTab.style.display = 'none';
+      if (histBtn)  { histBtn.style.background  = 'var(--primary)'; histBtn.style.color  = '#fff'; histBtn.style.border  = 'none'; }
+      if (questBtn) { questBtn.style.background = 'var(--bg-card)'; questBtn.style.color = 'var(--text-secondary)'; questBtn.style.border = '1px solid var(--border)'; }
+      renderExtractionHistory();
+    } else {
+      histTab.style.display  = 'none';
+      questTab.style.display = 'block';
+      if (questBtn) { questBtn.style.background = 'var(--primary)'; questBtn.style.color = '#fff'; questBtn.style.border = 'none'; }
+      if (histBtn)  { histBtn.style.background  = 'var(--bg-card)'; histBtn.style.color  = 'var(--text-secondary)'; histBtn.style.border  = '1px solid var(--border)'; }
+      renderExtractedQuestions();
+    }
   };
 
   // ── Extracted Questions Review ───────────────────────────
@@ -1027,7 +1151,8 @@ const App = (() => {
     openDoc, deleteDoc,
     openSyncModal, applySyncCode,
     saveGeminiKey, reExtractDoc,
-    renderExtractedQuestions, deleteExtractedQuestion, deleteAllExtractedQuestions
+    renderExtractedQuestions, deleteExtractedQuestion, deleteAllExtractedQuestions,
+    renderExtractionHistory, showExtractionTab
   };
 })();
 
