@@ -681,15 +681,14 @@ const App = (() => {
     }
     container.innerHTML = meta.map(m => {
       const pct        = m.totalPages ? Math.round(((m.lastPage||1)/m.totalPages)*100) : 0;
-      const ready      = !!docFileStore[m.id];
       const qCount     = typeof CloudQuestions !== 'undefined' ? CloudQuestions.getQuestionCountForDoc(m.id) : 0;
       const qBadge     = qCount > 0 ? `<span style="font-size:0.65rem;background:#8b5cf622;color:#8b5cf6;padding:2px 7px;border-radius:10px;font-weight:600;margin-left:4px">${qCount} Qs</span>` : '';
       const reExtractBtn = `<button class="doc-delete-btn" onclick="event.stopPropagation();App.reExtractDoc('${m.id}')" title="Re-extract questions with AI" style="font-size:0.8rem">🤖</button>`;
-      return `<div class="doc-item ${ready?'':'doc-item-stale'}" onclick="App.openDoc('${m.id}')" title="${ready?'Click to read':'Restoring…'}">
-        <span class="doc-icon">${ready?'📄':'🔒'}</span>
+      return `<div class="doc-item" onclick="App.openDoc('${m.id}')" title="Click to read">
+        <span class="doc-icon">📄</span>
         <div class="doc-info">
           <div style="display:flex;align-items:center;flex-wrap:wrap;gap:2px"><strong>${m.name}</strong>${qBadge}</div>
-          <span>Page ${m.lastPage||1} / ${m.totalPages||'?'} · ${pct}% read${ready?'':' · loading…'}</span>
+          <span>Page ${m.lastPage||1} / ${m.totalPages||'?'} · ${pct}% read</span>
           <div class="doc-progress-bar"><div style="width:${pct}%;background:var(--primary)"></div></div>
         </div>
         <div style="display:flex;flex-direction:column;gap:4px">
@@ -786,6 +785,21 @@ const App = (() => {
 
     // Also load any previously extracted questions from cloud
     await loadExtractedQuestionsIntoBank();
+
+    // Auto-extract questions from docs that have no questions yet (if API key is set)
+    if (typeof PdfExtractor !== 'undefined' && PdfExtractor.hasApiKey()) {
+      const meta = Storage.getLibraryMeta();
+      const docsWithoutQuestions = meta.filter(m => {
+        const qCount = typeof CloudQuestions !== 'undefined' ? CloudQuestions.getQuestionCountForDoc(m.id) : 0;
+        return qCount === 0;
+      });
+      if (docsWithoutQuestions.length > 0) {
+        showToast(`🤖 Auto-extracting questions from ${docsWithoutQuestions.length} document(s)...`, 'info', 4000);
+        for (const m of docsWithoutQuestions) {
+          await reExtractDoc(m.id);
+        }
+      }
+    }
   };
 
   // ── Quiz bookmark toggle ─────────────────────────────────
@@ -872,6 +886,18 @@ const App = (() => {
         try {
           const docId = makeDocId(file);
           const buf   = await file.arrayBuffer();
+
+          // Delete duplicate if same file already exists in cloud
+          const existing = Storage.getLibraryMeta().find(m => m.id === docId);
+          if (existing) {
+            try { if (typeof DB !== 'undefined') await DB.deletePdf(docId); } catch(e){}
+            Storage.removeLibraryItem(docId);
+            delete docFileStore[docId];
+            if (typeof CloudQuestions !== 'undefined') {
+              await CloudQuestions.deleteQuestionsForDoc(docId).catch(() => {});
+            }
+            AppData.QUESTIONS = AppData.QUESTIONS.filter(q => q.docId !== docId);
+          }
 
           // Save to Cloud DB
           try { 
