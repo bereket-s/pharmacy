@@ -31,25 +31,28 @@ const PdfExtractor = (() => {
   const extractMcqsFromText = async (text, docName, apiKey) => {
     if (!text || text.trim().length < 20) return [];
 
-    const prompt = `You are a pharmacy exam question extractor. Analyze the following text from a pharmacy study document and extract ALL multiple-choice questions (MCQs) you find.
+    const prompt = `You are a pharmacy exam question extractor. Analyze the following text from a pharmacy study document called "${docName}".
 
-For each MCQ found, return a JSON object with:
-- "question": the question stem/text (string)
-- "options": array of exactly 4 strings, each being one answer option (include the letter prefix like "A." if present)
-- "correct": index (0-3) of the correct answer
-- "explanation": brief explanation of why the correct answer is right (use your knowledge if not given)
-- "difficulty": "easy", "medium", or "hard"
-- "domain": one of: "PHARM", "CLIN", "LAW", "PHSCI", "PRAC", "CALC", "THER", "REG", "HERB"
+Extract ALL multiple-choice questions (MCQs) from this text. These are questions with 4 options labeled A, B, C, D (or 1,2,3,4).
 
-Return ONLY a valid JSON array like: [{"question":"...","options":["A. ...","B. ...","C. ...","D. ..."],"correct":0,"explanation":"...","difficulty":"easy","domain":"PHARM"}]
+Return ONLY a JSON array. Each item must have:
+{
+  "question": "the full question text",
+  "options": ["A. option text", "B. option text", "C. option text", "D. option text"],
+  "correct": 0,
+  "explanation": "why this answer is correct",
+  "difficulty": "easy" or "medium" or "hard",
+  "domain": "PHARM" or "CLIN" or "CALC" or "REG" or "HERB"
+}
 
-If no MCQ questions are found in this text, return an empty array: []
+Rules:
+- "correct" is 0 for A, 1 for B, 2 for C, 3 for D
+- Domain guide: PHARM=drug mechanisms/side effects, CLIN=clinical cases/dosing, CALC=calculations/pharmacokinetics, REG=laws/regulations, HERB=herbal
+- If no MCQs found, return []
+- Return ONLY the JSON array, no other text
 
-Do NOT include any text before or after the JSON array.
-
-Document: "${docName}"
 Text to analyze:
-${text.substring(0, 8000)}`;
+${text.substring(0, 7000)}`;
 
     const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
       method: 'POST',
@@ -58,32 +61,50 @@ ${text.substring(0, 8000)}`;
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
           temperature: 0.1,
-          maxOutputTokens: 8192,
-          responseMimeType: 'application/json'
+          maxOutputTokens: 8192
         }
       })
     });
 
     if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      throw new Error(err?.error?.message || `Gemini API error ${response.status}`);
+      const errBody = await response.text().catch(() => '');
+      console.error('Gemini API error:', response.status, errBody);
+      throw new Error(`Gemini API error ${response.status}: ${errBody.slice(0, 200)}`);
     }
 
     const data = await response.json();
-    const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
+    const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
-    try {
-      const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      // Try to extract JSON array from response if it has extra text
-      const match = raw.match(/\[[\s\S]*\]/);
-      if (match) {
-        try { return JSON.parse(match[0]); } catch { return []; }
-      }
+    console.log('Gemini raw response (first 300 chars):', raw.slice(0, 300));
+
+    if (!raw) {
+      console.warn('Empty response from Gemini');
       return [];
     }
+
+    // Try direct parse first
+    try {
+      const parsed = JSON.parse(raw.trim());
+      return Array.isArray(parsed) ? parsed : [];
+    } catch { /* fall through */ }
+
+    // Strip markdown code fences (```json ... ``` or ``` ... ```)
+    const stripped = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim();
+    try {
+      const parsed = JSON.parse(stripped);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch { /* fall through */ }
+
+    // Find first JSON array in the response
+    const match = stripped.match(/\[[\s\S]*\]/);
+    if (match) {
+      try { return JSON.parse(match[0]); } catch { /* fall through */ }
+    }
+
+    console.warn('Could not parse Gemini response as JSON:', raw.slice(0, 500));
+    return [];
   };
+
 
   // ── Batch pages into chunks to reduce API calls ──────────
   const chunkPages = (pages, charsPerChunk = 6000) => {
