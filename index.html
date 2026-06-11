@@ -51,6 +51,10 @@
         <span class="nav-icon">⭐</span>
         <span data-i18n="nav_bookmarks">Bookmarks</span>
       </a>
+      <a href="#questions" class="nav-item" data-view="questions">
+        <span class="nav-icon">🧠</span>
+        <span>Extracted Questions</span>
+      </a>
     </nav>
 
     <div class="sidebar-footer">
@@ -320,6 +324,46 @@
           <div id="pdf-reader-wrap" class="pdf-canvas-wrap hidden">
             <canvas id="pdf-canvas"></canvas>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────────────────────────────────────────────────
+         EXTRACTED QUESTIONS VIEW
+    ───────────────────────────────────────────────────── -->
+    <section class="view" id="view-questions">
+      <div class="view-header">
+        <h1>🧠 Extracted Questions</h1>
+        <p class="view-subtitle">Review all MCQ questions extracted from your PDFs. The correct answer is highlighted in green. Delete any questions that were extracted incorrectly.</p>
+      </div>
+
+      <!-- Filter bar -->
+      <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:20px">
+        <select id="q-filter-doc" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);padding:8px 12px;border-radius:8px;font-size:0.82rem;flex:1;min-width:160px">
+          <option value="ALL">📂 All Documents</option>
+        </select>
+        <select id="q-filter-domain" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);padding:8px 12px;border-radius:8px;font-size:0.82rem">
+          <option value="ALL">🏷️ All Domains</option>
+          <option value="PHARM">⚗️ Pharmacology</option>
+          <option value="CLIN">🏥 Clinical</option>
+          <option value="LAW">⚖️ Drug Law</option>
+          <option value="PHSCI">🔬 Pharm Sci</option>
+          <option value="PRAC">💊 Practice</option>
+          <option value="CALC">🧭 Calculations</option>
+          <option value="THER">🩺 Therapeutics</option>
+          <option value="REG">📋 Regulation</option>
+          <option value="HERB">🌿 Herbal</option>
+        </select>
+        <span id="q-count-badge" style="font-size:0.78rem;color:var(--text-muted);white-space:nowrap">0 questions</span>
+        <button class="btn" onclick="App.deleteAllExtractedQuestions()" style="border-color:var(--error);color:var(--error);font-size:0.78rem;padding:6px 12px">Delete All</button>
+      </div>
+
+      <!-- Questions list -->
+      <div id="extracted-questions-list">
+        <div class="empty-state">
+          <span class="empty-icon">🧠</span>
+          <h3>No extracted questions yet</h3>
+          <p>Go to the Library tab, upload a PDF with your Gemini API key saved, and questions will appear here automatically.</p>
         </div>
       </div>
     </section>

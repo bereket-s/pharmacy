@@ -38,6 +38,9 @@ const App = (() => {
       // Add new ones
       AppData.QUESTIONS.push(...extracted);
       console.log(`✅ Loaded ${extracted.length} extracted questions into question bank`);
+      if (document.getElementById('view-questions')?.classList.contains('active')) {
+        renderExtractedQuestions();
+      }
     } catch (e) {
       console.warn('Failed to load extracted questions:', e);
     }
@@ -103,6 +106,9 @@ const App = (() => {
 
         // Update library list to show question count
         renderLibraryList();
+        if (document.getElementById('view-questions')?.classList.contains('active')) {
+          renderExtractedQuestions();
+        }
         showToast(`🧠 Extracted ${questions.length} questions from "${docName}"!`, 'success', 5000);
       } else {
         showToast(`No MCQ questions found in "${docName}"`, 'info', 4000);
@@ -183,6 +189,7 @@ const App = (() => {
     if (view === 'analytics') renderAnalytics();
     if (view === 'bookmarks') renderBookmarks();
     if (view === 'practice')  renderPracticeSetup();
+    if (view === 'questions') renderExtractedQuestions();
   };
 
   // ── Dashboard ────────────────────────────────────────────
@@ -527,6 +534,142 @@ const App = (() => {
     showToast('Bookmark removed', 'info');
   };
 
+  // ── Extracted Questions Review ───────────────────────────
+  const renderExtractedQuestions = () => {
+    const container = document.getElementById('extracted-questions-list');
+    const countBadge = document.getElementById('q-count-badge');
+    if (!container) return;
+
+    const docFilter    = document.getElementById('q-filter-doc')?.value || 'ALL';
+    const domainFilter = document.getElementById('q-filter-domain')?.value || 'ALL';
+
+    // All extracted questions from in-memory question bank
+    let questions = AppData.QUESTIONS.filter(q => q.id.startsWith('extracted_'));
+
+    // Populate document filter dropdown
+    const docSel = document.getElementById('q-filter-doc');
+    if (docSel) {
+      const docs = [...new Set(questions.map(q => q.source).filter(Boolean))];
+      const currentVal = docSel.value;
+      docSel.innerHTML = '<option value="ALL">📂 All Documents</option>' +
+        docs.map(d => `<option value="${d}" ${currentVal===d?'selected':''}>${d}</option>`).join('');
+    }
+
+    // Apply filters
+    if (docFilter !== 'ALL')    questions = questions.filter(q => q.source === docFilter);
+    if (domainFilter !== 'ALL') questions = questions.filter(q => q.domain === domainFilter);
+
+    if (countBadge) countBadge.textContent = `${questions.length} question${questions.length!==1?'s':''}`;
+
+    if (!questions.length) {
+      container.innerHTML = `<div class="empty-state"><span class="empty-icon">🧠</span><h3>${
+        AppData.QUESTIONS.some(q=>q.id.startsWith('extracted_'))
+          ? 'No questions match this filter'
+          : 'No extracted questions yet'
+      }</h3><p>${
+        AppData.QUESTIONS.some(q=>q.id.startsWith('extracted_'))
+          ? 'Try changing the document or domain filter above.'
+          : 'Go to the Library tab, upload a PDF with your Gemini API key saved, and questions will appear here.'
+      }</p></div>`;
+      return;
+    }
+
+    const domainColors = {
+      PHARM:'#8b5cf6', CLIN:'#0ea5e9', LAW:'#10b981', PHSCI:'#f59e0b',
+      PRAC:'#ef4444', CALC:'#06b6d4', THER:'#f97316', REG:'#14b8a6', HERB:'#84cc16'
+    };
+
+    container.innerHTML = questions.map((q, idx) => {
+      const color = domainColors[q.domain] || '#8b5cf6';
+      const opts = q.options.map((opt, i) => {
+        const isCorrect = i === q.correct;
+        return `<div style="
+          padding:8px 12px; border-radius:6px; font-size:0.82rem; margin-top:6px;
+          background:${isCorrect ? '#10b98118' : 'var(--bg-base)'};
+          border:1px solid ${isCorrect ? '#10b981' : 'var(--border)'};
+          color:${isCorrect ? '#10b981' : 'var(--text-secondary)'};
+          font-weight:${isCorrect ? '700' : '400'};
+          display:flex; align-items:center; gap:8px;">
+          <span>${isCorrect ? '✅' : '○'}</span>
+          <span>${opt || '(empty)'}</span>
+        </div>`;
+      }).join('');
+
+      return `<div class="card" style="margin-bottom:16px; border-left:3px solid ${color}">
+        <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:12px">
+          <span style="font-size:0.65rem;font-weight:700;padding:3px 8px;border-radius:10px;background:${color}22;color:${color};white-space:nowrap;margin-top:2px">${q.domain}</span>
+          <div style="flex:1">
+            <p style="font-size:0.88rem;font-weight:600;color:var(--text-primary);line-height:1.5;margin:0">${idx+1}. ${q.question}</p>
+            <p style="font-size:0.68rem;color:var(--text-muted);margin-top:4px">📄 ${q.source || 'Unknown document'} &nbsp;·&nbsp; ${q.difficulty||'medium'}</p>
+          </div>
+          <button onclick="App.deleteExtractedQuestion('${q.id}')" title="Delete this question"
+            style="background:none;border:1px solid var(--error);color:var(--error);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:0.75rem;white-space:nowrap;flex-shrink:0">
+            🗑 Delete
+          </button>
+        </div>
+        <div style="padding-left:4px">${opts}</div>
+        ${q.explanation ? `<div style="margin-top:12px;padding:10px 12px;background:var(--bg-base);border-radius:6px;border-left:3px solid ${color}">
+          <p style="font-size:0.75rem;color:var(--text-secondary);line-height:1.6;margin:0"><strong style="color:${color}">💡 Explanation:</strong> ${q.explanation}</p>
+        </div>` : ''}
+      </div>`;
+    }).join('');
+  };
+
+  const deleteExtractedQuestion = async (questionId) => {
+    // Remove from in-memory bank
+    AppData.QUESTIONS = AppData.QUESTIONS.filter(q => q.id !== questionId);
+
+    // Remove from localStorage cache
+    const all = JSON.parse(localStorage.getItem('pharmprep_extracted_q') || '{}');
+    Object.keys(all).forEach(docId => {
+      all[docId] = all[docId].filter(q => q.id !== questionId);
+    });
+    localStorage.setItem('pharmprep_extracted_q', JSON.stringify(all));
+
+    // Remove from Supabase
+    if (typeof window.supabaseClient !== 'undefined') {
+      window.supabaseClient.from('extracted_questions')
+        .delete().eq('question_id', questionId).then(() => {});
+    }
+
+    renderExtractedQuestions();
+    renderLibraryList();
+    showToast('Question deleted', 'info');
+  };
+
+  const deleteAllExtractedQuestions = async () => {
+    const docFilter = document.getElementById('q-filter-doc')?.value || 'ALL';
+    const label = docFilter === 'ALL' ? 'ALL extracted questions' : `all questions from "${docFilter}"`;
+    if (!confirm(`Delete ${label}? This cannot be undone.`)) return;
+
+    const toDelete = AppData.QUESTIONS
+      .filter(q => q.id.startsWith('extracted_') && (docFilter === 'ALL' || q.source === docFilter))
+      .map(q => q.id);
+
+    AppData.QUESTIONS = AppData.QUESTIONS.filter(q => !toDelete.includes(q.id));
+
+    // Clear from localStorage
+    if (docFilter === 'ALL') {
+      localStorage.removeItem('pharmprep_extracted_q');
+    } else {
+      const all = JSON.parse(localStorage.getItem('pharmprep_extracted_q') || '{}');
+      Object.keys(all).forEach(docId => {
+        all[docId] = all[docId].filter(q => !toDelete.includes(q.id));
+      });
+      localStorage.setItem('pharmprep_extracted_q', JSON.stringify(all));
+    }
+
+    // Remove from Supabase
+    if (typeof window.supabaseClient !== 'undefined') {
+      const query = window.supabaseClient.from('extracted_questions').delete();
+      (docFilter === 'ALL' ? query.neq('id', 0) : query.eq('doc_name', docFilter)).then(() => {});
+    }
+
+    renderExtractedQuestions();
+    renderLibraryList();
+    showToast(`Deleted ${toDelete.length} questions`, 'info');
+  };
+
   // ── Library ──────────────────────────────────────────────
   const renderLibraryList = () => {
     const meta = Storage.getLibraryMeta();
@@ -815,6 +958,10 @@ const App = (() => {
     await loadExtractedQuestionsIntoBank();
     renderLibraryList();
 
+    // Filter change listeners for Extracted Questions view
+    document.getElementById('q-filter-doc')?.addEventListener('change', renderExtractedQuestions);
+    document.getElementById('q-filter-domain')?.addEventListener('change', renderExtractedQuestions);
+
     // ── Theme toggle ──────────────────────────────────────
     const applyTheme = (dark) => {
       document.body.classList.toggle('dark', dark);
@@ -853,7 +1000,8 @@ const App = (() => {
     renderAnalytics, renderLibraryList,
     openDoc, deleteDoc,
     openSyncModal, applySyncCode,
-    saveGeminiKey, reExtractDoc
+    saveGeminiKey, reExtractDoc,
+    renderExtractedQuestions, deleteExtractedQuestion, deleteAllExtractedQuestions
   };
 })();
 
