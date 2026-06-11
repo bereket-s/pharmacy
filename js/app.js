@@ -207,7 +207,7 @@ const App = (() => {
         const attempted = AppData.QUESTIONS.filter(q => q.domain === d.id && (() => {
           const p = Storage.getQuestionProgress(q.id); return p && p.attempts > 0;
         })()).length;
-        const pct = Math.round((attempted/totalQ)*100);
+        const pct = totalQ > 0 ? Math.round((attempted/totalQ)*100) : 0;
         return `<div class="domain-card" onclick="App.startQuickPractice('${d.id}')" style="--domain-color:${d.color}">
           <div class="domain-card-header">
             <span class="domain-icon">${d.icon}</span>
@@ -656,7 +656,7 @@ const App = (() => {
   };
 
   // ── Init ─────────────────────────────────────────────────
-  const init = () => {
+  const init = async () => {
     Storage.updateStreak();
 
     // Hash router
