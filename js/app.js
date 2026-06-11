@@ -24,6 +24,113 @@ const App = (() => {
   // In-memory PDF store — populated from IndexedDB on startup
   const docFileStore = {};
 
+  // ── Extracted Questions Integration ─────────────────────
+  // Merges cloud-extracted MCQs into AppData.QUESTIONS so they appear in Practice
+  const loadExtractedQuestionsIntoBank = async () => {
+    if (typeof CloudQuestions === 'undefined') return;
+    try {
+      const extracted = await CloudQuestions.getAllExtractedQuestions();
+      if (!extracted.length) return;
+
+      // Remove any previously-loaded extracted questions first
+      AppData.QUESTIONS = AppData.QUESTIONS.filter(q => !q.id.startsWith('extracted_'));
+
+      // Add new ones
+      AppData.QUESTIONS.push(...extracted);
+      console.log(`✅ Loaded ${extracted.length} extracted questions into question bank`);
+    } catch (e) {
+      console.warn('Failed to load extracted questions:', e);
+    }
+  };
+
+  // ── Gemini API Key Management ────────────────────────────
+  const updateGeminiKeyStatus = () => {
+    if (typeof PdfExtractor === 'undefined') return;
+    const statusEl = document.getElementById('gemini-key-status');
+    const inputEl  = document.getElementById('gemini-api-key-input');
+    const hasKey   = PdfExtractor.hasApiKey();
+    if (statusEl) {
+      statusEl.textContent = hasKey ? '✓ Active' : 'No key';
+      statusEl.style.background = hasKey ? '#10b98122' : '#ef444422';
+      statusEl.style.color = hasKey ? '#10b981' : '#ef4444';
+    }
+    if (inputEl && hasKey) {
+      inputEl.placeholder = 'API key saved — paste to update';
+    }
+  };
+
+  const saveGeminiKey = () => {
+    const input = document.getElementById('gemini-api-key-input');
+    const key = input?.value.trim();
+    if (!key) { showToast('Please paste your Gemini API key first', 'warning'); return; }
+    PdfExtractor.setApiKey(key);
+    if (input) input.value = '';
+    updateGeminiKeyStatus();
+    showToast('✅ Gemini API key saved! Upload a PDF to extract questions.', 'success', 4000);
+  };
+
+  // ── Extract questions from a PDF buffer ──────────────────
+  const extractQuestionsFromDoc = async (arrayBuffer, docName, docId) => {
+    if (typeof PdfExtractor === 'undefined' || !PdfExtractor.hasApiKey()) return;
+
+    const progressEl  = document.getElementById('extraction-progress');
+    const statusEl    = document.getElementById('extraction-status-text');
+    const barEl       = document.getElementById('extraction-progress-bar');
+
+    if (progressEl) progressEl.style.display = 'block';
+
+    try {
+      const questions = await PdfExtractor.extractQuestionsFromPdf(
+        arrayBuffer,
+        docName,
+        docId,
+        (current, total, found) => {
+          const pct = total > 0 ? Math.round((current / total) * 100) : 0;
+          if (statusEl) statusEl.textContent = `Chunk ${current}/${total} — ${found} questions found so far`;
+          if (barEl) barEl.style.width = pct + '%';
+        }
+      );
+
+      if (questions.length > 0) {
+        // Save to cloud
+        if (typeof CloudQuestions !== 'undefined') {
+          await CloudQuestions.saveQuestionsForDoc(docId, docName, questions);
+        }
+
+        // Add to in-memory question bank immediately
+        AppData.QUESTIONS = AppData.QUESTIONS.filter(q => q.docId !== docId || !q.id.startsWith('extracted_'));
+        AppData.QUESTIONS.push(...questions);
+
+        // Update library list to show question count
+        renderLibraryList();
+        showToast(`🧠 Extracted ${questions.length} questions from "${docName}"!`, 'success', 5000);
+      } else {
+        showToast(`No MCQ questions found in "${docName}"`, 'info', 4000);
+      }
+    } catch (err) {
+      console.error('Extraction error:', err);
+      showToast(`Extraction failed: ${err.message}`, 'error', 6000);
+    } finally {
+      if (progressEl) progressEl.style.display = 'none';
+      if (barEl) barEl.style.width = '0%';
+    }
+  };
+
+  // ── Re-extract a specific document ──────────────────────
+  const reExtractDoc = async (docId) => {
+    const entry = docFileStore[docId];
+    if (!entry?.arrayBuffer) {
+      // Need to fetch from cloud first
+      showToast('Opening document to re-extract...', 'info', 2000);
+      const stored = await DB.getPdf(docId).catch(() => null);
+      if (!stored) { showToast('Could not load PDF for re-extraction', 'error'); return; }
+      docFileStore[docId] = { arrayBuffer: stored.arrayBuffer, name: stored.name };
+    }
+    const name = docFileStore[docId].name || docId;
+    await extractQuestionsFromDoc(docFileStore[docId].arrayBuffer, name, docId);
+  };
+
+
   // ── Sync Logic ───────────────────────────────────────────
   const openSyncModal = () => {
     document.getElementById('sidebar')?.classList.remove('open');
@@ -430,16 +537,22 @@ const App = (() => {
       return;
     }
     container.innerHTML = meta.map(m => {
-      const pct   = m.totalPages ? Math.round(((m.lastPage||1)/m.totalPages)*100) : 0;
-      const ready = !!docFileStore[m.id];
+      const pct        = m.totalPages ? Math.round(((m.lastPage||1)/m.totalPages)*100) : 0;
+      const ready      = !!docFileStore[m.id];
+      const qCount     = typeof CloudQuestions !== 'undefined' ? CloudQuestions.getQuestionCountForDoc(m.id) : 0;
+      const qBadge     = qCount > 0 ? `<span style="font-size:0.65rem;background:#8b5cf622;color:#8b5cf6;padding:2px 7px;border-radius:10px;font-weight:600;margin-left:4px">${qCount} Qs</span>` : '';
+      const reExtractBtn = `<button class="doc-delete-btn" onclick="event.stopPropagation();App.reExtractDoc('${m.id}')" title="Re-extract questions with AI" style="font-size:0.8rem">🤖</button>`;
       return `<div class="doc-item ${ready?'':'doc-item-stale'}" onclick="App.openDoc('${m.id}')" title="${ready?'Click to read':'Restoring…'}">
         <span class="doc-icon">${ready?'📄':'🔒'}</span>
         <div class="doc-info">
-          <strong>${m.name}</strong>
+          <div style="display:flex;align-items:center;flex-wrap:wrap;gap:2px"><strong>${m.name}</strong>${qBadge}</div>
           <span>Page ${m.lastPage||1} / ${m.totalPages||'?'} · ${pct}% read${ready?'':' · loading…'}</span>
           <div class="doc-progress-bar"><div style="width:${pct}%;background:var(--primary)"></div></div>
         </div>
-        <button class="doc-delete-btn" onclick="event.stopPropagation();App.deleteDoc('${m.id}')" title="Remove">🗑</button>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          ${reExtractBtn}
+          <button class="doc-delete-btn" onclick="event.stopPropagation();App.deleteDoc('${m.id}')" title="Remove">🗑</button>
+        </div>
       </div>`;
     }).join('');
   };
@@ -488,6 +601,11 @@ const App = (() => {
     Storage.removeLibraryItem(docId);
     delete docFileStore[docId];
     try { if (typeof DB !== 'undefined') await DB.deletePdf(docId); } catch(e){}
+    // Remove extracted questions for this doc
+    if (typeof CloudQuestions !== 'undefined') {
+      await CloudQuestions.deleteQuestionsForDoc(docId).catch(() => {});
+    }
+    AppData.QUESTIONS = AppData.QUESTIONS.filter(q => q.docId !== docId);
     Reader.close();
     document.getElementById('pdf-reader-wrap')?.classList.add('hidden');
     document.getElementById('reader-empty-state')?.classList.remove('hidden');
@@ -522,6 +640,9 @@ const App = (() => {
       });
       renderLibraryList();
     } catch(e) { console.warn('Cloud DB restore failed:', e); }
+
+    // Also load any previously extracted questions from cloud
+    await loadExtractedQuestionsIntoBank();
   };
 
   // ── Quiz bookmark toggle ─────────────────────────────────
@@ -650,6 +771,18 @@ const App = (() => {
         }
       }
       showToast(pdfs.length===1 ? `📄 Saved: ${pdfs[0].name}` : `📚 ${pdfs.length} documents saved!`, 'success', 4000);
+
+      // Trigger AI question extraction for each PDF (if API key is set)
+      if (typeof PdfExtractor !== 'undefined' && PdfExtractor.hasApiKey()) {
+        showToast('🤖 Starting question extraction...', 'info', 3000);
+        for (const file of pdfs) {
+          const docId = file.name.replace(/[^a-zA-Z0-9.\-_ ()]/g, '_');
+          const buf = docFileStore[docId]?.arrayBuffer;
+          if (buf) {
+            await extractQuestionsFromDoc(buf, file.name, docId);
+          }
+        }
+      }
     });
 
     // PDF controls
@@ -678,6 +811,9 @@ const App = (() => {
 
     renderLibraryList();
     restoreFromDB();
+    updateGeminiKeyStatus();
+    await loadExtractedQuestionsIntoBank();
+    renderLibraryList();
 
     // ── Theme toggle ──────────────────────────────────────
     const applyTheme = (dark) => {
@@ -716,7 +852,8 @@ const App = (() => {
     renderBookmarks, removeBookmark,
     renderAnalytics, renderLibraryList,
     openDoc, deleteDoc,
-    openSyncModal, applySyncCode
+    openSyncModal, applySyncCode,
+    saveGeminiKey, reExtractDoc
   };
 })();
 
