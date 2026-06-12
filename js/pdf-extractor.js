@@ -1,12 +1,38 @@
 // js/pdf-extractor.js — Extract MCQ questions from PDFs using Gemini API
 
 const PdfExtractor = (() => {
-  const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+  const GEMINI_MODEL = 'gemini-1.5-flash';
+  const GEMINI_BASE  = 'https://generativelanguage.googleapis.com/v1beta/models';
 
   // ── Get/Set Gemini API key ──────────────────────────────
   const getApiKey = () => localStorage.getItem('gemini_api_key') || '';
   const setApiKey = (key) => localStorage.setItem('gemini_api_key', key.trim());
   const hasApiKey = () => !!getApiKey();
+
+  // ── Build fetch call based on key format ─────────────────
+  // New 'AQ.' keys (June 2026+) → Authorization: Bearer header
+  // Legacy 'AIzaSy' keys        → ?key= query param
+  const geminiRequest = (prompt, apiKey) => {
+    const isNewFormat = apiKey.startsWith('AQ.');
+    const url = isNewFormat
+      ? `${GEMINI_BASE}/${GEMINI_MODEL}:generateContent`
+      : `${GEMINI_BASE}/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
+
+    const headers = { 'Content-Type': 'application/json' };
+    if (isNewFormat) {
+      headers['Authorization'] = `Bearer ${apiKey}`;
+      headers['x-goog-api-key'] = apiKey;
+    }
+
+    return fetch(url, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.1, maxOutputTokens: 8192 }
+      })
+    });
+  };
 
   // ── Extract raw text from a PDF ArrayBuffer (via PDF.js) ──
   const extractTextFromPdf = async (arrayBuffer) => {
@@ -54,22 +80,14 @@ Rules:
 Text to analyze:
 ${text.substring(0, 7000)}`;
 
-    const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.1,
-          maxOutputTokens: 8192
-        }
-      })
-    });
+    const response = await geminiRequest(prompt, apiKey);
 
     if (!response.ok) {
       const errBody = await response.text().catch(() => '');
       console.error('Gemini API error:', response.status, errBody);
-      throw new Error(`Gemini API error ${response.status}: ${errBody.slice(0, 200)}`);
+      let msg = `HTTP ${response.status}`;
+      try { msg = JSON.parse(errBody)?.error?.message || msg; } catch {}
+      throw new Error(msg);
     }
 
     const data = await response.json();

@@ -77,22 +77,32 @@ const App = (() => {
     if (!apiKey) { showToast('No API key saved. Paste your key and click Save first.', 'warning'); return; }
     showToast('🔌 Testing API connection...', 'info', 3000);
     try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contents: [{ parts: [{ text: 'Reply with the single word: OK' }] }] })
-        }
-      );
+      const isNewFormat = apiKey.startsWith('AQ.');
+      const url = isNewFormat
+        ? 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'
+        : `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+      const headers = { 'Content-Type': 'application/json' };
+      if (isNewFormat) {
+        headers['Authorization'] = `Bearer ${apiKey}`;
+        headers['x-goog-api-key'] = apiKey;
+      }
+
+      const res = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ contents: [{ parts: [{ text: 'Reply with the single word: OK' }] }] })
+      });
+
       if (!res.ok) {
         const errText = await res.text().catch(() => '');
-        const errJson = JSON.parse(errText || '{}');
-        throw new Error(errJson?.error?.message || `HTTP ${res.status}`);
+        let msg = `HTTP ${res.status}`;
+        try { msg = JSON.parse(errText)?.error?.message || msg; } catch {}
+        throw new Error(msg);
       }
       const data = await res.json();
       const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-      showToast(`✅ API key works! Gemini replied: "${reply.trim().slice(0,30)}"`, 'success', 5000);
+      showToast(`✅ API key works! Gemini replied: "${reply.trim().slice(0, 30)}"`, 'success', 5000);
     } catch (e) {
       showToast(`❌ API key failed: ${e.message}`, 'error', 8000);
     }
