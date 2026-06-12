@@ -1098,14 +1098,16 @@ const App = (() => {
 
       // Trigger AI question extraction for each PDF (if API key is set)
       if (typeof PdfExtractor !== 'undefined' && PdfExtractor.hasApiKey()) {
-        showToast('🤖 Starting question extraction...', 'info', 3000);
+        showToast('🤖 Starting question extraction with Llama 3.3 70B...', 'info', 3000);
         for (const file of pdfs) {
-          const docId = file.name.replace(/[^a-zA-Z0-9.\-_ ()]/g, '_');
-          const buf = docFileStore[docId]?.arrayBuffer;
+          const docId = makeDocId(file);
+          const buf   = docFileStore[docId]?.arrayBuffer;
           if (buf) {
             await extractQuestionsFromDoc(buf, file.name, docId);
           }
         }
+      } else {
+        showToast('💡 Tip: Save your Groq API key below to auto-extract questions from this PDF!', 'info', 6000);
       }
     });
 
