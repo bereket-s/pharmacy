@@ -77,21 +77,14 @@ const App = (() => {
     if (!apiKey) { showToast('No API key saved. Paste your key and click Save first.', 'warning'); return; }
     showToast('🔌 Testing API connection...', 'info', 3000);
     try {
-      const PROXY_URL = 'https://wtqkxdwilfpyuflresft.supabase.co/functions/v1/gemini-proxy';
-      const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0cWt4ZHdpbGZweXVmbHJlc2Z0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMzYxOTgsImV4cCI6MjA5NTkxMjE5OH0.4A49bgexXUBB9qC7qB0C7jIYt4bmzQS_EJbT3UMHEDI';
-      const res = await fetch(PROXY_URL, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${SUPABASE_ANON}`
-        },
-        body: JSON.stringify({
-          apiKey,
-          model: 'gemini-1.5-flash',
-          contents: [{ parts: [{ text: 'Reply with the single word: OK' }] }]
-        })
-      });
-
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ parts: [{ text: 'Reply with one word: OK' }] }] })
+        }
+      );
       if (!res.ok) {
         const errText = await res.text().catch(() => '');
         let msg = `HTTP ${res.status}`;
