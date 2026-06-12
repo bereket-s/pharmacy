@@ -74,26 +74,30 @@ const App = (() => {
 
   const testGeminiKey = async () => {
     const apiKey = typeof PdfExtractor !== 'undefined' ? PdfExtractor.getApiKey() : '';
-    if (!apiKey) { showToast('No API key saved. Paste your key and click Save first.', 'warning'); return; }
-    showToast('🔌 Testing API connection...', 'info', 3000);
+    if (!apiKey) { showToast('No API key saved. Paste your Groq key and click Save first.', 'warning'); return; }
+    showToast('🔌 Testing Groq connection...', 'info', 3000);
     try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contents: [{ parts: [{ text: 'Reply with one word: OK' }] }] })
-        }
-      );
+      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: 'llama-3.3-70b-versatile',
+          max_tokens: 10,
+          messages: [{ role: 'user', content: 'Reply with one word: OK' }]
+        })
+      });
       if (!res.ok) {
         const errText = await res.text().catch(() => '');
         let msg = `HTTP ${res.status}`;
         try { msg = JSON.parse(errText)?.error?.message || msg; } catch {}
         throw new Error(msg);
       }
-      const data = await res.json();
-      const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-      showToast(`✅ API key works! Gemini replied: "${reply.trim().slice(0, 30)}"`, 'success', 5000);
+      const data  = await res.json();
+      const reply = data?.choices?.[0]?.message?.content || '';
+      showToast(`✅ Groq works! Llama replied: "${reply.trim().slice(0, 30)}"`, 'success', 5000);
     } catch (e) {
       showToast(`❌ Connection failed: ${e.message}`, 'error', 8000);
     }

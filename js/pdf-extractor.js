@@ -1,22 +1,30 @@
-// js/pdf-extractor.js — Extract MCQ questions from PDFs using Gemini API
+// js/pdf-extractor.js — Extract MCQ questions from PDFs using Groq API (Llama 3.3 70B)
 
 const PdfExtractor = (() => {
-  const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
-  const GEMINI_MODEL = 'gemini-2.0-flash'; // gemini-1.5-flash was retired
+  const GROQ_URL   = 'https://api.groq.com/openai/v1/chat/completions';
+  const GROQ_MODEL = 'llama-3.3-70b-versatile'; // State-of-the-art free model
 
-  // ── Get/Set Gemini API key ──────────────────────────────
-  const getApiKey = () => localStorage.getItem('gemini_api_key') || '';
+  // ── Get/Set API key ──────────────────────────────────────
+  const getApiKey = () => localStorage.getItem('gemini_api_key') || ''; // reuse same storage key
   const setApiKey = (key) => localStorage.setItem('gemini_api_key', key.trim());
   const hasApiKey = () => !!getApiKey();
 
-  // ── Call Gemini directly — ?key= works for all key formats ─
-  const geminiRequest = async (prompt, apiKey) => {
-    return fetch(`${GEMINI_BASE}/${GEMINI_MODEL}:generateContent?key=${apiKey}`, {
+  // ── Call Groq (OpenAI-compatible) ────────────────────────
+  const groqRequest = async (systemPrompt, userContent, apiKey) => {
+    return fetch(GROQ_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.1, maxOutputTokens: 8192 }
+        model: GROQ_MODEL,
+        temperature: 0.1,
+        max_tokens: 8192,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user',   content: userContent  }
+        ]
       })
     });
   };
@@ -25,14 +33,14 @@ const PdfExtractor = (() => {
   const extractTextFromPdf = async (arrayBuffer) => {
     await Reader.ensurePDFJSLoaded();
     const data = new Uint8Array(arrayBuffer.slice(0));
-    const pdf = await pdfjsLib.getDocument({ data }).promise;
+    const pdf  = await pdfjsLib.getDocument({ data }).promise;
     const totalPages = pdf.numPages;
     const pages = [];
 
     for (let i = 1; i <= totalPages; i++) {
-      const page = await pdf.getPage(i);
+      const page        = await pdf.getPage(i);
       const textContent = await page.getTextContent();
-      const text = textContent.items.map(item => item.str).join(' ');
+      const text        = textContent.items.map(item => item.str).join(' ');
       pages.push({ page: i, text: text.trim() });
     }
 
@@ -40,81 +48,85 @@ const PdfExtractor = (() => {
     return pages;
   };
 
-  // ── Call Gemini API to extract MCQs from a text chunk ──
+  // ── Extract MCQs from one text chunk ────────────────────
   const extractMcqsFromText = async (text, docName, apiKey) => {
     if (!text || text.trim().length < 20) return [];
 
-    const prompt = `You are a pharmacy exam question extractor. Analyze the following text from a pharmacy study document called "${docName}".
+    const systemPrompt = `You are an expert pharmacy exam question extractor. Your job is to find and extract multiple-choice questions (MCQs) from pharmacy study material with perfect accuracy.
 
-Extract ALL multiple-choice questions (MCQs) from this text. These are questions with 4 options labeled A, B, C, D (or 1,2,3,4).
+You MUST return ONLY a valid JSON array — no explanation, no markdown, no extra text.
 
-Return ONLY a JSON array. Each item must have:
-{
-  "question": "the full question text",
-  "options": ["A. option text", "B. option text", "C. option text", "D. option text"],
-  "correct": 0,
-  "explanation": "why this answer is correct",
-  "difficulty": "easy" or "medium" or "hard",
-  "domain": "PHARM" or "CLIN" or "CALC" or "REG" or "HERB"
-}
+Each extracted question must follow this exact schema:
+[
+  {
+    "question": "The full question stem text",
+    "options": ["A. First option", "B. Second option", "C. Third option", "D. Fourth option"],
+    "correct": 0,
+    "explanation": "Clear explanation of why the correct answer is right, with pharmacological reasoning",
+    "difficulty": "easy",
+    "domain": "PHARM"
+  }
+]
 
 Rules:
-- "correct" is 0 for A, 1 for B, 2 for C, 3 for D
-- Domain guide: PHARM=drug mechanisms/side effects, CLIN=clinical cases/dosing, CALC=calculations/pharmacokinetics, REG=laws/regulations, HERB=herbal
-- If no MCQs found, return []
-- Return ONLY the JSON array, no other text
+- "correct" is the 0-based index: 0=A, 1=B, 2=C, 3=D
+- "difficulty": "easy", "medium", or "hard"
+- "domain": one of: PHARM (pharmacology/mechanisms/side effects), CLIN (clinical/dosing/patient cases), CALC (calculations/pharmacokinetics), REG (regulation/law/UAE), HERB (herbal/alternative)
+- Extract EVERY MCQ you find — do not skip any
+- If the correct answer is explicitly stated, use it. Otherwise use your pharmacology knowledge
+- Write detailed explanations (2-3 sentences) using your medical knowledge
+- If there are NO MCQs in the text, return exactly: []`;
 
-Text to analyze:
-${text.substring(0, 7000)}`;
+    const userContent = `Document: "${docName}"
 
-    const response = await geminiRequest(prompt, apiKey);
+Extract all MCQ questions from this text:
+
+${text.substring(0, 8000)}`;
+
+    const response = await groqRequest(systemPrompt, userContent, apiKey);
 
     if (!response.ok) {
       const errBody = await response.text().catch(() => '');
-      console.error('Gemini API error:', response.status, errBody);
+      console.error('Groq API error:', response.status, errBody);
       let msg = `HTTP ${response.status}`;
       try { msg = JSON.parse(errBody)?.error?.message || msg; } catch {}
       throw new Error(msg);
     }
 
     const data = await response.json();
-    const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const raw  = data?.choices?.[0]?.message?.content || '';
 
-    console.log('Gemini raw response (first 300 chars):', raw.slice(0, 300));
+    console.log('Groq response (first 300 chars):', raw.slice(0, 300));
 
-    if (!raw) {
-      console.warn('Empty response from Gemini');
-      return [];
-    }
+    if (!raw) return [];
 
-    // Try direct parse first
+    // Try direct parse
     try {
       const parsed = JSON.parse(raw.trim());
       return Array.isArray(parsed) ? parsed : [];
     } catch { /* fall through */ }
 
-    // Strip markdown code fences (```json ... ``` or ``` ... ```)
-    const stripped = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim();
+    // Strip markdown fences ```json ... ```
+    const stripped = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/,'').trim();
     try {
       const parsed = JSON.parse(stripped);
       return Array.isArray(parsed) ? parsed : [];
     } catch { /* fall through */ }
 
-    // Find first JSON array in the response
+    // Find first JSON array in response
     const match = stripped.match(/\[[\s\S]*\]/);
     if (match) {
       try { return JSON.parse(match[0]); } catch { /* fall through */ }
     }
 
-    console.warn('Could not parse Gemini response as JSON:', raw.slice(0, 500));
+    console.warn('Could not parse Groq response as JSON:', raw.slice(0, 500));
     return [];
   };
 
-
-  // ── Batch pages into chunks to reduce API calls ──────────
-  const chunkPages = (pages, charsPerChunk = 6000) => {
+  // ── Batch pages into chunks ──────────────────────────────
+  const chunkPages = (pages, charsPerChunk = 8000) => {
     const chunks = [];
-    let current = '';
+    let current  = '';
     for (const p of pages) {
       if ((current + p.text).length > charsPerChunk && current.length > 0) {
         chunks.push(current);
@@ -127,74 +139,65 @@ ${text.substring(0, 7000)}`;
     return chunks;
   };
 
-  // ── Main extraction entry point ─────────────────────────
-  // onProgress(current, total, foundSoFar) callback for UI updates
+  // ── Main extraction entry point ──────────────────────────
   const extractQuestionsFromPdf = async (arrayBuffer, docName, docId, onProgress) => {
     const apiKey = getApiKey();
-    if (!apiKey) throw new Error('No Gemini API key set. Please add it in Settings.');
+    if (!apiKey) throw new Error('No API key set. Please add your Groq key in Settings.');
 
     onProgress && onProgress(0, 1, 0);
 
-    // Extract text from all pages
-    const pages = await extractTextFromPdf(arrayBuffer);
+    const pages      = await extractTextFromPdf(arrayBuffer);
     const totalPages = pages.length;
-    const chunks = chunkPages(pages, 6000);
-    const allQuestions = [];
-    const seenQuestions = new Set();
-    let failedChunks = 0;
+    const chunks     = chunkPages(pages, 8000);  // larger chunks = fewer API calls
+    const allQuestions   = [];
+    const seenQuestions  = new Set();
+    let failedChunks     = 0;
     let duplicatesSkipped = 0;
-    let rawExtracted = 0; // before dedup/validation
 
     for (let i = 0; i < chunks.length; i++) {
       onProgress && onProgress(i + 1, chunks.length, allQuestions.length);
 
       try {
         const questions = await extractMcqsFromText(chunks[i], docName, apiKey);
-        rawExtracted += questions.length;
 
         for (const q of questions) {
-          // Deduplicate by question text
           const key = q.question?.trim().toLowerCase().substring(0, 60);
           if (!key || seenQuestions.has(key)) { duplicatesSkipped++; continue; }
           seenQuestions.add(key);
 
-          // Validate structure
           if (!q.question || !Array.isArray(q.options) || q.options.length < 2) continue;
 
-          // Ensure exactly 4 options
           while (q.options.length < 4) q.options.push('');
           q.options = q.options.slice(0, 4);
 
-          // Ensure correct index is valid
           if (typeof q.correct !== 'number' || q.correct < 0 || q.correct >= q.options.length) {
             q.correct = 0;
           }
 
           allQuestions.push({
-            id: `extracted_${docId}_${allQuestions.length}`,
-            question: q.question.trim(),
-            options: q.options.map(o => o.trim()),
-            correct: q.correct,
+            id:          `extracted_${docId}_${allQuestions.length}`,
+            question:    q.question.trim(),
+            options:     q.options.map(o => o.trim()),
+            correct:     q.correct,
             explanation: q.explanation || 'See source document for details.',
-            difficulty: ['easy', 'medium', 'hard'].includes(q.difficulty) ? q.difficulty : 'medium',
-            domain: q.domain || 'PHARM',
-            source: docName,
-            docId: docId,
+            difficulty:  ['easy','medium','hard'].includes(q.difficulty) ? q.difficulty : 'medium',
+            domain:      q.domain || 'PHARM',
+            source:      docName,
+            docId,
             extractedAt: Date.now()
           });
         }
       } catch (err) {
-        console.warn(`Chunk ${i + 1} extraction failed:`, err);
+        console.warn(`Chunk ${i + 1} failed:`, err);
         failedChunks++;
       }
 
-      // Small delay between API calls to respect rate limits
+      // Groq free tier: 30 RPM — small delay between chunks
       if (i < chunks.length - 1) {
-        await new Promise(r => setTimeout(r, 500));
+        await new Promise(r => setTimeout(r, 1200));
       }
     }
 
-    // Quality score: % of questions with all 4 non-empty options + a real explanation
     const qualityScore = allQuestions.length === 0 ? 0 : Math.round(
       (allQuestions.filter(q =>
         q.options.every(o => o.trim().length > 0) &&
@@ -208,12 +211,9 @@ ${text.substring(0, 7000)}`;
     return {
       questions: allQuestions,
       meta: {
-        docId,
-        docName,
-        totalPages,
+        docId, docName, totalPages,
         chunksProcessed: chunks.length,
-        failedChunks,
-        duplicatesSkipped,
+        failedChunks, duplicatesSkipped,
         totalFound: allQuestions.length,
         qualityScore,
         extractedAt: Date.now()

@@ -262,18 +262,18 @@
           <div id="gemini-api-section" style="margin-top:16px;padding:12px;background:var(--bg-base);border-radius:8px;border:1px solid var(--border)">
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
               <span style="font-size:0.85rem">🤖</span>
-              <span style="font-size:0.75rem;font-weight:700;color:var(--text-secondary)">AI Question Extraction</span>
+              <span style="font-size:0.75rem;font-weight:700;color:var(--text-secondary)">🦙 AI Extraction — Groq (Llama 3.3 70B)</span>
               <span id="gemini-key-status" style="margin-left:auto;font-size:0.65rem;padding:2px 6px;border-radius:10px;background:var(--error-bg,#ef444422);color:var(--error)">No key</span>
             </div>
-            <p style="font-size:0.68rem;color:var(--text-muted);margin-bottom:8px;line-height:1.4">Add your Gemini API key to automatically extract MCQ questions from uploaded PDFs.</p>
+            <p style="font-size:0.68rem;color:var(--text-muted);margin-bottom:8px;line-height:1.4">Add your free Groq API key to extract questions using Llama 3.3 70B — powerful, free &amp; works worldwide.</p>
             <div style="display:flex;gap:6px;margin-bottom:6px">
-              <input type="password" id="gemini-api-key-input" placeholder="Paste Gemini API key..." style="flex:1;background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);padding:6px 8px;border-radius:6px;font-size:0.72rem" />
+              <input type="password" id="gemini-api-key-input" placeholder="Paste Groq API key (gsk_...)" style="flex:1;background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);padding:6px 8px;border-radius:6px;font-size:0.72rem" />
               <button class="btn" onclick="App.saveGeminiKey()" style="padding:6px 10px;font-size:0.72rem;white-space:nowrap">Save</button>
             </div>
             <button onclick="App.testGeminiKey()" style="width:100%;background:none;border:1px dashed var(--border);color:var(--text-muted);padding:5px;border-radius:6px;font-size:0.68rem;cursor:pointer">
               🔌 Test API Connection
             </button>
-            <p style="font-size:0.65rem;color:var(--text-muted);margin-top:6px">Get a free key at <a href="https://aistudio.google.com" target="_blank" style="color:var(--primary)">aistudio.google.com</a></p>
+            <p style="font-size:0.65rem;color:var(--text-muted);margin-top:6px">Get your free key at <a href="https://console.groq.com/keys" target="_blank" style="color:var(--primary)">console.groq.com/keys</a> — no billing needed</p>
           </div>
 
 
