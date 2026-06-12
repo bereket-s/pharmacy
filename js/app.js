@@ -77,21 +77,15 @@ const App = (() => {
     if (!apiKey) { showToast('No API key saved. Paste your key and click Save first.', 'warning'); return; }
     showToast('🔌 Testing API connection...', 'info', 3000);
     try {
-      const isNewFormat = apiKey.startsWith('AQ.');
-      const url = isNewFormat
-        ? 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'
-        : `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-
-      const headers = { 'Content-Type': 'application/json' };
-      if (isNewFormat) {
-        headers['Authorization'] = `Bearer ${apiKey}`;
-        headers['x-goog-api-key'] = apiKey;
-      }
-
-      const res = await fetch(url, {
+      const PROXY_URL = 'https://wtqkxdwilfpyuflresft.supabase.co/functions/v1/gemini-proxy';
+      const res = await fetch(PROXY_URL, {
         method: 'POST',
-        headers,
-        body: JSON.stringify({ contents: [{ parts: [{ text: 'Reply with the single word: OK' }] }] })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          apiKey,
+          model: 'gemini-1.5-flash',
+          contents: [{ parts: [{ text: 'Reply with the single word: OK' }] }]
+        })
       });
 
       if (!res.ok) {
@@ -104,7 +98,7 @@ const App = (() => {
       const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
       showToast(`✅ API key works! Gemini replied: "${reply.trim().slice(0, 30)}"`, 'success', 5000);
     } catch (e) {
-      showToast(`❌ API key failed: ${e.message}`, 'error', 8000);
+      showToast(`❌ Connection failed: ${e.message}`, 'error', 8000);
     }
   };
 

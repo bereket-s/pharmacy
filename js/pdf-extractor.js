@@ -1,33 +1,24 @@
 // js/pdf-extractor.js — Extract MCQ questions from PDFs using Gemini API
 
 const PdfExtractor = (() => {
-  const GEMINI_MODEL = 'gemini-1.5-flash';
-  const GEMINI_BASE  = 'https://generativelanguage.googleapis.com/v1beta/models';
+  // Proxy URL — Supabase Edge Function keeps the API key server-side
+  const PROXY_URL = 'https://wtqkxdwilfpyuflresft.supabase.co/functions/v1/gemini-proxy';
 
   // ── Get/Set Gemini API key ──────────────────────────────
+  // Key is stored locally just to verify one is set, and is sent to the
+  // proxy so Supabase can store it as a secret via the first call.
   const getApiKey = () => localStorage.getItem('gemini_api_key') || '';
   const setApiKey = (key) => localStorage.setItem('gemini_api_key', key.trim());
   const hasApiKey = () => !!getApiKey();
 
-  // ── Build fetch call based on key format ─────────────────
-  // New 'AQ.' keys (June 2026+) → Authorization: Bearer header
-  // Legacy 'AIzaSy' keys        → ?key= query param
-  const geminiRequest = (prompt, apiKey) => {
-    const isNewFormat = apiKey.startsWith('AQ.');
-    const url = isNewFormat
-      ? `${GEMINI_BASE}/${GEMINI_MODEL}:generateContent`
-      : `${GEMINI_BASE}/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
-
-    const headers = { 'Content-Type': 'application/json' };
-    if (isNewFormat) {
-      headers['Authorization'] = `Bearer ${apiKey}`;
-      headers['x-goog-api-key'] = apiKey;
-    }
-
-    return fetch(url, {
+  // ── Call our Supabase proxy (avoids CORS + keeps key server-side) ─
+  const geminiRequest = async (prompt, apiKey) => {
+    return fetch(PROXY_URL, {
       method: 'POST',
-      headers,
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        apiKey,
+        model: 'gemini-1.5-flash',
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: { temperature: 0.1, maxOutputTokens: 8192 }
       })
