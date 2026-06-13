@@ -190,7 +190,7 @@ ${text.substring(0, 8000)}`;
               correct:     q.correct,
               explanation: q.explanation || 'See source document for details.',
               difficulty:  ['easy','medium','hard'].includes(q.difficulty) ? q.difficulty : 'medium',
-              domain:      q.domain || 'PHARM',
+              domain:      ['PHARM','CLIN','LAW','PHSCI','PRAC','CALC','THER','REG','HERB'].includes(q.domain) ? q.domain : 'PHARM',
               source:      docName,
               docId,
               extractedAt: Date.now()
