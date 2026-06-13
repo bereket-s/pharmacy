@@ -184,6 +184,36 @@ const App = (() => {
     await extractQuestionsFromDoc(docFileStore[docId].arrayBuffer, name, docId);
   };
 
+  // ── Re-extract ALL documents ────────────────────────────
+  const reExtractAllDocs = async () => {
+    const meta = Storage.getLibraryMeta();
+    if (!meta.length) { showToast('Your library is empty. Upload PDFs first.', 'warning'); return; }
+    if (!confirm(`Are you sure you want to re-extract questions from all ${meta.length} documents? This may take several minutes.`)) return;
+    
+    showToast(`🤖 Starting bulk extraction of ${meta.length} documents...`, 'info', 4000);
+    
+    for (let i = 0; i < meta.length; i++) {
+      const docId = meta[i].id;
+      let entry = docFileStore[docId];
+      if (!entry?.arrayBuffer) {
+        const stored = await DB.getPdf(docId).catch(() => null);
+        if (stored) {
+          docFileStore[docId] = { arrayBuffer: stored.arrayBuffer, name: stored.name };
+          entry = docFileStore[docId];
+        }
+      }
+      
+      if (entry?.arrayBuffer) {
+        await extractQuestionsFromDoc(entry.arrayBuffer, entry.name || docId, docId);
+        // Delay between multiple documents to respect rate limit
+        if (i < meta.length - 1) await new Promise(r => setTimeout(r, 2500));
+      } else {
+        console.warn(`Could not load PDF ${docId} for bulk extraction.`);
+      }
+    }
+    showToast(`✅ Bulk extraction complete!`, 'success', 5000);
+  };
+
 
   // ── Sync Logic ───────────────────────────────────────────
   const openSyncModal = () => {
@@ -1220,7 +1250,7 @@ const App = (() => {
     renderAnalytics, renderLibraryList,
     openDoc, deleteDoc, cleanupBrokenDocs,
     openSyncModal, applySyncCode,
-    saveGeminiKey, testGeminiKey, reExtractDoc,
+    saveGeminiKey, testGeminiKey, reExtractDoc, reExtractAllDocs,
     renderExtractedQuestions, deleteExtractedQuestion, deleteAllExtractedQuestions,
     renderExtractionHistory, showExtractionTab
   };
