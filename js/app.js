@@ -876,8 +876,7 @@ const App = (() => {
       } catch(e) { console.warn('DB read failed:', e); }
     }
     if (!entry) {
-      showToast('PDF not found — please re-upload the file.', 'warning', 4000);
-      document.getElementById('pdf-upload-input')?.click();
+      showToast('⚠️ PDF not found in storage — click 🗑 to remove it, or re-upload.', 'warning', 5000);
       return;
     }
     await Reader.openFromArrayBuffer(entry.arrayBuffer, entry.name, docId, 'pdf-canvas', ({name, totalPages}) => {
@@ -898,7 +897,6 @@ const App = (() => {
     Storage.removeLibraryItem(docId);
     delete docFileStore[docId];
     try { if (typeof DB !== 'undefined') await DB.deletePdf(docId); } catch(e){}
-    // Remove extracted questions for this doc
     if (typeof CloudQuestions !== 'undefined') {
       await CloudQuestions.deleteQuestionsForDoc(docId).catch(() => {});
     }
@@ -910,6 +908,37 @@ const App = (() => {
     setEl('reader-doc-title', 'No document open');
     renderLibraryList();
     showToast('Document removed', 'info');
+  };
+
+  // Remove all library entries that cannot be loaded from cloud or memory
+  const cleanupBrokenDocs = async () => {
+    const meta = Storage.getLibraryMeta();
+    if (!meta.length) { showToast('Library is already empty', 'info'); return; }
+    showToast('🔍 Scanning for broken files...', 'info', 3000);
+    let removed = 0;
+    for (const m of meta) {
+      const inMemory = !!docFileStore[m.id]?.arrayBuffer;
+      let inCloud = false;
+      if (!inMemory && typeof DB !== 'undefined' && DB.isAvailable()) {
+        try {
+          const stored = await DB.getPdf(m.id);
+          inCloud = !!(stored?.arrayBuffer);
+          if (inCloud) { docFileStore[m.id] = { arrayBuffer: stored.arrayBuffer, name: stored.name }; }
+        } catch(e) { inCloud = false; }
+      }
+      if (!inMemory && !inCloud) {
+        Storage.removeLibraryItem(m.id);
+        delete docFileStore[m.id];
+        if (typeof CloudQuestions !== 'undefined') {
+          await CloudQuestions.deleteQuestionsForDoc(m.id).catch(() => {});
+        }
+        AppData.QUESTIONS = AppData.QUESTIONS.filter(q => q.docId !== m.id);
+        removed++;
+      }
+    }
+    renderLibraryList();
+    if (removed === 0) showToast('✅ All files are healthy — nothing to clean up', 'success', 4000);
+    else showToast(`🗑 Removed ${removed} broken file${removed > 1 ? 's' : ''}`, 'success', 4000);
   };
 
   const restoreFromDB = async () => {
@@ -1181,7 +1210,7 @@ const App = (() => {
     toggleQuizBookmark, reviewQuestion,
     renderBookmarks, removeBookmark,
     renderAnalytics, renderLibraryList,
-    openDoc, deleteDoc,
+    openDoc, deleteDoc, cleanupBrokenDocs,
     openSyncModal, applySyncCode,
     saveGeminiKey, testGeminiKey, reExtractDoc,
     renderExtractedQuestions, deleteExtractedQuestion, deleteAllExtractedQuestions,
