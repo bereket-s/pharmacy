@@ -911,10 +911,10 @@ const App = (() => {
   };
 
   // Remove all library entries that cannot be loaded from cloud or memory
-  const cleanupBrokenDocs = async () => {
+  const cleanupBrokenDocs = async (silent = false) => {
     const meta = Storage.getLibraryMeta();
-    if (!meta.length) { showToast('Library is already empty', 'info'); return; }
-    showToast('🔍 Scanning for broken files...', 'info', 3000);
+    if (!meta.length) { if (!silent) showToast('Library is already empty', 'info'); return; }
+    if (!silent) showToast('🔍 Scanning for broken files...', 'info', 3000);
     let removed = 0;
     for (const m of meta) {
       const inMemory = !!docFileStore[m.id]?.arrayBuffer;
@@ -937,8 +937,10 @@ const App = (() => {
       }
     }
     renderLibraryList();
-    if (removed === 0) showToast('✅ All files are healthy — nothing to clean up', 'success', 4000);
-    else showToast(`🗑 Removed ${removed} broken file${removed > 1 ? 's' : ''}`, 'success', 4000);
+    if (!silent) {
+      if (removed === 0) showToast('✅ All files are healthy — nothing to clean up', 'success', 4000);
+      else showToast(`🗑 Removed ${removed} broken file${removed > 1 ? 's' : ''}`, 'success', 4000);
+    }
   };
 
   const restoreFromDB = async () => {
@@ -999,6 +1001,9 @@ const App = (() => {
   // ── Init ─────────────────────────────────────────────────
   const init = async () => {
     Storage.updateStreak();
+
+    // Auto-clean broken docs on startup silently
+    await cleanupBrokenDocs(true);
 
     // Hash router
     const hashRoute = () => navigate(window.location.hash.replace('#','') || 'dashboard');

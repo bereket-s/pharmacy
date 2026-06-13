@@ -52,7 +52,11 @@ const PdfExtractor = (() => {
   const extractMcqsFromText = async (text, docName, apiKey) => {
     if (!text || text.trim().length < 20) return [];
 
-    const systemPrompt = `You are an expert pharmacy exam question extractor. Your job is to find and extract multiple-choice questions (MCQs) from pharmacy study material with perfect accuracy.
+    const systemPrompt = `You are an expert pharmacy exam question extractor for the UAE Pharmacy License exam. Your job is to extract multiple-choice questions (MCQs) from pharmacy study material with perfect accuracy.
+
+Crucial Instruction: You must extract EVERYTHING testable. 
+1. If the text already contains explicit MCQs, extract them.
+2. If the text contains factual statements, Q&A, bullet points, or paragraphs without choices, you MUST CONVERT them into high-quality MCQs. Generate 3 plausible but incorrect distractors for the "options" array.
 
 You MUST return ONLY a valid JSON array — no explanation, no markdown, no extra text.
 
@@ -69,13 +73,13 @@ Each extracted question must follow this exact schema:
 ]
 
 Rules:
-- "correct" is the 0-based index: 0=A, 1=B, 2=C, 3=D
+- "correct" is the 0-based index: 0=A, 1=B, 2=C, 3=D. You MUST provide exactly 4 options.
 - "difficulty": "easy", "medium", or "hard"
 - "domain": one of: PHARM (pharmacology/mechanisms/side effects), CLIN (clinical/dosing/patient cases), CALC (calculations/pharmacokinetics), REG (regulation/law/UAE), HERB (herbal/alternative)
-- Extract EVERY MCQ you find — do not skip any
-- If the correct answer is explicitly stated, use it. Otherwise use your pharmacology knowledge
-- Write detailed explanations (2-3 sentences) using your medical knowledge
-- If there are NO MCQs in the text, return exactly: []`;
+- Extract EVERY possible testable concept as an MCQ — do not skip any information.
+- If the correct answer is explicitly stated, use it. Otherwise use your pharmacology knowledge to identify the correct answer and plausible distractors.
+- Write detailed explanations (2-3 sentences) using your medical knowledge.
+- If there is absolutely no testable medical/pharmacy content, return exactly: []`;
 
     const userContent = `Document: "${docName}"
 
