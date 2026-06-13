@@ -150,17 +150,8 @@
           <!-- Domain Filter -->
           <div class="practice-section">
             <h3>Domain</h3>
-            <div class="filter-group">
-              <button class="domain-filter-btn active" data-domain="ALL">All Domains</button>
-              <button class="domain-filter-btn" data-domain="PHARM">⚗️ Pharmacology</button>
-              <button class="domain-filter-btn" data-domain="CLIN">🏥 Clinical</button>
-              <button class="domain-filter-btn" data-domain="LAW">⚖️ UAE Drug Law</button>
-              <button class="domain-filter-btn" data-domain="PHSCI">🔬 Pharm Sciences</button>
-              <button class="domain-filter-btn" data-domain="PRAC">💊 Practice</button>
-              <button class="domain-filter-btn" data-domain="CALC">🧮 Calculations</button>
-              <button class="domain-filter-btn" data-domain="THER">🩺 Therapeutics</button>
-              <button class="domain-filter-btn" data-domain="REG">📋 Regulation</button>
-              <button class="domain-filter-btn" data-domain="HERB">🌿 Herbal</button>
+            <div class="filter-group" id="dynamic-domain-filters">
+              <!-- Dynamically populated by app.js -->
             </div>
           </div>
 
@@ -386,15 +377,7 @@
           </select>
           <select id="q-filter-domain" style="background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);padding:8px 12px;border-radius:8px;font-size:0.82rem">
             <option value="ALL">🏷️ All Domains</option>
-            <option value="PHARM">⚗️ Pharmacology</option>
-            <option value="CLIN">🏥 Clinical</option>
-            <option value="LAW">⚖️ Drug Law</option>
-            <option value="PHSCI">🔬 Pharm Sci</option>
-            <option value="PRAC">💊 Practice</option>
-            <option value="CALC">🧭 Calculations</option>
-            <option value="THER">🩺 Therapeutics</option>
-            <option value="REG">📋 Regulation</option>
-            <option value="HERB">🌿 Herbal</option>
+            <!-- Dynamically populated by app.js -->
           </select>
           <span id="q-count-badge" style="font-size:0.78rem;color:var(--text-muted);white-space:nowrap">0 questions</span>
           <button class="btn" onclick="App.deleteAllExtractedQuestions()" style="border-color:var(--error);color:var(--error);font-size:0.78rem;padding:6px 12px">Delete All</button>

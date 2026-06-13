@@ -75,7 +75,7 @@ Each extracted question must follow this exact schema:
 Rules:
 - "correct" is the 0-based index: 0=A, 1=B, 2=C, 3=D. You MUST provide exactly 4 options.
 - "difficulty": "easy", "medium", or "hard"
-- "domain": one of: PHARM (pharmacology/mechanisms/side effects), CLIN (clinical/dosing/patient cases), CALC (calculations/pharmacokinetics), REG (regulation/law/UAE), HERB (herbal/alternative)
+- "domain": Use one of these if it fits: PHARM, CLIN, CALC, REG, HERB, PHSCI, PRAC, THER, LAW. If the topic is entirely new (e.g., microbiology, pediatrics), invent a short 4-5 uppercase letter ID for it (e.g. MICRO, PEDS, ONCOL).
 - Extract EVERY possible testable concept as an MCQ — do not skip any information.
 - If the correct answer is explicitly stated, use it. Otherwise use your pharmacology knowledge to identify the correct answer and plausible distractors.
 - Write detailed explanations (2-3 sentences) using your medical knowledge.
@@ -190,7 +190,7 @@ ${text.substring(0, 8000)}`;
               correct:     q.correct,
               explanation: q.explanation || 'See source document for details.',
               difficulty:  ['easy','medium','hard'].includes(q.difficulty) ? q.difficulty : 'medium',
-              domain:      ['PHARM','CLIN','LAW','PHSCI','PRAC','CALC','THER','REG','HERB'].includes(q.domain) ? q.domain : 'PHARM',
+              domain:      q.domain ? q.domain.toUpperCase().substring(0, 5) : 'PHARM',
               source:      docName,
               docId,
               extractedAt: Date.now()

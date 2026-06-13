@@ -38,11 +38,75 @@ const App = (() => {
       // Add new ones
       AppData.QUESTIONS.push(...extracted);
       console.log(`✅ Loaded ${extracted.length} extracted questions into question bank`);
+      
+      syncDynamicDomains();
+      
       if (document.getElementById('view-questions')?.classList.contains('active')) {
         renderExtractedQuestions();
       }
     } catch (e) {
       console.warn('Failed to load extracted questions:', e);
+    }
+  };
+
+  // ── Dynamic Domains Logic ────────────────────────────────
+  const syncDynamicDomains = () => {
+    const existingDomains = new Set(Object.keys(AppData.DOMAINS));
+    const fallbackColors = ['#ec4899', '#8b5cf6', '#14b8a6', '#f59e0b', '#06b6d4', '#84cc16', '#3b82f6'];
+    const fallbackIcons = ['🧠', '🧬', '🧪', '💊', '📘', '⚕️', '🔬'];
+    
+    let addedCount = 0;
+    
+    AppData.QUESTIONS.forEach(q => {
+      const d = q.domain || 'PHARM';
+      if (!existingDomains.has(d)) {
+        const color = fallbackColors[addedCount % fallbackColors.length];
+        const icon = fallbackIcons[addedCount % fallbackIcons.length];
+        
+        AppData.DOMAINS[d] = {
+          id: d,
+          name: d + ' (Auto)',
+          shortName: d,
+          icon: icon,
+          color: color,
+          description: `Auto-generated category: ${d}`
+        };
+        existingDomains.add(d);
+        addedCount++;
+        console.log(`Created dynamic domain: ${d}`);
+      }
+    });
+
+    renderDomainFilters();
+  };
+
+  const renderDomainFilters = () => {
+    // 1. Practice by Topic buttons
+    const practiceContainer = document.getElementById('dynamic-domain-filters');
+    if (practiceContainer) {
+      let html = `<button class="domain-filter-btn active" data-domain="ALL">All Domains</button>`;
+      Object.values(AppData.DOMAINS).forEach(d => {
+        html += `<button class="domain-filter-btn" data-domain="${d.id}">${d.icon} ${d.shortName}</button>`;
+      });
+      practiceContainer.innerHTML = html;
+
+      // Reattach event listeners to new buttons
+      document.querySelectorAll('.domain-filter-btn').forEach(btn => btn.addEventListener('click', () => {
+        document.querySelectorAll('.domain-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        quizSettings.domain = btn.dataset.domain;
+        updateEstimate();
+      }));
+    }
+
+    // 2. Questions tab dropdown
+    const selectEl = document.getElementById('q-filter-domain');
+    if (selectEl) {
+      let html = `<option value="ALL">🏷️ All Domains</option>`;
+      Object.values(AppData.DOMAINS).forEach(d => {
+        html += `<option value="${d.id}">${d.icon} ${d.shortName}</option>`;
+      });
+      selectEl.innerHTML = html;
     }
   };
 
@@ -1031,6 +1095,7 @@ const App = (() => {
   // ── Init ─────────────────────────────────────────────────
   const init = async () => {
     Storage.updateStreak();
+    syncDynamicDomains();
 
     // Auto-clean broken docs on startup silently
     await cleanupBrokenDocs(true);
