@@ -161,46 +161,67 @@ ${text.substring(0, 8000)}`;
     for (let i = 0; i < chunks.length; i++) {
       onProgress && onProgress(i + 1, chunks.length, allQuestions.length);
 
-      try {
-        const questions = await extractMcqsFromText(chunks[i], docName, apiKey);
+      let chunkSuccess = false;
+      let retries = 0;
+      const maxRetries = 3;
 
-        for (const q of questions) {
-          const key = q.question?.trim().toLowerCase().substring(0, 60);
-          if (!key || seenQuestions.has(key)) { duplicatesSkipped++; continue; }
-          seenQuestions.add(key);
+      while (!chunkSuccess && retries <= maxRetries) {
+        try {
+          const questions = await extractMcqsFromText(chunks[i], docName, apiKey);
 
-          if (!q.question || !Array.isArray(q.options) || q.options.length < 2) continue;
+          for (const q of questions) {
+            const key = q.question?.trim().toLowerCase().substring(0, 60);
+            if (!key || seenQuestions.has(key)) { duplicatesSkipped++; continue; }
+            seenQuestions.add(key);
 
-          while (q.options.length < 4) q.options.push('');
-          q.options = q.options.slice(0, 4);
+            if (!q.question || !Array.isArray(q.options) || q.options.length < 2) continue;
 
-          if (typeof q.correct !== 'number' || q.correct < 0 || q.correct >= q.options.length) {
-            q.correct = 0;
+            while (q.options.length < 4) q.options.push('');
+            q.options = q.options.slice(0, 4);
+
+            if (typeof q.correct !== 'number' || q.correct < 0 || q.correct >= q.options.length) {
+              q.correct = 0;
+            }
+
+            allQuestions.push({
+              id:          `extracted_${docId}_${allQuestions.length}`,
+              question:    q.question.trim(),
+              options:     q.options.map(o => o.trim()),
+              correct:     q.correct,
+              explanation: q.explanation || 'See source document for details.',
+              difficulty:  ['easy','medium','hard'].includes(q.difficulty) ? q.difficulty : 'medium',
+              domain:      q.domain || 'PHARM',
+              source:      docName,
+              docId,
+              extractedAt: Date.now()
+            });
           }
-
-          allQuestions.push({
-            id:          `extracted_${docId}_${allQuestions.length}`,
-            question:    q.question.trim(),
-            options:     q.options.map(o => o.trim()),
-            correct:     q.correct,
-            explanation: q.explanation || 'See source document for details.',
-            difficulty:  ['easy','medium','hard'].includes(q.difficulty) ? q.difficulty : 'medium',
-            domain:      q.domain || 'PHARM',
-            source:      docName,
-            docId,
-            extractedAt: Date.now()
-          });
+          chunkSuccess = true; // Success! Break the retry loop.
+        } catch (err) {
+          if (err.message.includes('429') || err.message.includes('Rate limit')) {
+            retries++;
+            if (retries <= maxRetries) {
+              const backoff = Math.pow(2, retries) * 2000; // 4s, 8s, 16s
+              console.warn(`Rate limited on chunk ${i + 1}. Retrying in ${backoff}ms...`);
+              await new Promise(r => setTimeout(r, backoff));
+            } else {
+              console.error(`Chunk ${i + 1} failed after ${maxRetries} retries:`, err);
+              failedChunks++;
+            }
+          } else {
+            console.warn(`Chunk ${i + 1} failed with non-retryable error:`, err);
+            failedChunks++;
+            break; // Break the retry loop for non-429 errors
+          }
         }
-      } catch (err) {
-        console.warn(`Chunk ${i + 1} failed:`, err);
-        failedChunks++;
       }
 
-      // Groq free tier: 30 RPM — small delay between chunks
+      // Groq free tier: 30 RPM — 2500ms delay between chunks ensures we stay safely under limit
       if (i < chunks.length - 1) {
-        await new Promise(r => setTimeout(r, 1200));
+        await new Promise(r => setTimeout(r, 2500));
       }
     }
+
 
     const qualityScore = allQuestions.length === 0 ? 0 : Math.round(
       (allQuestions.filter(q =>

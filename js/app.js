@@ -1133,11 +1133,14 @@ const App = (() => {
       // Trigger AI question extraction for each PDF (if API key is set)
       if (typeof PdfExtractor !== 'undefined' && PdfExtractor.hasApiKey()) {
         showToast('🤖 Starting question extraction with Llama 3.3 70B...', 'info', 3000);
-        for (const file of pdfs) {
+        for (let i = 0; i < pdfs.length; i++) {
+          const file = pdfs[i];
           const docId = makeDocId(file);
           const buf   = docFileStore[docId]?.arrayBuffer;
           if (buf) {
             await extractQuestionsFromDoc(buf, file.name, docId);
+            // Delay between multiple documents to respect rate limit
+            if (i < pdfs.length - 1) await new Promise(r => setTimeout(r, 2500));
           }
         }
       } else {
