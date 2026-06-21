@@ -52,38 +52,43 @@ const PdfExtractor = (() => {
   const extractMcqsFromText = async (text, docName, apiKey) => {
     if (!text || text.trim().length < 20) return [];
 
-    const systemPrompt = `You are an expert pharmacy exam question extractor for the UAE Pharmacy License exam. Your job is to extract multiple-choice questions (MCQs) from pharmacy study material with perfect accuracy.
+    const systemPrompt = `You are a highly accurate UAE Pharmacy License exam question extractor. This app is used by pharmacists preparing for the UAE Prometric Pharmacy exam (administered by MOHAP, DHA, and DOH). All questions MUST be 100% aligned with UAE pharmacy practice, UAE drug law, and international clinical guidelines.
 
-Crucial Instruction: You must extract EVERYTHING testable. 
-1. If the text already contains explicit MCQs, extract them.
-2. If the text contains factual statements, Q&A, bullet points, or paragraphs without choices, you MUST CONVERT them into high-quality MCQs. Generate 3 plausible but incorrect distractors for the "options" array.
+CRITICAL UAE CONTEXT RULES — YOU MUST FOLLOW ALL OF THESE:
+1. This is for the UAE Pharmacy License exam. NEVER reference Saudi Arabia, Saudi MOH, SCFHS, Kingdom of Saudi Arabia, or KSA. Replace any such reference with the UAE equivalent: use MOHAP (Ministry of Health and Prevention), DHA (Dubai Health Authority), or DOH (Department of Health Abu Dhabi).
+2. UAE Drug Scheduling: Schedule 1 = most dangerous (e.g., heroin), Schedule 4 = OTC. Controlled substances require triplicate prescription in the UAE.
+3. UAE Pharmacy Law context: Pharmacists must be licensed by MOHAP. A pharmacy must have a licensed pharmacist on-site at all times.
+4. If a text contains a question mentioning a non-UAE country's specific laws/procedures, adapt it to UAE context or SKIP it entirely.
+
+EXTRACTION INSTRUCTIONS:
+1. Extract ALL explicit MCQ questions found in the text.
+2. Convert facts, bullet points, Q&A, paragraphs into high-quality MCQs — generate 3 plausible wrong distractors.
+3. Verify every correct answer using your pharmacological knowledge. Do NOT guess — if you are unsure, mark difficulty as "hard".
+4. Explanations must be detailed, accurate, and use correct pharmacological reasoning (2-3 sentences).
 
 You MUST return ONLY a valid JSON array — no explanation, no markdown, no extra text.
 
-Each extracted question must follow this exact schema:
+Schema:
 [
   {
     "question": "The full question stem text",
     "options": ["A. First option", "B. Second option", "C. Third option", "D. Fourth option"],
     "correct": 0,
-    "explanation": "Clear explanation of why the correct answer is right, with pharmacological reasoning",
+    "explanation": "Detailed pharmacological explanation of why the correct answer is right",
     "difficulty": "easy",
     "domain": "PHARM"
   }
 ]
 
 Rules:
-- "correct" is the 0-based index: 0=A, 1=B, 2=C, 3=D. You MUST provide exactly 4 options.
+- "correct": 0-based index (0=A, 1=B, 2=C, 3=D). MUST provide exactly 4 options per question.
 - "difficulty": "easy", "medium", or "hard"
-- "domain": Use one of these if it fits: PHARM, CLIN, CALC, REG, HERB, PHSCI, PRAC, THER, LAW. If the topic is entirely new (e.g., microbiology, pediatrics), invent a short 4-5 uppercase letter ID for it (e.g. MICRO, PEDS, ONCOL).
-- Extract EVERY possible testable concept as an MCQ — do not skip any information.
-- If the correct answer is explicitly stated, use it. Otherwise use your pharmacology knowledge to identify the correct answer and plausible distractors.
-- Write detailed explanations (2-3 sentences) using your medical knowledge.
-- If there is absolutely no testable medical/pharmacy content, return exactly: []`;
+- "domain": PHARM (mechanisms/pharmacology), CLIN (clinical cases/patient management), CALC (calculations/pharmacokinetics), REG (UAE regulations/law/MOHAP/DHA), HERB (herbal/alternative), PHSCI (pharmaceutical sciences), PRAC (pharmacy practice/dispensing), THER (therapeutics/disease management), LAW (drug scheduling/controlled substances). If a topic does not fit any, invent a short 4-5 uppercase ID (e.g., MICRO, PEDS, ONCOL, IMMUN).
+- If there is no testable pharmacy content, return exactly: []`;
 
     const userContent = `Document: "${docName}"
 
-Extract all MCQ questions from this text:
+Extract all testable pharmacy MCQ questions from this text. Remember: this is for UAE Pharmacy License exam preparation. Adapt any non-UAE regulatory references to UAE context (MOHAP/DHA/DOH):
 
 ${text.substring(0, 8000)}`;
 
@@ -175,6 +180,16 @@ ${text.substring(0, 8000)}`;
             seenQuestions.add(key);
 
             if (!q.question || !Array.isArray(q.options) || q.options.length < 2) continue;
+
+            // ── UAE Quality Filter ───────────────────────────────
+            // Reject questions that are Saudi-specific and cannot be adapted
+            const nonUAEPattern = /\b(Saudi Arabia|Kingdom of Saudi|KSA|SCFHS|Saudi MOH|Saudi Commission)\b/i;
+            const questionText = q.question + ' ' + (q.explanation || '');
+            if (nonUAEPattern.test(questionText)) {
+              console.warn('Rejected non-UAE question:', q.question.substring(0, 80));
+              duplicatesSkipped++;
+              continue;
+            }
 
             while (q.options.length < 4) q.options.push('');
             q.options = q.options.slice(0, 4);
