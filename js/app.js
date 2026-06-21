@@ -345,6 +345,26 @@ const App = (() => {
     setEl('dash-total-answered', tot.totalAnswered);
     setEl('dash-streak-count', str.count);
     setEl('streak-count', str.count);
+    const readiness = Storage.getReadinessScore();
+    setEl('dash-readiness', readiness > 0 ? readiness + '%' : '—');
+
+    // Recent sessions
+    const sessEl = document.getElementById('recent-sessions-list');
+    if (sessEl) {
+      const history = Storage.getSessionHistory().slice(0, 3);
+      sessEl.innerHTML = history.length ? history.map(s => {
+        const color = s.accuracy >= 80 ? '#22c55e' : s.accuracy >= 60 ? '#f59e0b' : '#ef4444';
+        const date = new Date(s.savedAt).toLocaleDateString('en', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+        return `<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;margin-bottom:8px">
+          <span style="font-size:1.6rem;font-weight:800;color:${color}">${s.accuracy}%</span>
+          <div style="flex:1">
+            <div style="font-size:0.82rem;color:var(--text-primary);font-weight:600">${s.correct}/${s.total} correct • ${s.mode.charAt(0).toUpperCase()+s.mode.slice(1)} Mode</div>
+            <div style="font-size:0.72rem;color:var(--text-muted)">${date} • ${formatDuration(s.durationMs)}</div>
+          </div>
+          <div style="font-size:0.75rem;color:${color};font-weight:700;background:${color}22;padding:3px 8px;border-radius:6px">${s.accuracy>=80?'🏆 Excellent':s.accuracy>=60?'👍 Good':'Study More'}</div>
+        </div>`;
+      }).join('') : '<p class="empty-msg" style="font-size:0.82rem;color:var(--text-muted);margin:0 0 8px">No sessions yet — start practicing! 🚀</p>';
+    }
 
     const domainStats = Storage.getDomainStats();
     const grid = document.getElementById('domain-progress-grid');
@@ -451,7 +471,52 @@ const App = (() => {
   // ── Quiz ─────────────────────────────────────────────────
   const startQuiz = (options = {}) => {
     const settings = { ...quizSettings, ...options };
-    const session = Quiz.createSession(settings);
+    const mode = settings.mode || 'study';
+
+    // Build options for Quiz.createSession
+    const sessionOpts = { ...settings };
+    if (mode === 'smart') {
+      sessionOpts.smartRepeat = true;
+      sessionOpts.mode = 'study';
+    } else if (mode === 'wrong') {
+      // Filter to questions answered at least once and < 100% accuracy
+      const progress = Storage.getProgress();
+      const wrongIds = new Set(
+        Object.entries(progress)
+          .filter(([, p]) => p.attempts > 0 && p.correct < p.attempts)
+          .map(([id]) => id)
+      );
+      if (wrongIds.size === 0) { showToast('No wrong answers yet! Keep practicing.', 'info'); return; }
+      // Inject wrong-only filter into question pool via temporary override
+      const origQs = AppData.QUESTIONS;
+      AppData._wrongFilterIds = wrongIds;
+      sessionOpts.mode = 'study';
+    } else if (mode === 'bookmarked') {
+      sessionOpts.onlyBookmarked = true;
+      sessionOpts.mode = 'study';
+      if (!Storage.getBookmarks().length) { showToast('No bookmarks yet! Star questions during practice.', 'info'); return; }
+    }
+
+    // Patch question filter for "wrong" mode
+    if (mode === 'wrong') {
+      const progress = Storage.getProgress();
+      const wrongIds = new Set(
+        Object.entries(progress)
+          .filter(([, p]) => p.attempts > 0 && p.correct < p.attempts)
+          .map(([id]) => id)
+      );
+      const origFilter = Array.prototype.filter;
+      const origQs = [...AppData.QUESTIONS];
+      AppData.QUESTIONS = AppData.QUESTIONS.filter(q => wrongIds.has(q.id));
+      const session = Quiz.createSession({ ...sessionOpts, count: Math.min(settings.count, AppData.QUESTIONS.length) });
+      AppData.QUESTIONS = origQs;
+      if (!session || !session.questions.length) { showToast('No wrong answers match these filters.', 'warning'); return; }
+      openQuizOverlay();
+      renderCurrentQuestion();
+      return;
+    }
+
+    const session = Quiz.createSession(sessionOpts);
     if (!session || !session.questions.length) {
       showToast('No questions match those filters.', 'warning'); return;
     }
@@ -459,11 +524,48 @@ const App = (() => {
     renderCurrentQuestion();
   };
 
+  // ── Prometric Exam Simulation ─────────────────────────────
+  const startPrometricSimulation = () => {
+    if (!confirm('Start UAE Prometric Exam Simulation?\n\n\u2022 100 questions (or all available)\n\u2022 2-hour global timer\n\u2022 All domains\n\u2022 No explanations shown during exam\n\nGood luck! 🏆')) return;
+    // Use a 2-hour global timer displayed at top
+    const session = Quiz.createSession({ domain: 'ALL', difficulty: 'ALL', count: 100, mode: 'exam', timedSeconds: 0 });
+    if (!session || !session.questions.length) { showToast('Not enough questions for a simulation yet. Extract more from your PDFs!', 'warning'); return; }
+    openQuizOverlay();
+    // Show global 2-hour countdown in timer slot
+    const timerEl = document.getElementById('quiz-timer');
+    if (timerEl) timerEl.style.display = 'flex';
+    Quiz.startTimer(7200,
+      (rem) => {
+        setEl('quiz-timer-val', formatTime(rem));
+        timerEl?.classList.toggle('timer-warning', rem <= 300); // warn at 5 min
+      },
+      () => {
+        showToast('⏰ Time is up! Submitting your exam...', 'warning', 4000);
+        setTimeout(() => showResults(), 1500);
+      }
+    );
+    renderCurrentQuestion();
+    showToast('🏆 UAE Prometric Simulation started! 2 hours • ' + session.questions.length + ' questions', 'success', 5000);
+  };
+
+
   const startQuickPractice = (domain) => {
     navigate('practice');
     setTimeout(() => {
       document.querySelectorAll('.domain-filter-btn').forEach(b => { if (b.dataset.domain === domain) b.click(); });
     }, 100);
+  };
+
+  // ── Flag for review ──────────────────────────────────────
+  const toggleFlag = () => {
+    const isFlagged = Quiz.toggleFlag();
+    const btn = document.getElementById('quiz-flag-btn');
+    if (btn) {
+      btn.style.color = isFlagged ? '#ef4444' : 'var(--text-muted)';
+      btn.style.borderColor = isFlagged ? '#ef444440' : 'rgba(255,255,255,0.1)';
+      btn.title = isFlagged ? 'Flagged for review ✔' : 'Flag for review (F)';
+    }
+    showToast(isFlagged ? '🚩 Flagged for review' : 'Flag removed', isFlagged ? 'warning' : 'info', 1500);
   };
 
   const openQuizOverlay = () => {
@@ -509,6 +611,13 @@ const App = (() => {
     const bookmarked = Storage.isBookmarked(q.id);
     const bBtn = document.getElementById('quiz-bookmark-btn');
     if (bBtn) { bBtn.textContent = bookmarked?'★':'☆'; bBtn.classList.toggle('bookmarked', bookmarked); }
+
+    const flagged = Storage.isFlagged(q.id);
+    const fBtn = document.getElementById('quiz-flag-btn');
+    if (fBtn) {
+      fBtn.style.color = flagged ? '#ef4444' : 'var(--text-muted)';
+      fBtn.style.borderColor = flagged ? '#ef444440' : 'rgba(255,255,255,0.1)';
+    }
 
     document.getElementById('quiz-explanation')?.classList.remove('visible');
     const nextBtn = document.getElementById('quiz-next-btn');
@@ -571,13 +680,23 @@ const App = (() => {
   const showResults = () => {
     const s = Quiz.getSessionSummary();
     if (!s) return;
+
+    // Save to session history
+    Storage.saveSessionResult({
+      total: s.total, correct: s.correct, accuracy: s.accuracy,
+      durationMs: s.durationMs, mode: Quiz.getSession()?.mode || 'study',
+      byDomain: s.byDomain
+    });
+
     document.getElementById('quiz-overlay')?.classList.add('results-mode');
     setEl('result-score', s.correct + '/' + s.total);
     setEl('result-accuracy', s.accuracy + '%');
     setEl('result-duration', formatDuration(s.durationMs));
-    setEl('result-grade-msg', s.accuracy>=80?'🏆 Excellent!':s.accuracy>=60?'👍 Good Work':s.accuracy>=40?'📚 Keep Studying':'💪 Don\'t Give Up!');
+    const grade = s.accuracy>=80?'🏆 Excellent! You are exam-ready!':s.accuracy>=70?'👍 Good Work — almost there!':s.accuracy>=50?'📚 Keep Studying — focus on weak areas':'💪 Don\'t Give Up! Review and retry';
+    setEl('result-grade-msg', grade);
     const color = s.accuracy>=80?'#22c55e':s.accuracy>=60?'#f59e0b':'#ef4444';
     const sc = document.getElementById('result-score'); if (sc) sc.style.color = color;
+
     const bd = document.getElementById('result-domain-breakdown');
     if (bd) {
       bd.innerHTML = Object.entries(s.byDomain).map(([dId, st]) => {
@@ -590,12 +709,32 @@ const App = (() => {
         </div>`;
       }).join('');
     }
+
+    // Wrong answers review list
+    const wrongList = document.getElementById('result-wrong-list');
+    if (wrongList && s.wrongAnswers?.length) {
+      wrongList.innerHTML = `<p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:10px">❌ ${s.wrongAnswers.length} question${s.wrongAnswers.length>1?'s':''} answered incorrectly:</p>` +
+        s.wrongAnswers.slice(0, 8).map(a => {
+          const q = a.question;
+          const d = AppData.DOMAINS[q?.domain];
+          return q ? `<div style="padding:8px 12px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:8px;margin-bottom:6px;font-size:0.78rem">
+            <div style="color:var(--text-muted);margin-bottom:3px">${d?.icon||''} ${d?.shortName||q.domain}</div>
+            <div style="color:var(--text-primary);margin-bottom:4px">${q.question.substring(0, 100)}${q.question.length>100?'...':''}</div>
+            <div style="color:#22c55e">✓ ${q.options[q.correct]}</div>
+          </div>` : '';
+        }).join('');
+      wrongList.parentElement.style.display = 'block';
+    } else if (wrongList) {
+      wrongList.innerHTML = '<p style="color:#22c55e;font-size:0.82rem;text-align:center">🎉 Perfect score! All answers correct!</p>';
+    }
+
     setTimeout(() => Charts.drawRingChart('result-ring-canvas', s.accuracy, 'Score', color), 100);
     const qm = document.getElementById('quiz-main');
     const qr = document.getElementById('quiz-results');
     if (qm) qm.classList.add('hidden');
     if (qr) { qr.classList.remove('hidden'); qr.style.display = 'flex'; }
   };
+
 
   const reviewQuestion = (questionId) => {
     const q = AppData.QUESTIONS.find(q2 => q2.id === questionId);
@@ -1256,17 +1395,6 @@ const App = (() => {
       if (e.key === 'Enter') { const p = parseInt(pageInput.value); if (!isNaN(p)) Reader.goToPage(p, 'pdf-canvas'); }
     });
 
-    // Keyboard shortcuts (quiz)
-    document.addEventListener('keydown', (e) => {
-      if (!document.getElementById('quiz-overlay')?.classList.contains('open')) return;
-      if (e.key === 'ArrowRight' || e.key === 'Enter') {
-        const nb = document.getElementById('quiz-next-btn');
-        if (nb && nb.style.display !== 'none') advanceQuiz();
-      }
-      ['1','2','3','4'].forEach((k,i) => { if (e.key===k) { const b=document.getElementById(`opt-${i}`); if(b&&!b.disabled) b.click(); } });
-      if (e.key === 'Escape') document.getElementById('quiz-close-btn')?.click();
-    });
-
     renderLibraryList();
     restoreFromDB();
     updateGeminiKeyStatus();
@@ -1309,8 +1437,8 @@ const App = (() => {
 
   return {
     init, navigate,
-    startQuiz, startQuickPractice, advanceQuiz, selectOption,
-    toggleQuizBookmark, reviewQuestion,
+    startQuiz, startQuickPractice, startPrometricSimulation, advanceQuiz, selectOption,
+    toggleQuizBookmark, toggleFlag, reviewQuestion,
     renderBookmarks, removeBookmark,
     renderAnalytics, renderLibraryList,
     openDoc, deleteDoc, cleanupBrokenDocs,
@@ -1321,5 +1449,27 @@ const App = (() => {
   };
 })();
 
+// ── Keyboard shortcuts ───────────────────────────────────
+document.addEventListener('keydown', (e) => {
+  if (!document.body.classList.contains('quiz-open')) return;
+  const session = Quiz.getSession();
+  if (!session) return;
+  if (e.key >= '1' && e.key <= '4' && session.state === 'answering') {
+    App.selectOption(parseInt(e.key) - 1);
+  } else if ((e.key === 'ArrowRight' || e.key === 'Enter') && session.state === 'revealed') {
+    App.advanceQuiz();
+  } else if (e.key === 'Escape') {
+    if (session.state !== 'complete' && !confirm('Exit quiz? Progress will be lost.')) return;
+    document.getElementById('quiz-overlay')?.classList.remove('open');
+    document.body.classList.remove('quiz-open');
+    Quiz.endSession();
+  } else if (e.key.toLowerCase() === 'b') {
+    App.toggleQuizBookmark();
+  } else if (e.key.toLowerCase() === 'f') {
+    App.toggleFlag();
+  }
+});
+
 // Bootstrap
 document.addEventListener('DOMContentLoaded', App.init);
+

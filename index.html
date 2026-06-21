@@ -106,11 +106,16 @@
           <span class="stat-value" id="dash-total-answered">0</span>
           <span class="stat-label" data-i18n="stat_total">Total Answered</span>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" style="--accent:#f4a435">
           <span class="stat-value" id="dash-streak-count">0</span>
           <span class="stat-label" data-i18n="stat_streak">🔥 Day Streak</span>
         </div>
+        <div class="stat-card" style="--accent:#22c55e">
+          <span class="stat-value" id="dash-readiness">—</span>
+          <span class="stat-label">🎯 Exam Readiness</span>
+        </div>
       </div>
+
 
       <!-- Quick Actions -->
       <div class="quick-actions">
@@ -128,6 +133,10 @@
       <!-- Domain Progress -->
       <p class="section-title" data-i18n="section_domains">📚 Domain Progress</p>
       <div class="domain-grid" id="domain-progress-grid"></div>
+
+      <!-- Session History (last 3 sessions) -->
+      <p class="section-title">📋 Recent Sessions</p>
+      <div id="recent-sessions-list" style="margin-bottom:16px"></div>
 
       <p class="section-title" data-i18n="section_attention">⚠️ Needs Attention</p>
       <div class="mistakes-list" id="mistakes-list">
@@ -169,12 +178,21 @@
           <!-- Mode Selection -->
           <div class="practice-section">
             <h3 data-i18n="lbl_mode">Study Mode</h3>
-            <div class="filter-group">
+            <div class="filter-group" style="flex-wrap:wrap">
               <button class="mode-btn active" data-mode="study">
                 <span data-i18n="study_mode_label">📖 Study Mode</span><br><small style="font-weight:400;color:var(--text-muted)" data-i18n="study_mode_hint">See explanation after each answer</small>
               </button>
               <button class="mode-btn" data-mode="exam">
-                <span data-i18n="exam_mode_label">⏱️ Exam Mode</span><br><small style="font-weight:400;color:var(--text-muted)" data-i18n="exam_mode_hint">Timed — see results at end</small>
+                <span data-i18n="exam_mode_label">⏱️ Exam Mode</span><br><small style="font-weight:400;color:var(--text-muted)">Timed — see results at end</small>
+              </button>
+              <button class="mode-btn" data-mode="smart">
+                <span>🧠 Smart Repeat</span><br><small style="font-weight:400;color:var(--text-muted)">Prioritises your weak questions</small>
+              </button>
+              <button class="mode-btn" data-mode="wrong">
+                <span>❌ Wrong Answers</span><br><small style="font-weight:400;color:var(--text-muted)">Only questions you've missed</small>
+              </button>
+              <button class="mode-btn" data-mode="bookmarked">
+                <span>⭐ Bookmarked</span><br><small style="font-weight:400;color:var(--text-muted)">Study your starred questions</small>
               </button>
             </div>
           </div>
@@ -199,6 +217,18 @@
             <p>Your session will include <strong id="question-count-display-preview" style="color:var(--primary)">10</strong> questions from the selected domain.</p>
             <button id="start-quiz-btn" class="btn btn-primary btn-lg btn-full" style="margin-top:16px">
               <span data-i18n="btn_start">🚀 Start Session</span>
+            </button>
+          </div>
+
+          <!-- Prometric Simulation Card -->
+          <div class="card" style="margin-top:16px; border-color:rgba(245,158,11,0.35); background:rgba(245,158,11,0.06)">
+            <h3 style="font-size:0.88rem; color:var(--gold); margin-bottom:8px">📝 UAE Prometric Simulation</h3>
+            <p style="font-size:0.8rem; color:var(--text-secondary); line-height:1.5; margin-bottom:12px">
+              Simulate the real UAE Pharmacy License exam:<br>
+              <strong style="color:var(--text-primary)">100 questions · 2 hours · All domains · Exam mode</strong>
+            </p>
+            <button class="btn btn-full" onclick="App.startPrometricSimulation()" style="border-color:var(--gold);color:var(--gold);font-weight:600">
+              🏆 Start Full Exam Simulation
             </button>
           </div>
 
@@ -489,7 +519,10 @@
         <span id="quiz-domain-badge"></span>
         <span class="quiz-meta-sep">·</span>
         <span id="quiz-diff-badge"></span>
-        <button class="quiz-bookmark-btn" id="quiz-bookmark-btn" title="Bookmark this question">☆</button>
+        <div style="display:flex;gap:8px;margin-left:auto">
+          <button class="quiz-bookmark-btn" id="quiz-flag-btn" title="Flag for review (F)" onclick="App.toggleFlag()" style="font-size:1rem;background:none;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:4px 10px;cursor:pointer;color:var(--text-muted);transition:all 0.2s">🚩</button>
+          <button class="quiz-bookmark-btn" id="quiz-bookmark-btn" title="Bookmark this question (B)">☆</button>
+        </div>
       </div>
 
       <!-- Question card -->
@@ -543,9 +576,17 @@
       <!-- Domain breakdown rows -->
     </div>
 
+    <!-- Wrong answers review section -->
+    <div id="result-wrong-section" style="width:100%;max-width:480px;margin-top:8px">
+      <div id="result-wrong-list"></div>
+    </div>
+
     <div class="result-actions">
       <button id="result-retry-btn" class="btn btn-primary btn-lg">
         <span data-i18n="quiz_try_again">🔁 Try Again</span>
+      </button>
+      <button class="btn btn-ghost btn-lg" onclick="App.startQuiz({mode:'wrong'})">
+        ❌ Practice Wrong Answers
       </button>
       <button id="result-close-btn" class="btn btn-ghost btn-lg">
         <span data-i18n="quiz_done">✅ Done</span>
