@@ -219,13 +219,14 @@ const App = (() => {
         if (document.getElementById('view-questions')?.classList.contains('active')) {
           renderExtractedQuestions();
         }
-        const ocrBadge = meta?.ocrMode ? ` 🔬 OCR (${meta.ocrPagesCount} pages)` : '';
-        showToast(`🧠 Extracted ${questions.length} questions from "${docName}"${ocrBadge}!`, 'success', 6000);
+        const badge = meta?.pipeline === 'vision'
+          ? ` 👁️ Vision AI` : (meta?.ocrFallback > 0 ? ` 🔬 +OCR` : '');
+        showToast(`🧠 ${questions.length} questions extracted from "${docName}"${badge}!`, 'success', 6000);
       } else {
-        const hint = meta?.ocrMode
-          ? 'OCR ran but found no pharmacy text. The PDF may be diagrams/figures only.'
-          : 'No questions found. If this is a scanned PDF, try re-extracting — OCR will activate automatically.';
-        showToast(`⚠️ 0 questions extracted from "${docName}". ${hint}`, 'warning', 8000);
+        const hint = meta?.pipeline === 'vision'
+          ? 'Vision AI found no MCQ content — PDF may be lecture slides or diagrams.'
+          : 'No pharmacy questions found. Check that the PDF contains exam questions.';
+        showToast(`⚠️ 0 questions from "${docName}". ${hint}`, 'warning', 8000);
       }
 
       return meta;
