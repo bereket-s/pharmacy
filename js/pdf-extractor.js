@@ -1,5 +1,6 @@
-// js/pdf-extractor.js — UAE Pharmacy License Exam — Advanced AI Extraction Engine v2.0
-// Model: Llama 3.3 70B via Groq API (OpenAI-compatible)
+// js/pdf-extractor.js — UAE Pharmacy License Exam — Advanced AI Extraction Engine v3.0
+// Dual pipeline: PDF.js text layer → fallback to Tesseract.js OCR for scanned pages
+// Model: Llama 3.3 70B via Groq API
 
 const PdfExtractor = (() => {
   const GROQ_URL   = 'https://api.groq.com/openai/v1/chat/completions';
@@ -10,14 +11,14 @@ const PdfExtractor = (() => {
   const hasApiKey = () => !!getApiKey();
 
   // ── Groq API call ─────────────────────────────────────────
-  const groqRequest = async (systemPrompt, userContent, apiKey, maxTokens = 8192) => {
+  const groqRequest = async (systemPrompt, userContent, apiKey) => {
     return fetch(GROQ_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
       body: JSON.stringify({
         model: GROQ_MODEL,
-        temperature: 0.05,   // Very low temperature = more deterministic, accurate answers
-        max_tokens: maxTokens,
+        temperature: 0.1,
+        max_tokens: 8192,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user',   content: userContent  }
@@ -26,220 +27,396 @@ const PdfExtractor = (() => {
     });
   };
 
-  // ── Extract raw text from PDF via PDF.js ──────────────────
-  const extractTextFromPdf = async (arrayBuffer) => {
+  // ══════════════════════════════════════════════════════════
+  //  TEXT EXTRACTION — PDF.js  (works for text-based PDFs)
+  // ══════════════════════════════════════════════════════════
+  const extractTextLayerFromPdf = async (arrayBuffer) => {
     await Reader.ensurePDFJSLoaded();
     const data = new Uint8Array(arrayBuffer.slice(0));
     const pdf  = await pdfjsLib.getDocument({ data }).promise;
     const pages = [];
     for (let i = 1; i <= pdf.numPages; i++) {
-      const page        = await pdf.getPage(i);
-      const textContent = await page.getTextContent();
-      // Preserve layout: join items with space, items starting with newline get separator
-      const text = textContent.items.map(item => item.str).join(' ').trim();
-      if (text.length > 10) pages.push({ page: i, text });
+      const page  = await pdf.getPage(i);
+      const tc    = await page.getTextContent();
+      // Smart joining: preserve line breaks for better MCQ structure
+      let text = '';
+      let lastY = null;
+      for (const item of tc.items) {
+        if (lastY !== null && Math.abs(item.transform[5] - lastY) > 5) {
+          text += '\n';
+        }
+        text += item.str;
+        lastY = item.transform[5];
+      }
+      pages.push({ page: i, text: text.trim(), pdfPage: page });
     }
-    await pdf.destroy();
-    return pages;
+    // Don't destroy the pdf yet — we may need pages for OCR
+    return { pages, pdf };
   };
 
-  // ── System Prompt — UAE Pharmacy License Exam Extractor ───
-  const buildSystemPrompt = () => `You are a senior UAE Pharmacy License exam coach and question writer. You extract and create high-quality MCQ questions for pharmacists preparing for the UAE Prometric Pharmacy exam (administered by MOHAP, DHA, and DOH Abu Dhabi).
+  // ══════════════════════════════════════════════════════════
+  //  OCR PIPELINE — Tesseract.js  (for scanned image PDFs)
+  // ══════════════════════════════════════════════════════════
 
-=== UAE EXAM CONTEXT (MANDATORY) ===
-- Regulatory authority: MOHAP (Ministry of Health & Prevention) — federal UAE body
-- Emirate-level: DHA (Dubai), DOH (Abu Dhabi), Sharjah Health Authority
-- UAE Drug Schedules: Schedule I (very high abuse/dangerous, e.g., heroin), Schedule II (high abuse, e.g., morphine, strong opioids), Schedule III (moderate abuse, e.g., codeine combinations), Schedule IV (low abuse, e.g., benzodiazepines), Schedule V (OTC preparations)
-- Controlled substances in UAE: require triplicate prescriptions, strict record-keeping
-- NEVER reference Saudi Arabia, SCFHS, KSA, or Saudi MOH — if found in source, REPLACE with UAE equivalents
-- Clinical guidelines: Use international (WHO, GINA, JNC, ESC, AHA) guidelines unless UAE-specific guidance exists
+  // Check if a page has meaningful text content (threshold: 40 chars)
+  const isScannedPage = (text) => text.trim().replace(/\s+/g, ' ').length < 40;
+
+  // Render a PDF page to a high-res canvas data URL for Tesseract
+  const renderPageToImage = async (pdfPage, scale = 2.5) => {
+    const viewport = pdfPage.getViewport({ scale });
+    const canvas   = document.createElement('canvas');
+    canvas.width   = viewport.width;
+    canvas.height  = viewport.height;
+    const ctx = canvas.getContext('2d');
+    await pdfPage.render({ canvasContext: ctx, viewport }).promise;
+    return canvas.toDataURL('image/png');
+  };
+
+  // Perform OCR on a single page image using Tesseract.js v5
+  let _tesseractWorker = null;
+  const getTesseractWorker = async () => {
+    if (_tesseractWorker) return _tesseractWorker;
+    if (typeof Tesseract === 'undefined') {
+      throw new Error('Tesseract.js is not loaded. Check your internet connection.');
+    }
+    console.log('[OCR] Initialising Tesseract worker (English)...');
+    _tesseractWorker = await Tesseract.createWorker('eng', 1, {
+      logger: () => {} // suppress verbose logging
+    });
+    return _tesseractWorker;
+  };
+
+  const ocrPage = async (pdfPage) => {
+    const worker   = await getTesseractWorker();
+    const imageUrl = await renderPageToImage(pdfPage, 2.5);
+    const { data: { text } } = await worker.recognize(imageUrl);
+    return text.trim();
+  };
+
+  const terminateTesseract = async () => {
+    if (_tesseractWorker) {
+      await _tesseractWorker.terminate();
+      _tesseractWorker = null;
+    }
+  };
+
+  // ══════════════════════════════════════════════════════════
+  //  TEXT CLEANING
+  // ══════════════════════════════════════════════════════════
+  const cleanText = (raw) => {
+    return raw
+      // Remove page headers/footers like "1 | P a g e"
+      .replace(/\d+\s*\|\s*P\s*a\s*g\s*e/gi, '')
+      // Collapse spaced-out letters: "Q u e s t i o n" → "Question"
+      .replace(/\b([A-Za-z])\s(?=[A-Za-z]\s)/g, '$1')
+      // Normalize whitespace
+      .replace(/[ \t]+/g, ' ')
+      // Collapse more than 3 consecutive newlines
+      .replace(/\n{3,}/g, '\n\n')
+      // Remove junk Unicode
+      .replace(/[\u0000-\u0008\u000B\u000E-\u001F\u007F]/g, '')
+      .trim();
+  };
+
+  // ══════════════════════════════════════════════════════════
+  //  AI PROMPT — UAE Pharmacy License context
+  // ══════════════════════════════════════════════════════════
+  const SYSTEM_PROMPT = `You are a senior UAE Pharmacy License exam coach extracting MCQ questions for pharmacists preparing for the UAE Prometric exam (MOHAP, DHA, DOH Abu Dhabi).
+
+=== UAE EXAM RULES (MANDATORY) ===
+- Regulatory: MOHAP (federal), DHA (Dubai), DOH (Abu Dhabi). NEVER write Saudi Arabia/KSA/SCFHS.
+- UAE Drug Schedules: I=heroin/very dangerous, II=morphine/opioids, III=codeine combos, IV=benzodiazepines, V=OTC
+- Controlled substances need triplicate prescriptions in UAE
+- Use WHO, GINA, JNC, ESC, AHA international clinical guidelines
 
 === EXTRACTION RULES ===
-1. Extract EVERY explicit MCQ question in the text — do not skip any
-2. Convert ALL factual content (facts, bullet points, tables, Q&A pairs, numbered lists) into full MCQs
-3. For converted facts: write a clear clinical question stem, then generate 3 plausible but incorrect distractors
-4. Verify every answer with your pharmacological knowledge — if uncertain, set difficulty to "hard"
-5. Explanations: minimum 2 sentences, include mechanism of action, clinical reasoning, or UAE regulatory rationale
+1. Extract EVERY single MCQ question — numbered, lettered, or with explicit A/B/C/D options
+2. If the text has Q&A pairs, bullet facts, numbered lists — convert ALL of them into MCQs
+3. For factual content: write a clear clinical question stem + 3 plausible wrong distractors
+4. VERIFY every correct answer using pharmacological knowledge
+5. Write explanations with mechanism, reasoning, or UAE regulatory basis (2-3 sentences)
+6. DO NOT skip questions due to OCR noise — clean up and use the content
+
+=== IMPORTANT: OCR TEXT ===
+The text may contain OCR artifacts (garbled words, split letters, noise). Do your best to interpret the content. If a question is partially damaged but the core is clear, still include it.
 
 === FEW-SHOT EXAMPLES ===
-Input fact: "Salbutamol is a short-acting beta-2 agonist used as rescue therapy in asthma."
-Output MCQ:
-{"question":"Which statement BEST describes the mechanism and clinical role of salbutamol in asthma management?","options":["A. It is a long-acting beta-2 agonist used for daily maintenance therapy","B. It is a short-acting beta-2 agonist used as rescue (reliever) therapy for acute bronchospasm","C. It is an inhaled corticosteroid that reduces airway inflammation","D. It is a leukotriene receptor antagonist used for prophylaxis"],"correct":1,"explanation":"Salbutamol (albuterol) is a selective short-acting beta-2 agonist (SABA). It rapidly bronchodilates by stimulating B2 receptors in bronchial smooth muscle, with onset in 5 minutes and duration of 4-6 hours. It is the first-line rescue medication for acute asthma attacks and exercise-induced bronchoconstriction — NOT for maintenance therapy (LABAs serve that role).","difficulty":"easy","domain":"PHARM"}
+Example 1 — OCR-noisy input:
+"Q1. Wh at is th e fi rst-l ine tr eatment f or asthma re lie f? A) Sa lbut amol B) Fl uticasone C) Mon telukast D) The ophyl line Ans: A"
+→ Output:
+{"question":"What is the first-line relief (rescue) treatment for acute asthma?","options":["A. Salbutamol (SABA)","B. Fluticasone (inhaled corticosteroid)","C. Montelukast (leukotriene antagonist)","D. Theophylline (methylxanthine)"],"correct":0,"explanation":"Salbutamol is a short-acting beta-2 agonist (SABA) and the standard rescue bronchodilator for acute asthma. It acts within 5 minutes by relaxing bronchial smooth muscle. Fluticasone is a controller (not rescue) medication.","difficulty":"easy","domain":"PHARM"}
 
-Input MCQ: "Q: What is the antidote for heparin overdose? A) Protamine sulfate B) Vitamin K C) Naloxone D) Flumazenil — Answer: A"
-Output MCQ:
-{"question":"A patient on IV heparin infusion develops severe bleeding. Which agent should be administered immediately as the specific antidote?","options":["A. Protamine sulfate","B. Vitamin K (phytomenadione)","C. Naloxone","D. Flumazenil"],"correct":0,"explanation":"Protamine sulfate is the specific antidote for heparin overdose. It is a positively charged protein that binds to negatively charged heparin, forming an inactive complex. Vitamin K reverses warfarin (not heparin); Naloxone reverses opioids; Flumazenil reverses benzodiazepines. Dose: 1 mg protamine per 100 units heparin given in the last 2-4 hours.","difficulty":"medium","domain":"CLIN"}
+Example 2 — factual bullet:
+"- Vancomycin requires therapeutic drug monitoring: trough 10-20 mg/L for serious infections"
+→ Output:
+{"question":"What is the recommended trough level for vancomycin when treating serious infections such as MRSA bacteraemia?","options":["A. 1-5 mg/L","B. 5-10 mg/L","C. 10-20 mg/L","D. 25-35 mg/L"],"correct":2,"explanation":"Vancomycin therapeutic drug monitoring targets a trough of 10-20 mg/L for serious infections (e.g., MRSA bacteraemia, endocarditis). Lower troughs risk treatment failure; higher troughs increase nephrotoxicity risk. AUC/MIC monitoring is increasingly preferred.","difficulty":"medium","domain":"CLIN"}
 
 === OUTPUT FORMAT ===
-Return ONLY a valid JSON array. No markdown. No explanation. No extra text.
+Return ONLY a valid JSON array. No markdown. No explanation text outside the array.
 [
   {
     "question": "Full question stem",
-    "options": ["A. Option","B. Option","C. Option","D. Option"],
+    "options": ["A. option","B. option","C. option","D. option"],
     "correct": 0,
-    "explanation": "Detailed, accurate pharmacological explanation (2-3 sentences)",
+    "explanation": "Detailed explanation (2-3 sentences)",
     "difficulty": "easy|medium|hard",
     "domain": "PHARM|CLIN|CALC|REG|HERB|PHSCI|PRAC|THER|LAW|MICRO|PEDS|ONCOL|IMMUN|CARD|ENDO|RENAL|GI|NEURO|PSYCH|DERM|HEMA"
   }
 ]
+If there is truly no pharmacy content, return: []`;
 
-If the text contains no pharmacy content, return: []`;
-
-  // ── Parse Groq response to JSON array ────────────────────
+  // ══════════════════════════════════════════════════════════
+  //  JSON PARSING — robust fallback chain
+  // ══════════════════════════════════════════════════════════
   const parseGroqJson = (raw) => {
     if (!raw || !raw.trim()) return [];
-    // Direct parse
-    try { const p = JSON.parse(raw.trim()); return Array.isArray(p) ? p : []; } catch {}
-    // Strip markdown fences
-    const stripped = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim();
-    try { const p = JSON.parse(stripped); return Array.isArray(p) ? p : []; } catch {}
-    // Extract first JSON array
-    const m = stripped.match(/\[[\s\S]*\]/);
-    if (m) { try { return JSON.parse(m[0]); } catch {} }
-    console.warn('Could not parse Groq JSON:', raw.slice(0, 300));
+    const attempts = [
+      raw.trim(),
+      raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim(),
+      (() => { const m = raw.match(/\[[\s\S]*\]/); return m ? m[0] : null; })(),
+    ];
+    for (const attempt of attempts) {
+      if (!attempt) continue;
+      try {
+        const parsed = JSON.parse(attempt);
+        if (Array.isArray(parsed)) return parsed;
+      } catch {}
+    }
+    // Last resort: extract individual objects
+    const objects = [];
+    const regex = /\{[^{}]*"question"[^{}]*"options"[^{}]*"correct"[^{}]*\}/gs;
+    let match;
+    while ((match = regex.exec(raw)) !== null) {
+      try { objects.push(JSON.parse(match[0])); } catch {}
+    }
+    if (objects.length > 0) return objects;
+    console.warn('[Extractor] Could not parse Groq JSON. First 500 chars:', raw.slice(0, 500));
     return [];
   };
 
-  // ── UAE Quality Filter ────────────────────────────────────
-  const UAE_BLOCKLIST = /\b(Saudi Arabia|Kingdom of Saudi|KSA|SCFHS|Saudi MOH|Saudi Commission|Saudi Board)\b/i;
+  // ══════════════════════════════════════════════════════════
+  //  GROQ CALL WITH RETRY
+  // ══════════════════════════════════════════════════════════
+  const groqWithRetry = async (userContent, apiKey, maxRetries = 4) => {
+    let retries = 0;
+    while (retries <= maxRetries) {
+      let response;
+      try {
+        response = await groqRequest(SYSTEM_PROMPT, userContent, apiKey);
+      } catch (networkErr) {
+        console.warn('[Groq] Network error:', networkErr.message);
+        if (retries < maxRetries) { retries++; await sleep(3000 * retries); continue; }
+        return [];
+      }
+      if (response.ok) {
+        const data = await response.json();
+        const raw  = data?.choices?.[0]?.message?.content || '';
+        const parsed = parseGroqJson(raw);
+        console.log(`[Groq] ✅ Parsed ${parsed.length} questions from chunk`);
+        return parsed;
+      }
+      const errBody = await response.text().catch(() => '');
+      let errMsg = `HTTP ${response.status}`;
+      try { errMsg = JSON.parse(errBody)?.error?.message || errMsg; } catch {}
+      console.warn(`[Groq] Error ${response.status}: ${errMsg}`);
+      if (response.status === 429 && retries < maxRetries) {
+        retries++;
+        const backoff = Math.pow(2, retries) * 3000;
+        console.log(`[Groq] Rate limited. Retrying in ${backoff / 1000}s...`);
+        await sleep(backoff);
+      } else if (response.status >= 500 && retries < maxRetries) {
+        retries++;
+        await sleep(5000);
+      } else {
+        throw new Error(errMsg);
+      }
+    }
+    return [];
+  };
 
-  const isValidQuestion = (q) => {
-    if (!q.question || typeof q.question !== 'string' || q.question.trim().length < 10) return false;
-    if (!Array.isArray(q.options) || q.options.length < 4) return false;
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+  // ══════════════════════════════════════════════════════════
+  //  UAE QUALITY FILTER
+  // ══════════════════════════════════════════════════════════
+  const BLOCK_REGEX = /\b(Saudi Arabia|Kingdom of Saudi|KSA\b|SCFHS|Saudi MOH|Saudi Commission|Saudi Board)\b/i;
+
+  const validateQuestion = (q) => {
+    if (!q || typeof q !== 'object') return false;
+    if (typeof q.question !== 'string' || q.question.trim().length < 10) return false;
+    if (!Array.isArray(q.options) || q.options.length < 2) return false;
     if (typeof q.correct !== 'number' || q.correct < 0 || q.correct >= q.options.length) return false;
-    // Reject Saudi-specific questions
     const fullText = q.question + ' ' + (q.explanation || '') + ' ' + q.options.join(' ');
-    if (UAE_BLOCKLIST.test(fullText)) {
-      console.warn('[UAE Filter] Rejected non-UAE question:', q.question.substring(0, 80));
+    if (BLOCK_REGEX.test(fullText)) {
+      console.warn('[UAE Filter] Blocked:', q.question.slice(0, 80));
       return false;
     }
     return true;
   };
 
-  // ── Call Groq with retry & rate-limit backoff ─────────────
-  const groqWithRetry = async (systemPrompt, userContent, apiKey, maxRetries = 3) => {
-    let retries = 0;
-    while (retries <= maxRetries) {
-      const response = await groqRequest(systemPrompt, userContent, apiKey);
-      if (response.ok) {
-        const data = await response.json();
-        const raw  = data?.choices?.[0]?.message?.content || '';
-        return parseGroqJson(raw);
-      }
-      const errBody = await response.text().catch(() => '');
-      const msg = (() => { try { return JSON.parse(errBody)?.error?.message || `HTTP ${response.status}`; } catch { return `HTTP ${response.status}`; } })();
-      if (response.status === 429 && retries < maxRetries) {
-        retries++;
-        const backoff = Math.pow(2, retries) * 2000;
-        console.warn(`[Groq] Rate limited. Retrying in ${backoff}ms (attempt ${retries}/${maxRetries})...`);
-        await new Promise(r => setTimeout(r, backoff));
-      } else {
-        throw new Error(msg);
-      }
-    }
-    return [];
-  };
-
-  // ── Batch pages into overlapping chunks ───────────────────
-  // Larger chunks = more context = fewer hallucinations
-  const chunkPages = (pages, charsPerChunk = 12000) => {
+  // ══════════════════════════════════════════════════════════
+  //  CHUNKING — split text into ~10k char blocks
+  // ══════════════════════════════════════════════════════════
+  const chunkText = (text, maxChars = 10000) => {
+    if (text.length <= maxChars) return [text];
     const chunks = [];
-    let current  = '';
-    for (const p of pages) {
-      if ((current + p.text).length > charsPerChunk && current.length > 0) {
-        chunks.push(current);
-        current = p.text;
+    // Try to split at double newlines (between questions)
+    const paragraphs = text.split(/\n{2,}/);
+    let current = '';
+    for (const para of paragraphs) {
+      if ((current + '\n\n' + para).length > maxChars && current.length > 100) {
+        chunks.push(current.trim());
+        current = para;
       } else {
-        current += (current ? '\n\n' : '') + p.text;
+        current += (current ? '\n\n' : '') + para;
       }
     }
-    if (current) chunks.push(current);
-    return chunks;
+    if (current.trim()) chunks.push(current.trim());
+    return chunks.filter(c => c.length > 30);
   };
 
-  // ── Main extraction entry point ───────────────────────────
+  // ══════════════════════════════════════════════════════════
+  //  MAIN ENTRY POINT
+  // ══════════════════════════════════════════════════════════
   const extractQuestionsFromPdf = async (arrayBuffer, docName, docId, onProgress) => {
     const apiKey = getApiKey();
-    if (!apiKey) throw new Error('No API key set. Please add your Groq key in Settings.');
+    if (!apiKey) throw new Error('No Groq API key set. Please add your Groq key in Settings → API Key.');
 
-    onProgress && onProgress(0, 1, 0);
+    onProgress?.('Analysing PDF structure…', 0, 1, 0);
 
-    const pages      = await extractTextFromPdf(arrayBuffer);
+    // ── Step 1: Extract text layer ─────────────────────────
+    let { pages, pdf } = await extractTextLayerFromPdf(arrayBuffer);
     const totalPages = pages.length;
-    const chunks     = chunkPages(pages, 12000);
-    const allQuestions    = [];
-    const seenQuestions   = new Set();
-    let failedChunks      = 0;
-    let duplicatesSkipped = 0;
-    let nonUAESkipped     = 0;
 
-    const systemPrompt = buildSystemPrompt();
+    // ── Step 2: Detect scanned pages and OCR them ──────────
+    const scannedPages = pages.filter(p => isScannedPage(p.text));
+    const hasScannedPages = scannedPages.length > 0;
+    const scannedRatio = totalPages > 0 ? scannedPages.length / totalPages : 0;
+
+    let ocrMode = false;
+    if (hasScannedPages) {
+      ocrMode = true;
+      const scanLabel = scannedRatio > 0.5
+        ? `Scanned PDF detected (${scannedPages.length}/${totalPages} pages). Running OCR…`
+        : `Mixed PDF: ${scannedPages.length} scanned pages found. Running OCR on those…`;
+      console.log('[Extractor]', scanLabel);
+      onProgress?.(scanLabel, 0, totalPages, 0);
+
+      for (let i = 0; i < pages.length; i++) {
+        const p = pages[i];
+        if (isScannedPage(p.text)) {
+          onProgress?.(`OCR page ${p.page}/${totalPages}…`, i, totalPages, 0);
+          try {
+            const ocrText = await ocrPage(p.pdfPage);
+            if (ocrText.length > 20) {
+              pages[i] = { ...p, text: ocrText, ocrApplied: true };
+              console.log(`[OCR] Page ${p.page}: extracted ${ocrText.length} chars`);
+            }
+          } catch (ocrErr) {
+            console.warn(`[OCR] Page ${p.page} failed:`, ocrErr.message);
+          }
+        }
+      }
+      await terminateTesseract();
+    }
+
+    await pdf.destroy();
+
+    // ── Step 3: Collect all page text ──────────────────────
+    const allText = pages
+      .filter(p => p.text && p.text.trim().length > 20)
+      .map(p => `[Page ${p.page}]\n${cleanText(p.text)}`)
+      .join('\n\n---\n\n');
+
+    if (allText.trim().length < 50) {
+      console.warn('[Extractor] No usable text extracted from PDF after all methods.');
+      return { questions: [], meta: { docId, docName, totalPages, totalFound: 0, ocrMode, qualityScore: 0, extractedAt: Date.now() } };
+    }
+
+    // ── Step 4: Split into AI chunks ───────────────────────
+    const chunks = chunkText(allText, 10000);
+    console.log(`[Extractor] ${chunks.length} chunks to process (total ${allText.length} chars)`);
+
+    // ── Step 5: Process each chunk through Groq ────────────
+    const allQuestions  = [];
+    const seenKeys      = new Set();
+    let failedChunks    = 0;
+    let duplicateCount  = 0;
+    let nonUAECount     = 0;
 
     for (let i = 0; i < chunks.length; i++) {
-      onProgress && onProgress(i + 1, chunks.length, allQuestions.length);
+      onProgress?.(
+        ocrMode ? `AI extraction (chunk ${i + 1}/${chunks.length})…` : `Extracting chunk ${i + 1}/${chunks.length}…`,
+        i + 1, chunks.length, allQuestions.length
+      );
 
       try {
-        const userContent = `Document: "${docName}"\n\nExtract ALL testable MCQ questions from this text for UAE Pharmacy License exam preparation:\n\n${chunks[i]}`;
-        const questions = await groqWithRetry(systemPrompt, userContent, apiKey);
+        const userContent = `Document: "${docName}"\n\nExtract ALL MCQ questions from this text for the UAE Pharmacy License exam. Be thorough — convert every fact, Q&A pair, or numbered item into a question:\n\n${chunks[i]}`;
+        const questions = await groqWithRetry(userContent, apiKey);
 
         for (const q of questions) {
-          if (!isValidQuestion(q)) {
-            nonUAESkipped++;
-            continue;
-          }
+          if (!validateQuestion(q)) { nonUAECount++; continue; }
 
-          const key = q.question.trim().toLowerCase().substring(0, 70);
-          if (seenQuestions.has(key)) { duplicatesSkipped++; continue; }
-          seenQuestions.add(key);
+          const key = q.question.trim().toLowerCase().replace(/\s+/g, ' ').slice(0, 80);
+          if (seenKeys.has(key)) { duplicateCount++; continue; }
+          seenKeys.add(key);
 
-          // Normalize options to exactly 4
-          while (q.options.length < 4) q.options.push('D. —');
-          q.options = q.options.slice(0, 4);
+          // Normalise options to exactly 4
+          const opts = (q.options || []).map(o => String(o).trim()).filter(Boolean);
+          while (opts.length < 4) opts.push(`${String.fromCharCode(65 + opts.length)}. —`);
 
-          const domain = (q.domain || 'PHARM').toUpperCase().substring(0, 6);
-          const difficulty = ['easy', 'medium', 'hard'].includes(q.difficulty) ? q.difficulty : 'medium';
+          // Fix correct index if out of range
+          let correct = typeof q.correct === 'number' ? Math.max(0, Math.min(3, q.correct)) : 0;
+
+          const domain = (q.domain || 'PHARM').toUpperCase().replace(/[^A-Z]/g, '').slice(0, 6) || 'PHARM';
+          const difficulty = ['easy', 'medium', 'hard'].includes(q.difficulty?.toLowerCase())
+            ? q.difficulty.toLowerCase() : 'medium';
 
           allQuestions.push({
             id:          `extracted_${docId}_${allQuestions.length}`,
             question:    q.question.trim(),
-            options:     q.options.map(o => String(o).trim()),
-            correct:     q.correct,
-            explanation: (q.explanation || 'See source document for details.').trim(),
+            options:     opts.slice(0, 4),
+            correct,
+            explanation: (q.explanation || 'See reference document for details.').trim(),
             difficulty,
             domain,
             source:      docName,
             docId,
+            ocrPage:     q.ocrApplied || false,
             extractedAt: Date.now()
           });
         }
       } catch (err) {
-        console.error(`[Extractor] Chunk ${i + 1} failed:`, err.message);
+        console.error(`[Extractor] Chunk ${i + 1} error:`, err.message);
         failedChunks++;
       }
 
-      // Delay between chunks to respect Groq free-tier 30 RPM limit
-      if (i < chunks.length - 1) await new Promise(r => setTimeout(r, 2500));
+      // Rate limit: wait between Groq calls
+      if (i < chunks.length - 1) await sleep(2000);
     }
 
-    // ── Quality Score ─────────────────────────────────────
+    // ── Step 6: Quality score ──────────────────────────────
     const qualityScore = allQuestions.length === 0 ? 0 : Math.round(
-      (allQuestions.filter(q =>
-        q.options.every(o => o.trim().length > 3) &&
+      allQuestions.filter(q =>
+        q.options.every(o => o.length > 3 && o !== 'D. —') &&
         q.explanation && q.explanation.length > 40 &&
-        q.explanation !== 'See source document for details.'
-      ).length / allQuestions.length) * 100
+        q.explanation !== 'See reference document for details.'
+      ).length / allQuestions.length * 100
     );
 
-    onProgress && onProgress(chunks.length, chunks.length, allQuestions.length);
+    onProgress?.('✅ Extraction complete!', chunks.length, chunks.length, allQuestions.length);
+
+    console.log(`[Extractor] ✅ Done. Found ${allQuestions.length} questions. Quality: ${qualityScore}%. OCR: ${ocrMode}`);
 
     return {
       questions: allQuestions,
       meta: {
         docId, docName, totalPages,
-        chunksProcessed: chunks.length,
-        failedChunks, duplicatesSkipped, nonUAESkipped,
+        chunksProcessed: chunks.length, failedChunks,
+        duplicatesSkipped: duplicateCount, nonUAESkipped: nonUAECount,
         totalFound: allQuestions.length,
-        qualityScore,
+        qualityScore, ocrMode,
+        ocrPagesCount: ocrMode ? scannedPages.length : 0,
         extractedAt: Date.now()
       }
     };

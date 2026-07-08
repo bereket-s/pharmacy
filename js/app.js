@@ -196,10 +196,10 @@ const App = (() => {
     try {
       const result = await PdfExtractor.extractQuestionsFromPdf(
         arrayBuffer, docName, docId,
-        (current, total, found) => {
+        (message, current, total, found) => {
           const pct = total > 0 ? Math.round((current / total) * 100) : 0;
-          if (statusEl) statusEl.textContent = `Scanning chunk ${current}/${total} · ${found} questions found`;
-          if (barEl) barEl.style.width = pct + '%';
+          if (statusEl) statusEl.textContent = message || `Processing ${current}/${total} · ${found} questions found`;
+          if (barEl) barEl.style.width = Math.max(pct, found > 0 ? 5 : 0) + '%';
         }
       );
 
@@ -214,13 +214,18 @@ const App = (() => {
         }
         AppData.QUESTIONS = AppData.QUESTIONS.filter(q => q.docId !== docId || !q.id.startsWith('extracted_'));
         AppData.QUESTIONS.push(...questions);
+        syncDynamicDomains();
         renderLibraryList();
         if (document.getElementById('view-questions')?.classList.contains('active')) {
           renderExtractedQuestions();
         }
-        showToast(`🧠 Extracted ${questions.length} questions from "${docName}"!`, 'success', 5000);
+        const ocrBadge = meta?.ocrMode ? ` 🔬 OCR (${meta.ocrPagesCount} pages)` : '';
+        showToast(`🧠 Extracted ${questions.length} questions from "${docName}"${ocrBadge}!`, 'success', 6000);
       } else {
-        showToast(`No MCQ questions found in "${docName}"`, 'info', 4000);
+        const hint = meta?.ocrMode
+          ? 'OCR ran but found no pharmacy text. The PDF may be diagrams/figures only.'
+          : 'No questions found. If this is a scanned PDF, try re-extracting — OCR will activate automatically.';
+        showToast(`⚠️ 0 questions extracted from "${docName}". ${hint}`, 'warning', 8000);
       }
 
       return meta;
