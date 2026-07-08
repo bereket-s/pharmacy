@@ -1299,56 +1299,64 @@ const App = (() => {
       document.getElementById('quiz-overlay')?.classList.remove('results-mode');
     });
 
-    // PDF upload — multiple files, saved to IndexedDB
+    // PDF upload — no file size limit enforced here
     const uploadInput = document.getElementById('pdf-upload-input');
     uploadInput?.addEventListener('change', async (e) => {
       const files = Array.from(e.target.files);
       e.target.value = '';
       if (!files.length) return;
+
       const pdfs = files.filter(f => f.type === 'application/pdf');
-      if (files.length - pdfs.length > 0) showToast(`${files.length-pdfs.length} non-PDF file(s) skipped`, 'warning');
+      if (files.length - pdfs.length > 0)
+        showToast(`${files.length - pdfs.length} non-PDF file(s) skipped`, 'warning');
       if (!pdfs.length) return;
-      showToast(`Loading ${pdfs.length} file${pdfs.length>1?'s':''}…`, 'info', 2500);
+
+      const formatBytes = (b) => b >= 1048576 ? (b/1048576).toFixed(1) + ' MB' : Math.round(b/1024) + ' KB';
 
       let firstOpened = false;
+
       for (const file of pdfs) {
+        const sizeFmt = formatBytes(file.size);
+        const isLarge = file.size > 20 * 1024 * 1024; // > 20 MB
+        showToast(`📂 Loading "${file.name}" (${sizeFmt})${isLarge ? ' — large file, please wait…' : ''}`, 'info', isLarge ? 15000 : 3000);
+
         try {
           const docId = makeDocId(file);
-          const buf   = await file.arrayBuffer();
 
-          // Delete duplicate if same file already exists in cloud
+          // Read file into memory (works for any size the browser allows)
+          const buf = await file.arrayBuffer();
+
+          // Remove duplicate
           const existing = Storage.getLibraryMeta().find(m => m.id === docId);
           if (existing) {
-            try { if (typeof DB !== 'undefined') await DB.deletePdf(docId); } catch(e){}
+            try { if (typeof DB !== 'undefined') await DB.deletePdf(docId); } catch(e) {}
             Storage.removeLibraryItem(docId);
             delete docFileStore[docId];
-            if (typeof CloudQuestions !== 'undefined') {
+            if (typeof CloudQuestions !== 'undefined')
               await CloudQuestions.deleteQuestionsForDoc(docId).catch(() => {});
-            }
             AppData.QUESTIONS = AppData.QUESTIONS.filter(q => q.docId !== docId);
           }
 
-          // Save to Cloud DB
-          try { 
-            if (typeof DB !== 'undefined') await DB.savePdf(docId, file.name, buf); 
-          } catch(e) { 
-            console.error('Cloud DB save failed:', e); 
-            showToast(`Cloud Error: ${e.message}`, 'error', 5000);
+          // Save to Cloud DB (Supabase Storage) — graceful failure for very large files
+          try {
+            if (typeof DB !== 'undefined') await DB.savePdf(docId, file.name, buf);
+          } catch(dbErr) {
+            console.warn('Cloud DB save failed (keeping file in-memory only):', dbErr.message);
+            showToast(`⚠️ "${file.name}" saved locally only — cloud upload failed (${dbErr.message})`, 'warning', 6000);
           }
 
-          // Keep in memory
+          // Always keep in memory regardless of cloud result
           docFileStore[docId] = { arrayBuffer: buf, name: file.name };
 
           // Get page count
           await Reader.ensurePDFJSLoaded();
-          const pdfjsDoc  = await pdfjsLib.getDocument({ data: new Uint8Array(buf.slice(0)) }).promise;
+          const pdfjsDoc   = await pdfjsLib.getDocument({ data: new Uint8Array(buf.slice(0)) }).promise;
           const totalPages = pdfjsDoc.numPages;
           pdfjsDoc.destroy();
 
-          // Save metadata
           Storage.addLibraryItem({ id: docId, name: file.name, size: file.size, totalPages, lastPage: 1, addedAt: Date.now() });
 
-          // Open first in reader
+          // Open first file in reader
           if (!firstOpened) {
             firstOpened = true;
             await Reader.openFromArrayBuffer(buf, file.name, docId, 'pdf-canvas', ({name, totalPages}) => {
@@ -1356,37 +1364,37 @@ const App = (() => {
               setEl('reader-doc-title', name.replace(/\.pdf$/i, ''));
               document.getElementById('reader-empty-state')?.classList.add('hidden');
               document.getElementById('pdf-reader-wrap')?.classList.remove('hidden');
-              
               document.querySelector('.library-layout')?.classList.add('doc-open');
               renderLibraryList();
             });
           }
 
           renderLibraryList();
+          showToast(`✅ "${file.name}" ready (${sizeFmt}, ${totalPages} pages)`, 'success', 4000);
+
         } catch(err) {
-          showToast(`Failed to load "${file.name}"`, 'error');
+          showToast(`❌ Failed to load "${file.name}": ${err.message}`, 'error', 7000);
           console.error('Upload error:', err);
         }
       }
-      showToast(pdfs.length===1 ? `📄 Saved: ${pdfs[0].name}` : `📚 ${pdfs.length} documents saved!`, 'success', 4000);
 
       // Trigger AI question extraction for each PDF (if API key is set)
       if (typeof PdfExtractor !== 'undefined' && PdfExtractor.hasApiKey()) {
-        showToast('🤖 Starting question extraction with Llama 3.3 70B...', 'info', 3000);
+        showToast('🤖 Starting AI question extraction…', 'info', 3000);
         for (let i = 0; i < pdfs.length; i++) {
-          const file = pdfs[i];
+          const file  = pdfs[i];
           const docId = makeDocId(file);
           const buf   = docFileStore[docId]?.arrayBuffer;
           if (buf) {
             await extractQuestionsFromDoc(buf, file.name, docId);
-            // Delay between multiple documents to respect rate limit
             if (i < pdfs.length - 1) await new Promise(r => setTimeout(r, 2500));
           }
         }
       } else {
-        showToast('💡 Tip: Save your Groq API key below to auto-extract questions from this PDF!', 'info', 6000);
+        showToast('💡 Add your Groq API key below to auto-extract questions!', 'info', 6000);
       }
     });
+
 
     // PDF controls
     document.getElementById('reader-prev-btn')?.addEventListener('click',       () => Reader.prevPage('pdf-canvas'));
