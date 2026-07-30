@@ -1160,7 +1160,8 @@ const App = (() => {
       let inCloud = false;
       if (!inMemory && typeof DB !== 'undefined' && DB.isAvailable()) {
         try {
-          const stored = await DB.getPdf(m.id);
+          const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 5000));
+          const stored = await Promise.race([DB.getPdf(m.id), timeout]);
           inCloud = !!(stored?.arrayBuffer);
           if (inCloud) { docFileStore[m.id] = { arrayBuffer: stored.arrayBuffer, name: stored.name }; }
         } catch(e) { inCloud = false; }
@@ -1242,13 +1243,10 @@ const App = (() => {
     Storage.updateStreak();
     syncDynamicDomains();
 
-    // Auto-clean broken docs on startup silently
-    await cleanupBrokenDocs(true);
-
-    // Hash router
+    // ── Show UI immediately — do NOT block on cloud operations ──
     const hashRoute = () => navigate(window.location.hash.replace('#','') || 'dashboard');
     window.addEventListener('hashchange', hashRoute);
-    hashRoute();
+    hashRoute();  // renders the dashboard instantly
 
     // Nav clicks
     document.querySelectorAll('.nav-item').forEach(item => item.addEventListener('click', (e) => {
@@ -1410,10 +1408,15 @@ const App = (() => {
     });
 
     renderLibraryList();
-    restoreFromDB();
     updateGeminiKeyStatus();
-    await loadExtractedQuestionsIntoBank();
-    renderLibraryList();
+
+    // ── Run all cloud operations in background (non-blocking) ──
+    // This ensures the UI is never frozen waiting on Supabase/network
+    setTimeout(() => {
+      restoreFromDB();                    // loads PDFs from cloud storage
+      loadExtractedQuestionsIntoBank();   // loads previously extracted MCQs
+      cleanupBrokenDocs(true);            // silently removes unloadable docs
+    }, 500);
 
     // Filter change listeners for Extracted Questions view
     document.getElementById('q-filter-doc')?.addEventListener('change', renderExtractedQuestions);
