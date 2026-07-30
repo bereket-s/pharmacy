@@ -2335,8 +2335,895 @@ const QUESTIONS = [
     "correct": 1,
     "explanation": "The Hepatitis A vaccine is given in a total of 2 doses. By contrast, the Hepatitis B vaccine series consists of 3 doses.",
     "reference": "Dr. Kabsha - Vaccines"
+  },
+
+  // ══════════════════════════════════════
+  // DIABETES & ENDOCRINOLOGY
+  // ══════════════════════════════════════
+  {
+    id: 'q_dm_001', domain: 'THER', difficulty: 'easy',
+    question: 'Which class of antidiabetic drug is the first-line pharmacological treatment for Type 2 diabetes mellitus according to ADA guidelines?',
+    options: ['A. Sulfonylureas (e.g., glibenclamide)', 'B. Metformin (biguanide)', 'C. DPP-4 inhibitors (e.g., sitagliptin)', 'D. SGLT-2 inhibitors (e.g., empagliflozin)'],
+    correct: 1,
+    explanation: 'Metformin remains the first-line pharmacological agent for Type 2 DM (ADA/EASD guidelines) unless contraindicated (e.g., eGFR <30 mL/min/1.73m²). It reduces hepatic glucose production, improves insulin sensitivity, causes no weight gain and minimal hypoglycaemia, and has proven cardiovascular safety.',
+    reference: 'ADA Standards of Medical Care in Diabetes'
+  },
+  {
+    id: 'q_dm_002', domain: 'PHARM', difficulty: 'medium',
+    question: 'A patient with Type 2 DM develops lactic acidosis. Which antidiabetic drug is most likely responsible?',
+    options: ['A. Glipizide', 'B. Metformin', 'C. Pioglitazone', 'D. Sitagliptin'],
+    correct: 1,
+    explanation: 'Metformin causes lactic acidosis, a rare but serious complication particularly in patients with renal impairment, hepatic disease, or hypoxic states. It inhibits mitochondrial complex I, reducing lactate clearance. It should be withheld if eGFR <30 mL/min/1.73m².',
+    reference: 'Pharmacology of Antidiabetic Agents'
+  },
+  {
+    id: 'q_dm_003', domain: 'PHARM', difficulty: 'medium',
+    question: 'Which antidiabetic drug class works by inhibiting the sodium-glucose cotransporter 2 (SGLT-2) in the proximal tubule?',
+    options: ['A. GLP-1 receptor agonists', 'B. DPP-4 inhibitors', 'C. SGLT-2 inhibitors (gliflozins)', 'D. Alpha-glucosidase inhibitors'],
+    correct: 2,
+    explanation: 'SGLT-2 inhibitors (empagliflozin, dapagliflozin, canagliflozin) block SGLT-2 in the proximal renal tubule, reducing glucose reabsorption and causing glucosuria. They also have proven cardiovascular and renal protective benefits in addition to glucose lowering.',
+    reference: 'SGLT-2 Inhibitor Pharmacology'
+  },
+  {
+    id: 'q_dm_004', domain: 'CLIN', difficulty: 'hard',
+    question: 'A diabetic patient is initiated on empagliflozin. Which of the following is the most important adverse effect to counsel this patient about?',
+    options: ['A. Hypoglycaemia (blood glucose < 4 mmol/L)', 'B. Genital mycotic infections (fungal infections)', 'C. Peripheral neuropathy', 'D. Hepatotoxicity'],
+    correct: 1,
+    explanation: 'SGLT-2 inhibitors cause glucosuria, creating a glucose-rich environment in the genital area that promotes fungal growth. Genital mycotic infections (candidiasis) are the most common adverse effect. Patients should be counselled on genital hygiene and to report symptoms. Hypoglycaemia is rare as SGLT-2 inhibitors are glucose-dependent.',
+    reference: 'SGLT-2 Inhibitor Safety Profile'
+  },
+  {
+    id: 'q_dm_005', domain: 'PHARM', difficulty: 'medium',
+    question: 'Which insulin type has the LONGEST duration of action and is used as basal insulin?',
+    options: ['A. Regular insulin (Actrapid)', 'B. Insulin lispro (Humalog)', 'C. Insulin glargine (Lantus)', 'D. NPH insulin (Insulatard)'],
+    correct: 2,
+    explanation: 'Insulin glargine (Lantus) is a long-acting basal insulin with a duration of ~24 hours and no pronounced peak, providing stable background insulin control. Insulin lispro is a rapid-acting analogue (duration 3-5h), regular insulin acts for 6-8h, and NPH for 12-18h.',
+    reference: 'Insulin Pharmacology'
+  },
+  {
+    id: 'q_dm_006', domain: 'CLIN', difficulty: 'medium',
+    question: 'A patient on glibenclamide (glibenclamide = glibenclamide) presents with confusion, sweating, and tremors. Blood glucose is 2.8 mmol/L. What is the initial treatment?',
+    options: ['A. Give 1 mg glucagon IM', 'B. Give 15-20g fast-acting carbohydrate orally (e.g., 150 mL orange juice)', 'C. Give 50 mL of 50% dextrose IV', 'D. Give metformin 500 mg immediately'],
+    correct: 1,
+    explanation: 'For a conscious patient with mild-moderate hypoglycaemia, the first-line treatment is 15-20g of fast-acting oral carbohydrate (Rule of 15). IV dextrose or IM glucagon is reserved for unconscious patients or those unable to swallow. Metformin does not treat hypoglycaemia.',
+    reference: 'Hypoglycaemia Management Guidelines'
+  },
+  {
+    id: 'q_dm_007', domain: 'PHARM', difficulty: 'medium',
+    question: 'Which GLP-1 receptor agonist requires weekly subcutaneous injection and has demonstrated significant cardiovascular benefit in the SUSTAIN-6 trial?',
+    options: ['A. Exenatide (Byetta)', 'B. Semaglutide (Ozempic)', 'C. Liraglutide (Victoza)', 'D. Dulaglutide (Trulicity)'],
+    correct: 1,
+    explanation: 'Semaglutide (Ozempic) is a once-weekly subcutaneous GLP-1 receptor agonist that demonstrated significant reductions in major cardiovascular events (MACE) in the SUSTAIN-6 trial. It also promotes significant weight loss. An oral formulation (Rybelsus) is also available.',
+    reference: 'GLP-1 Receptor Agonist Clinical Data'
+  },
+  {
+    id: 'q_dm_008', domain: 'THER', difficulty: 'easy',
+    question: 'What is the target HbA1c level recommended for most non-pregnant adults with Type 2 diabetes?',
+    options: ['A. < 5.0%', 'B. < 6.0%', 'C. < 7.0% (53 mmol/mol)', 'D. < 8.0%'],
+    correct: 2,
+    explanation: 'The ADA recommends an HbA1c target of <7.0% (53 mmol/mol) for most non-pregnant adults with diabetes. More stringent targets (<6.5%) may be appropriate for certain patients with long life expectancy and no hypoglycaemia risk. Less stringent targets (<8%) may be suitable for elderly patients or those with multiple comorbidities.',
+    reference: 'ADA Standards of Medical Care'
+  },
+  {
+    id: 'q_dm_009', domain: 'PHARM', difficulty: 'hard',
+    question: 'Pioglitazone (thiazolidinedione) is contraindicated in which of the following conditions?',
+    options: ['A. Type 2 DM with obesity', 'B. Heart failure (NYHA Class III-IV)', 'C. Hypertension', 'D. Chronic kidney disease stage 3'],
+    correct: 1,
+    explanation: 'Thiazolidinediones (pioglitazone, rosiglitazone) cause fluid retention by increasing sodium and water reabsorption in the kidney. This can worsen or precipitate heart failure. They are contraindicated in NYHA Class III-IV heart failure. They also increase the risk of fractures and bladder cancer (pioglitazone).',
+    reference: 'Thiazolidinedione Contraindications'
+  },
+  {
+    id: 'q_dm_010', domain: 'THER', difficulty: 'medium',
+    question: 'Which class of antidiabetic drug causes the most clinically significant hypoglycaemia risk?',
+    options: ['A. Metformin', 'B. DPP-4 inhibitors', 'C. Sulfonylureas (e.g., glibenclamide)', 'D. SGLT-2 inhibitors'],
+    correct: 2,
+    explanation: 'Sulfonylureas stimulate insulin secretion independently of blood glucose levels, making them prone to causing hypoglycaemia even when blood glucose is normal. The risk is especially high in elderly patients, those with renal impairment, and when meals are missed. Glibenclamide is the longest-acting sulfonylurea and carries the highest hypoglycaemia risk.',
+    reference: 'Antidiabetic Drug Safety'
+  },
+
+  // ══════════════════════════════════════
+  // THYROID DISORDERS
+  // ══════════════════════════════════════
+  {
+    id: 'q_thyroid_001', domain: 'THER', difficulty: 'easy',
+    question: 'What is the drug of choice for long-term treatment of hypothyroidism?',
+    options: ['A. Propylthiouracil (PTU)', 'B. Levothyroxine (T4)', 'C. Methimazole (carbimazole)', 'D. Propranolol'],
+    correct: 1,
+    explanation: 'Levothyroxine (synthetic T4) is the standard treatment for hypothyroidism. It is absorbed in the small intestine and converted to active T3 in peripheral tissues. It should be taken on an empty stomach, 30-60 minutes before breakfast, to ensure optimal absorption.',
+    reference: 'Thyroid Disorder Management'
+  },
+  {
+    id: 'q_thyroid_002', domain: 'PHARM', difficulty: 'medium',
+    question: 'Which drug used in hyperthyroidism can cross the placenta and cause neonatal hypothyroidism?',
+    options: ['A. Radioactive iodine (I-131)', 'B. Propylthiouracil (PTU)', 'C. Levothyroxine', 'D. Carbimazole/Methimazole'],
+    correct: 3,
+    explanation: 'Carbimazole/methimazole crosses the placenta more readily than PTU and can cause neonatal hypothyroidism and goitre. PTU is preferred in the first trimester due to methimazole\'s rare association with aplasia cutis. However, PTU carries hepatotoxicity risk. Radioactive iodine is absolutely contraindicated in pregnancy.',
+    reference: 'Hyperthyroidism in Pregnancy'
+  },
+  {
+    id: 'q_thyroid_003', domain: 'CLIN', difficulty: 'hard',
+    question: 'A patient on levothyroxine starts taking ferrous sulphate. What counselling advice should be given?',
+    options: ['A. Take both medications together to save time', 'B. Separate the two medications by at least 4 hours — iron reduces levothyroxine absorption', 'C. Stop levothyroxine while taking iron', 'D. Increase the levothyroxine dose by 50% when taking iron'],
+    correct: 1,
+    explanation: 'Iron, calcium, antacids, and PPIs all significantly reduce levothyroxine absorption by chelation or by altering gastric pH. Patients must be counselled to separate these medications by at least 4 hours. Other interacting substances include soya, high-fibre foods, and certain cholesterol-lowering drugs (cholestyramine).',
+    reference: 'Levothyroxine Drug Interactions'
+  },
+
+  // ══════════════════════════════════════
+  // CARDIAC: HEART FAILURE
+  // ══════════════════════════════════════
+  {
+    id: 'q_hf_001', domain: 'THER', difficulty: 'medium',
+    question: 'Which class of drug has been shown to reduce mortality in heart failure with reduced ejection fraction (HFrEF) by blocking neurohormonal activation?',
+    options: ['A. Digoxin (cardiac glycoside)', 'B. Loop diuretics (furosemide)', 'C. ACE inhibitors (e.g., ramipril)', 'D. Nitrates (e.g., isosorbide mononitrate)'],
+    correct: 2,
+    explanation: 'ACE inhibitors (along with beta-blockers and mineralocorticoid receptor antagonists) are the cornerstone of HFrEF treatment, proven to reduce mortality, hospitalisation, and disease progression by blocking the renin-angiotensin-aldosterone system (RAAS) neurohormonal activation. Loop diuretics relieve symptoms but do not reduce mortality.',
+    reference: 'ESC Heart Failure Guidelines'
+  },
+  {
+    id: 'q_hf_002', domain: 'PHARM', difficulty: 'medium',
+    question: 'Digoxin is used in heart failure and atrial fibrillation. What is its mechanism of action?',
+    options: ['A. Blocks beta-1 adrenergic receptors reducing heart rate', 'B. Inhibits Na⁺/K⁺-ATPase pump, increasing intracellular calcium and cardiac contractility', 'C. Activates adenylyl cyclase, increasing cAMP and contractility', 'D. Blocks calcium L-type channels, reducing heart rate'],
+    correct: 1,
+    explanation: 'Digoxin inhibits the Na⁺/K⁺-ATPase pump, increasing intracellular Na⁺, which reduces Na⁺/Ca²⁺ exchanger activity, leading to increased intracellular Ca²⁺ and greater myocardial contractility (positive inotropic effect). It also slows conduction through the AV node (negative chronotropic effect) useful in AF.',
+    reference: 'Cardiac Glycoside Pharmacology'
+  },
+  {
+    id: 'q_hf_003', domain: 'CLIN', difficulty: 'hard',
+    question: 'A patient on digoxin develops nausea, vomiting, and yellow-green visual halos. Their digoxin level is 3.2 ng/mL. What is the most appropriate action?',
+    options: ['A. Double the digoxin dose as the level is therapeutic', 'B. Withhold digoxin and administer digoxin-specific antibody fragments (Digibind/DigiFab)', 'C. Give IV calcium gluconate immediately', 'D. Start amiodarone to control the arrhythmia'],
+    correct: 1,
+    explanation: 'Digoxin toxicity presents with GI symptoms (nausea, vomiting), CNS effects (yellow-green visual halos, confusion), and cardiac arrhythmias. The therapeutic range is 0.5-2.0 ng/mL. A level of 3.2 ng/mL with symptoms confirms toxicity. Treatment involves withholding digoxin and administering digoxin-specific Fab antibodies (Digibind) for serious toxicity.',
+    reference: 'Digoxin Toxicity Management'
+  },
+  {
+    id: 'q_hf_004', domain: 'PHARM', difficulty: 'medium',
+    question: 'Which condition CONTRAINDICATES the use of spironolactone (an MRA) in heart failure?',
+    options: ['A. eGFR 45 mL/min/1.73m²', 'B. Hyperkalaemia (K⁺ > 5.0 mmol/L)', 'C. LVEF < 35%', 'D. NYHA Class II symptoms'],
+    correct: 1,
+    explanation: 'Spironolactone (mineralocorticoid receptor antagonist) blocks aldosterone, reducing potassium excretion and causing potassium retention. Hyperkalaemia (K⁺ > 5.0 mmol/L) or severe renal impairment (eGFR < 30) are contraindications as the drug can worsen hyperkalaemia to dangerous levels, causing fatal cardiac arrhythmias.',
+    reference: 'MRA Safety in Heart Failure'
+  },
+
+  // ══════════════════════════════════════
+  // CARDIAC: ARRHYTHMIAS & ACS
+  // ══════════════════════════════════════
+  {
+    id: 'q_acs_001', domain: 'THER', difficulty: 'medium',
+    question: 'A patient with STEMI arrives at the ED. Which antiplatelet therapy combination (dual antiplatelet therapy, DAPT) is standard of care?',
+    options: ['A. Aspirin alone', 'B. Clopidogrel alone', 'C. Aspirin + a P2Y12 inhibitor (e.g., ticagrelor or clopidogrel)', 'D. Warfarin + aspirin'],
+    correct: 2,
+    explanation: 'Dual antiplatelet therapy (DAPT) — aspirin combined with a P2Y12 inhibitor (ticagrelor, prasugrel, or clopidogrel) — is the standard for ACS management. Ticagrelor and prasugrel are preferred over clopidogrel due to more predictable and potent platelet inhibition. DAPT is typically maintained for 12 months post-ACS.',
+    reference: 'ESC STEMI Management Guidelines'
+  },
+  {
+    id: 'q_acs_002', domain: 'PHARM', difficulty: 'medium',
+    question: 'Clopidogrel is a prodrug that requires activation. Which enzyme is responsible for its activation?',
+    options: ['A. CYP2D6', 'B. CYP2C19', 'C. CYP3A4', 'D. CYP1A2'],
+    correct: 1,
+    explanation: 'Clopidogrel is a prodrug that requires hepatic activation primarily by CYP2C19. Poor metabolisers (CYP2C19 loss-of-function variants) have reduced active metabolite levels and diminished antiplatelet effect, increasing the risk of cardiovascular events. PPIs (especially omeprazole) can inhibit CYP2C19 and reduce clopidogrel efficacy.',
+    reference: 'Clopidogrel Pharmacogenomics'
+  },
+  {
+    id: 'q_acs_003', domain: 'PHARM', difficulty: 'easy',
+    question: 'What is the mechanism by which nitroglycerin (glyceryl trinitrate) relieves angina?',
+    options: ['A. Blocks beta-1 receptors reducing cardiac work', 'B. Converted to nitric oxide (NO) causing vascular smooth muscle relaxation and vasodilation', 'C. Blocks calcium channels reducing myocardial oxygen demand', 'D. Inhibits ACE reducing afterload'],
+    correct: 1,
+    explanation: 'Nitroglycerin is converted to nitric oxide (NO) in vascular smooth muscle. NO activates guanylyl cyclase, increasing cGMP, which activates protein kinase G and causes smooth muscle relaxation and vasodilation — primarily venodilation reducing preload, and at higher doses arterial dilation reducing afterload. This reduces myocardial oxygen demand.',
+    reference: 'Nitrate Pharmacology'
+  },
+  {
+    id: 'q_arrhyth_001', domain: 'PHARM', difficulty: 'hard',
+    question: 'Amiodarone is classified as a class III antiarrhythmic. Which of the following is NOT a known adverse effect of amiodarone?',
+    options: ['A. Pulmonary fibrosis', 'B. Thyroid dysfunction (both hypo- and hyperthyroidism)', 'C. Photosensitivity and blue-grey skin discolouration', 'D. Hypokalaemia causing QT prolongation'],
+    correct: 3,
+    explanation: 'Amiodarone itself prolongs the QT interval and can cause torsades de pointes, but it does not directly cause hypokalaemia. Amiodarone has extensive tissue distribution (high iodine content) causing thyroid dysfunction (both hyper- and hypothyroidism), pulmonary toxicity, hepatotoxicity, corneal microdeposits, and photosensitivity with blue-grey pigmentation.',
+    reference: 'Amiodarone Adverse Effects'
+  },
+
+  // ══════════════════════════════════════
+  // GASTROINTESTINAL — PUD, GERD, IBD
+  // ══════════════════════════════════════
+  {
+    id: 'q_gi_001', domain: 'THER', difficulty: 'easy',
+    question: 'What is the eradication regimen for Helicobacter pylori (triple therapy)?',
+    options: ['A. Omeprazole + ciprofloxacin + metronidazole for 7 days', 'B. PPI + clarithromycin + amoxicillin (or metronidazole) for 7-14 days', 'C. H2 blocker + azithromycin + doxycycline for 5 days', 'D. Antacid + bismuth + tetracycline for 3 days'],
+    correct: 1,
+    explanation: 'First-line H. pylori eradication (standard triple therapy) consists of a PPI (twice daily) + clarithromycin (500 mg BD) + amoxicillin (1g BD) for 7-14 days. Metronidazole replaces amoxicillin in penicillin-allergic patients. Confirmation of eradication should be done ≥4 weeks after completing therapy using urea breath test or stool antigen test.',
+    reference: 'H. pylori Eradication Guidelines (Maastricht VI)'
+  },
+  {
+    id: 'q_gi_002', domain: 'PHARM', difficulty: 'easy',
+    question: 'Which drug class provides the most potent and sustained suppression of gastric acid secretion?',
+    options: ['A. H2-receptor antagonists (e.g., famotidine)', 'B. Antacids (e.g., aluminium hydroxide)', 'C. Proton pump inhibitors (e.g., omeprazole)', 'D. Sucralfate'],
+    correct: 2,
+    explanation: 'Proton pump inhibitors (PPIs) irreversibly inhibit the H⁺/K⁺-ATPase (proton pump) in parietal cells, providing the most potent and prolonged suppression of gastric acid secretion. They reduce basal and stimulated acid output by >90%. H2 blockers are less potent and subject to tachyphylaxis. PPIs should be taken 30-60 minutes before a meal.',
+    reference: 'Gastrointestinal Pharmacology'
+  },
+  {
+    id: 'q_gi_003', domain: 'PHARM', difficulty: 'medium',
+    question: 'Which laxative type is the SAFEST for long-term use in elderly patients with constipation?',
+    options: ['A. Stimulant laxatives (e.g., senna, bisacodyl)', 'B. Osmotic laxatives (e.g., lactulose, macrogol/PEG)', 'C. Mineral oil (liquid paraffin)', 'D. Saline laxatives (e.g., magnesium sulphate)'],
+    correct: 1,
+    explanation: 'Osmotic laxatives (lactulose, macrogol/PEG) are considered safest for long-term use as they are not absorbed systemically and do not cause electrolyte imbalances at normal doses. Stimulant laxatives can cause dependency and electrolyte imbalances with long-term use. Mineral oil can impair absorption of fat-soluble vitamins (A, D, E, K).',
+    reference: 'Constipation Management Guidelines'
+  },
+  {
+    id: 'q_gi_004', domain: 'CLIN', difficulty: 'hard',
+    question: 'A patient with Crohn\'s disease is started on infliximab (anti-TNF therapy). Which screening is MANDATORY before initiating this treatment?',
+    options: ['A. Full blood count and liver function tests only', 'B. Tuberculosis (TB) screening — QuantiFERON-TB Gold or Mantoux test', 'C. Colonoscopy to assess disease extent', 'D. HbA1c to rule out diabetes'],
+    correct: 1,
+    explanation: 'Anti-TNF agents (infliximab, adalimumab) can reactivate latent tuberculosis. TB screening with QuantiFERON-TB Gold or Mantoux (tuberculin skin test) is mandatory before initiating any biologic therapy. Patients with latent TB must complete prophylactic isoniazid therapy before starting anti-TNF treatment. Hepatitis B screening is also required.',
+    reference: 'Biologic Therapy Safety Screening'
+  },
+  {
+    id: 'q_gi_005', domain: 'PHARM', difficulty: 'medium',
+    question: 'Misoprostol is used to prevent NSAID-induced peptic ulcers. What is its mechanism?',
+    options: ['A. Neutralises gastric acid directly', 'B. Synthetic prostaglandin E1 analogue that inhibits acid secretion and enhances mucosal protection', 'C. Blocks H2 receptors on parietal cells', 'D. Irreversibly inhibits the proton pump'],
+    correct: 1,
+    explanation: 'Misoprostol is a synthetic prostaglandin E1 analogue. NSAIDs inhibit COX-1, reducing prostaglandin synthesis, leading to reduced mucosal protection and increased acid. Misoprostol replaces these protective prostaglandins by inhibiting acid secretion (via reduced cAMP in parietal cells) and stimulating mucus and bicarbonate secretion. It is also a uterotonic used in obstetrics.',
+    reference: 'Misoprostol Pharmacology'
+  },
+
+  // ══════════════════════════════════════
+  // RENAL: DOSING & CKD
+  // ══════════════════════════════════════
+  {
+    id: 'q_renal_001', domain: 'CLIN', difficulty: 'medium',
+    question: 'Which equation is used to estimate GFR (eGFR) for the purpose of drug dose adjustment in renal impairment?',
+    options: ['A. Cockcroft-Gault equation (for creatinine clearance)', 'B. Harris-Benedict equation', 'C. Basal metabolic rate (BMR) formula', 'D. Rule of Nines'],
+    correct: 0,
+    explanation: 'The Cockcroft-Gault equation estimates creatinine clearance: CrCl = [(140 - age) × weight(kg)] / [72 × serum creatinine(mg/dL)] (× 0.85 for females). This is widely used for drug dose adjustments in renal impairment. The CKD-EPI equation is used for staging CKD. Many drug product information sheets reference CrCl calculated by Cockcroft-Gault.',
+    reference: 'Renal Drug Dosing Calculations'
+  },
+  {
+    id: 'q_renal_002', domain: 'CLIN', difficulty: 'hard',
+    question: 'A patient with CKD stage 4 (eGFR 22 mL/min) is prescribed metformin. What is the appropriate action?',
+    options: ['A. Continue metformin at the usual dose', 'B. Reduce the metformin dose by 50%', 'C. Contraindicated — withhold metformin (eGFR <30 is a contraindication)', 'D. Switch to once-daily dosing only'],
+    correct: 2,
+    explanation: 'Metformin is contraindicated when eGFR < 30 mL/min/1.73m² (CKD stage 4-5) due to the risk of lactic acidosis from metformin accumulation. Many guidelines recommend caution/dose reduction at eGFR 30-45 and to avoid metformin entirely below 30. The drug should also be held before procedures using iodinated contrast media.',
+    reference: 'Metformin Renal Dosing Guidelines'
+  },
+  {
+    id: 'q_renal_003', domain: 'PHARM', difficulty: 'medium',
+    question: 'Which antibiotic requires the MOST significant dose reduction in severe renal failure (eGFR <10 mL/min)?',
+    options: ['A. Azithromycin', 'B. Doxycycline', 'C. Gentamicin (aminoglycoside)', 'D. Clindamycin'],
+    correct: 2,
+    explanation: 'Gentamicin (and all aminoglycosides) are almost entirely renally eliminated and are both nephrotoxic and ototoxic. In renal failure, the dose must be significantly reduced and/or the interval extended. Therapeutic drug monitoring (peak and trough levels) is essential. Azithromycin, doxycycline, and clindamycin are primarily hepatically eliminated and require no dose adjustment in renal impairment.',
+    reference: 'Antibiotic Renal Dosing'
+  },
+  {
+    id: 'q_renal_004', domain: 'THER', difficulty: 'medium',
+    question: 'Which of the following antihypertensive drugs is the preferred choice in a patient with CKD and proteinuria?',
+    options: ['A. Amlodipine (calcium channel blocker)', 'B. ACE inhibitor (e.g., ramipril) or ARB (e.g., losartan)', 'C. Beta-blocker (e.g., atenolol)', 'D. Thiazide diuretic (e.g., hydrochlorothiazide)'],
+    correct: 1,
+    explanation: 'ACE inhibitors and ARBs are first-line antihypertensives in CKD with proteinuria. They reduce intraglomerular pressure, slow progression of nephropathy, and decrease proteinuria. This benefit is independent of blood pressure lowering. Note: serum creatinine may rise slightly (acceptable up to 30%) and potassium should be monitored. Thiazides lose efficacy at eGFR <30.',
+    reference: 'KDIGO Hypertension in CKD Guidelines'
+  },
+
+  // ══════════════════════════════════════
+  // PAIN: OPIOID PHARMACOLOGY
+  // ══════════════════════════════════════
+  {
+    id: 'q_opioid_001', domain: 'PHARM', difficulty: 'medium',
+    question: 'Which opioid analgesic has an active metabolite (morphine-6-glucuronide) that accumulates in renal failure causing prolonged sedation?',
+    options: ['A. Fentanyl', 'B. Oxycodone', 'C. Morphine', 'D. Buprenorphine'],
+    correct: 2,
+    explanation: 'Morphine is metabolised to morphine-6-glucuronide (M6G), which is an active analgesic metabolite, and morphine-3-glucuronide (M3G). Both are renally cleared. In renal failure, M6G accumulates, causing prolonged and excessive opioid effects including respiratory depression. Fentanyl or buprenorphine are preferred in renal impairment as they do not accumulate.',
+    reference: 'Opioid Pharmacology in Renal Failure'
+  },
+  {
+    id: 'q_opioid_002', domain: 'PHARM', difficulty: 'medium',
+    question: 'Naloxone (Narcan) is used to reverse opioid overdose. What is its mechanism?',
+    options: ['A. Partial opioid agonist that competes with opioids', 'B. Pure opioid antagonist that competitively blocks mu, delta, and kappa opioid receptors', 'C. Stimulates respiratory centre in medulla directly', 'D. Increases hepatic metabolism of opioids'],
+    correct: 1,
+    explanation: 'Naloxone is a pure competitive opioid antagonist with high affinity for mu, delta, and kappa receptors. It rapidly reverses opioid-induced respiratory depression, sedation, and analgesia. It has a shorter half-life than most opioids (60-90 minutes IV), so repeated doses or infusion may be needed. It precipitates acute withdrawal in opioid-dependent patients.',
+    reference: 'Opioid Antagonist Pharmacology'
+  },
+  {
+    id: 'q_opioid_003', domain: 'CLIN', difficulty: 'hard',
+    question: 'A patient is taking tramadol. Which drug combination carries the highest risk of serotonin syndrome?',
+    options: ['A. Tramadol + ibuprofen', 'B. Tramadol + SSRIs (e.g., fluoxetine) or SNRIs', 'C. Tramadol + paracetamol', 'D. Tramadol + ondansetron'],
+    correct: 1,
+    explanation: 'Tramadol inhibits serotonin and noradrenaline reuptake (in addition to weak opioid activity). When combined with SSRIs, SNRIs, MAOIs, or other serotonergic drugs, it significantly increases the risk of serotonin syndrome — a potentially life-threatening condition presenting with hyperthermia, agitation, myoclonus, tremor, and autonomic instability.',
+    reference: 'Tramadol Drug Interactions'
+  },
+
+  // ══════════════════════════════════════
+  // PSYCHIATRY — ANTIDEPRESSANTS, ANTIPSYCHOTICS
+  // ══════════════════════════════════════
+  {
+    id: 'q_psych_001', domain: 'PHARM', difficulty: 'easy',
+    question: 'Which class of antidepressant is considered first-line for major depressive disorder and generalised anxiety disorder?',
+    options: ['A. Tricyclic antidepressants (TCAs, e.g., amitriptyline)', 'B. MAO inhibitors (MAOIs, e.g., phenelzine)', 'C. Selective serotonin reuptake inhibitors (SSRIs, e.g., sertraline)', 'D. Benzodiazepines (e.g., diazepam)'],
+    correct: 2,
+    explanation: 'SSRIs (sertraline, fluoxetine, citalopram, escitalopram) are first-line for MDD and GAD due to their favourable safety profile, tolerability, and efficacy. They inhibit the serotonin transporter (SERT), increasing synaptic serotonin. TCAs and MAOIs are effective but have more adverse effects and drug interactions.',
+    reference: 'Antidepressant Guidelines'
+  },
+  {
+    id: 'q_psych_002', domain: 'PHARM', difficulty: 'medium',
+    question: 'A patient taking phenelzine (MAOI) eats a tyramine-rich meal (aged cheese, red wine). What potentially fatal reaction can occur?',
+    options: ['A. Serotonin syndrome', 'B. Hypertensive crisis', 'C. Neuroleptic malignant syndrome', 'D. Stevens-Johnson syndrome'],
+    correct: 1,
+    explanation: 'MAOIs inhibit monoamine oxidase, which normally metabolises dietary tyramine in the gut. If tyramine enters the systemic circulation (due to MAO inhibition), it causes massive noradrenaline release from sympathetic nerve terminals, resulting in a sudden severe hypertensive crisis ("cheese reaction"). Foods to avoid include aged cheese, cured meats, wine, beer, soy sauce, and broad beans.',
+    reference: 'MAOI Interactions and Dietary Restrictions'
+  },
+  {
+    id: 'q_psych_003', domain: 'PHARM', difficulty: 'medium',
+    question: 'Which antipsychotic is associated with the highest risk of metabolic syndrome (weight gain, hyperglycaemia, dyslipidaemia)?',
+    options: ['A. Haloperidol', 'B. Aripiprazole', 'C. Clozapine and olanzapine', 'D. Quetiapine at low doses'],
+    correct: 2,
+    explanation: 'Clozapine and olanzapine are associated with the greatest risk of metabolic syndrome among all antipsychotics, causing significant weight gain, hyperglycaemia, and dyslipidaemia. This is due to their strong antagonism of H1, muscarinic, and serotonin receptors. Regular monitoring of weight, blood glucose, and lipids is essential. Aripiprazole has the lowest metabolic risk.',
+    reference: 'Antipsychotic Metabolic Side Effects'
+  },
+  {
+    id: 'q_psych_004', domain: 'CLIN', difficulty: 'hard',
+    question: 'Clozapine use requires mandatory regular monitoring for which life-threatening adverse effect?',
+    options: ['A. Nephrotoxicity', 'B. Agranulocytosis (life-threatening neutropenia)', 'C. Hepatotoxicity', 'D. Pulmonary fibrosis'],
+    correct: 1,
+    explanation: 'Clozapine causes agranulocytosis (absolute neutrophil count <500/mm³) in approximately 1-2% of patients, which can be fatal. All patients must be registered in a mandatory monitoring programme with weekly FBC for the first 18 weeks, then fortnightly. If ANC falls below 1500/mm³, clozapine must be stopped immediately. This is a UAE/DHA requirement for clozapine dispensing.',
+    reference: 'Clozapine Monitoring Requirements'
+  },
+  {
+    id: 'q_psych_005', domain: 'PHARM', difficulty: 'medium',
+    question: 'Which benzodiazepine is preferred for patients with hepatic impairment?',
+    options: ['A. Diazepam', 'B. Clonazepam', 'C. Lorazepam (or oxazepam/temazepam)', 'D. Chlordiazepoxide'],
+    correct: 2,
+    explanation: 'Lorazepam, oxazepam, and temazepam (the "LOT" benzodiazepines) undergo direct glucuronidation in the liver without forming active metabolites, making them safe in hepatic impairment. Diazepam and clonazepam are extensively metabolised by CYP3A4/2C19 to active metabolites that can accumulate in liver disease, causing prolonged sedation.',
+    reference: 'Benzodiazepine Selection in Liver Disease'
+  },
+
+  // ══════════════════════════════════════
+  // ANTIBIOTICS — ADVANCED
+  // ══════════════════════════════════════
+  {
+    id: 'q_abx_001', domain: 'PHARM', difficulty: 'easy',
+    question: 'Which antibiotic class inhibits bacterial cell wall synthesis by binding to penicillin-binding proteins (PBPs)?',
+    options: ['A. Fluoroquinolones', 'B. Macrolides', 'C. Beta-lactams (penicillins, cephalosporins, carbapenems)', 'D. Aminoglycosides'],
+    correct: 2,
+    explanation: 'Beta-lactam antibiotics (penicillins, cephalosporins, carbapenems, monobactams) inhibit bacterial cell wall synthesis by binding to and inactivating penicillin-binding proteins (PBPs), which are enzymes involved in the final cross-linking of peptidoglycan. This leads to cell wall instability and bactericidal bacterial lysis.',
+    reference: 'Beta-Lactam Mechanism of Action'
+  },
+  {
+    id: 'q_abx_002', domain: 'CLIN', difficulty: 'medium',
+    question: 'A patient receives vancomycin by IV infusion too rapidly and develops flushing, erythema, and pruritus on the face and upper body. What is this reaction called?',
+    options: ['A. Anaphylaxis requiring epinephrine', 'B. Red Man Syndrome — a rate-dependent infusion reaction', 'C. Stevens-Johnson syndrome', 'D. Type I IgE-mediated allergy to vancomycin'],
+    correct: 1,
+    explanation: 'Red Man Syndrome is a rate-dependent (not IgE-mediated) adverse reaction to rapid vancomycin infusion, caused by direct mast cell degranulation and histamine release. It presents with flushing, erythema, and pruritus on the face, neck, and upper torso. Treatment includes slowing or stopping the infusion, antihistamines, and restarting at a slower rate. Minimum infusion time is 60 minutes per gram.',
+    reference: 'Vancomycin Infusion Guidelines'
+  },
+  {
+    id: 'q_abx_003', domain: 'PHARM', difficulty: 'medium',
+    question: 'Fluoroquinolones (e.g., ciprofloxacin, levofloxacin) are contraindicated in children and pregnant women primarily because of which adverse effect?',
+    options: ['A. Nephrotoxicity', 'B. Damage to developing cartilage (arthropathy/tendinopathy)', 'C. Ototoxicity', 'D. Bone marrow suppression'],
+    correct: 1,
+    explanation: 'Fluoroquinolones inhibit cartilage formation and cause arthropathy in animal models. They are generally avoided in children under 18 and during pregnancy because of concerns about developing cartilage, as well as the risk of tendinopathy and Achilles tendon rupture (particularly in patients also taking corticosteroids or the elderly).',
+    reference: 'Fluoroquinolone Safety Profile'
+  },
+  {
+    id: 'q_abx_004', domain: 'CLIN', difficulty: 'hard',
+    question: 'A patient on warfarin is prescribed a 7-day course of metronidazole for trichomoniasis. What will likely happen to the INR?',
+    options: ['A. INR will decrease — metronidazole induces CYP2C9', 'B. INR will increase significantly — metronidazole inhibits CYP2C9 reducing warfarin metabolism', 'C. No change — metronidazole has no interaction with warfarin', 'D. INR will decrease — metronidazole displaces warfarin from protein binding'],
+    correct: 1,
+    explanation: 'Metronidazole inhibits CYP2C9 (the main enzyme that metabolises S-warfarin, the more potent enantiomer) and CYP3A4. This significantly reduces warfarin metabolism, leading to elevated warfarin plasma levels and a markedly increased INR, with risk of bleeding. The INR should be closely monitored and the warfarin dose reduced when co-administering metronidazole.',
+    reference: 'Metronidazole-Warfarin Interaction'
+  },
+  {
+    id: 'q_abx_005', domain: 'PHARM', difficulty: 'medium',
+    question: 'Which antibiotic is the drug of choice for community-acquired pneumonia (CAP) in an otherwise healthy adult without comorbidities?',
+    options: ['A. Co-amoxiclav (amoxicillin-clavulanate)', 'B. Amoxicillin (or doxycycline/azithromycin for atypicals)', 'C. Levofloxacin 750 mg once daily', 'D. Vancomycin IV'],
+    correct: 1,
+    explanation: 'For outpatient CAP in a previously healthy patient, amoxicillin is the first-line treatment for typical pathogens (S. pneumoniae). Doxycycline or a macrolide (azithromycin) is used if atypical coverage is needed (Mycoplasma, Chlamydophila, Legionella). Fluoroquinolones (levofloxacin) are reserved for patients with comorbidities or where first-line agents are inappropriate.',
+    reference: 'BTS/IDSA CAP Guidelines'
+  },
+
+  // ══════════════════════════════════════
+  // PHARMACY LAW — UAE SPECIFIC
+  // ══════════════════════════════════════
+  {
+    id: 'q_uae_law_001', domain: 'REG', difficulty: 'easy',
+    question: 'Which government body is responsible for issuing pharmacy licences at the federal level in the UAE?',
+    options: ['A. Dubai Health Authority (DHA)', 'B. Department of Health — Abu Dhabi (DOH)', 'C. Ministry of Health and Prevention (MOHAP)', 'D. Sharjah Health Authority (SHA)'],
+    correct: 2,
+    explanation: 'MOHAP (Ministry of Health and Prevention) is the federal regulatory authority responsible for issuing pharmacy licences, registering drugs, and setting pharmaceutical regulations across the UAE. DHA regulates Dubai specifically, DOH governs Abu Dhabi, and SHA governs Sharjah, but MOHAP has overarching federal authority.',
+    reference: 'UAE Federal Pharmacy Law'
+  },
+  {
+    id: 'q_uae_law_002', domain: 'REG', difficulty: 'medium',
+    question: 'In the UAE, controlled substances (e.g., morphine, oxycodone) require which type of special prescription?',
+    options: ['A. A standard electronic prescription (e-prescription)', 'B. A triplicate prescription (3 copies — pharmacy, prescriber, regulatory authority)', 'C. A verbal prescription confirmed within 24 hours', 'D. A fax copy of the original prescription only'],
+    correct: 1,
+    explanation: 'Controlled substances in the UAE (Schedule I, II, and III drugs) require a triplicate prescription — one copy for the pharmacy, one for the prescriber to retain, and one sent to the regulatory authority (MOHAP/DHA/DOH). This ensures strict audit and monitoring of controlled drug dispensing to prevent misuse and diversion.',
+    reference: 'UAE Federal Law No. 14 of 1995 on Controlled Substances'
+  },
+  {
+    id: 'q_uae_law_003', domain: 'REG', difficulty: 'medium',
+    question: 'Under UAE drug scheduling, in which schedule is morphine classified?',
+    options: ['A. Schedule I (highest danger/abuse potential)', 'B. Schedule II (high potential for abuse — strong opioids)', 'C. Schedule III (moderate abuse potential)', 'D. Schedule IV (low abuse potential)'],
+    correct: 1,
+    explanation: 'Morphine is a Schedule II controlled substance in the UAE, reflecting its high potential for abuse and dependence but recognised medical use. Schedule I includes substances with the very highest danger (e.g., heroin, methamphetamine) with no accepted medical use. Schedule III includes moderate-risk drugs like codeine combinations, and Schedule IV includes benzodiazepines.',
+    reference: 'UAE Federal Law on Narcotics & Psychotropic Substances'
+  },
+  {
+    id: 'q_uae_law_004', domain: 'REG', difficulty: 'medium',
+    question: 'Which regulatory system does the UAE use for adverse drug reaction (ADR) reporting?',
+    options: ['A. Yellow Card Scheme (MHRA — UK system)', 'B. MedWatch (FDA — US system)', 'C. MOHAP Pharmacovigilance System / UAE Vigilance', 'D. EudraVigilance (EMA — European system)'],
+    correct: 2,
+    explanation: 'The UAE uses its own pharmacovigilance system managed by MOHAP. Healthcare professionals and patients can report adverse drug reactions through the MOHAP online portal or the "MOHAP" mobile application. This feeds into the WHO\'s global pharmacovigilance database (VigiBase). The UAE is a member of the WHO Programme for International Drug Monitoring.',
+    reference: 'MOHAP Pharmacovigilance Guidelines'
+  },
+  {
+    id: 'q_uae_law_005', domain: 'REG', difficulty: 'easy',
+    question: 'In the UAE, how long must a pharmacist retain prescription records for controlled substances?',
+    options: ['A. 1 year', 'B. 2 years', 'C. 5 years', 'D. 10 years'],
+    correct: 2,
+    explanation: 'UAE federal regulations require pharmacy records for controlled substances, including triplicate prescriptions and narcotics registers, to be maintained for a minimum of 5 years. This allows regulatory authorities (MOHAP/DHA/DOH) to conduct audits and investigations. Good record-keeping is a core requirement for pharmacy licence renewal.',
+    reference: 'UAE MOHAP Controlled Substance Record-Keeping Requirements'
+  },
+  {
+    id: 'q_uae_law_006', domain: 'REG', difficulty: 'hard',
+    question: 'A pharmacist in a UAE community pharmacy receives a prescription for tramadol 50 mg from a general practitioner. The prescription has no patient identification number (Emirates ID). What is the correct action?',
+    options: ['A. Dispense the medication — tramadol prescriptions do not require ID', 'B. Dispense only half the quantity and record the discrepancy', 'C. Contact the prescriber and refuse to dispense until the prescription is complete with patient ID', 'D. Accept the prescription and report it to MOHAP within 30 days'],
+    correct: 2,
+    explanation: 'In the UAE, tramadol is a Schedule III controlled substance requiring a complete prescription with patient Emirates ID or passport number. Incomplete controlled substance prescriptions must not be dispensed. The pharmacist must contact the prescriber to obtain the missing information before dispensing. Dispensing without proper identification is a regulatory violation.',
+    reference: 'UAE Controlled Substance Prescription Requirements'
+  },
+  {
+    id: 'q_uae_law_007', domain: 'REG', difficulty: 'medium',
+    question: 'The "Haad" health authority that regulates healthcare in Abu Dhabi has been restructured and is now known as:',
+    options: ['A. SEHA (Abu Dhabi Health Services)', 'B. DOH (Department of Health — Abu Dhabi)', 'C. MOHAP (Ministry of Health and Prevention)', 'D. DHA (Dubai Health Authority)'],
+    correct: 1,
+    explanation: 'HAAD (Health Authority Abu Dhabi) was renamed and restructured as DOH — the Department of Health Abu Dhabi — in 2018. DOH is responsible for regulating and developing the healthcare sector in the Emirate of Abu Dhabi, including licensing healthcare professionals and facilities. SEHA is the public healthcare provider (not regulator) in Abu Dhabi.',
+    reference: 'DOH Abu Dhabi Regulatory Structure'
+  },
+
+  // ══════════════════════════════════════
+  // PHARMACEUTICAL SCIENCES
+  // ══════════════════════════════════════
+  {
+    id: 'q_phsci_001', domain: 'PHSCI', difficulty: 'medium',
+    question: 'What does bioavailability (F) measure?',
+    options: ['A. The rate at which a drug is eliminated from the body', 'B. The fraction of an administered dose that reaches systemic circulation in unchanged form', 'C. The volume of plasma that the drug distributes into', 'D. The concentration of drug at the receptor site'],
+    correct: 1,
+    explanation: 'Bioavailability (F) is the fraction of an administered drug dose that reaches the systemic circulation in the unchanged (active) form. For IV administration, F = 100% by definition. For oral drugs, F can be reduced by incomplete absorption, first-pass hepatic metabolism, gut wall metabolism, and P-glycoprotein efflux. It determines the effective oral dose relative to IV dose.',
+    reference: 'Biopharmaceutics and Pharmacokinetics'
+  },
+  {
+    id: 'q_phsci_002', domain: 'PHSCI', difficulty: 'medium',
+    question: 'Which pH-related principle explains why weak acidic drugs (pKa ~3-4) are better absorbed in the stomach?',
+    options: ['A. Henderson-Hasselbalch equation — weak acids are predominantly unionised at low gastric pH, favouring absorption', 'B. Fick\'s law of diffusion — larger drugs diffuse faster', 'C. Zero-order kinetics — drugs absorb at a constant rate', 'D. The drug must be ionised to cross cell membranes'],
+    correct: 0,
+    explanation: 'The Henderson-Hasselbalch equation explains drug absorption based on ionisation. Weak acids (e.g., aspirin, pKa ~3.5) are predominantly in the unionised form at low gastric pH (pH 1-2). Unionised molecules are lipid-soluble and can cross membranes by passive diffusion. At intestinal pH (6-7), weak acids become ionised and less well absorbed, but the large surface area of the intestine compensates.',
+    reference: 'Biopharmaceutics — Drug Absorption Principles'
+  },
+  {
+    id: 'q_phsci_003', domain: 'PHSCI', difficulty: 'easy',
+    question: 'What is the half-life (t½) of a drug?',
+    options: ['A. The time for a drug to reach maximum concentration (Tmax)', 'B. The time for the plasma drug concentration to decrease by 50%', 'C. The time for 95% of the drug to be eliminated', 'D. The time from administration to onset of effect'],
+    correct: 1,
+    explanation: 'The elimination half-life (t½) is the time required for the plasma drug concentration to fall by 50%. It determines the dosing interval, time to steady-state (approximately 4-5 half-lives), and the time for drug elimination (approximately 5 half-lives for ~97% elimination). t½ = 0.693 / Ke, where Ke is the elimination rate constant.',
+    reference: 'Pharmacokinetics Fundamentals'
+  },
+  {
+    id: 'q_phsci_004', domain: 'PHSCI', difficulty: 'hard',
+    question: 'Which formulation type is designed to release drug slowly and maintain plasma levels over an extended period, reducing dosing frequency?',
+    options: ['A. Immediate-release (IR) tablets', 'B. Effervescent tablets', 'C. Modified-release / extended-release (ER) formulations', 'D. Sublingual tablets'],
+    correct: 2,
+    explanation: 'Modified-release (MR) or extended-release (ER) formulations are designed to release drug slowly over an extended period (8-24 hours). This reduces dosing frequency, improves patient adherence, and maintains more stable plasma drug concentrations, reducing peaks (side effects) and troughs (loss of effect). MR tablets must not be crushed or chewed as this destroys the release mechanism.',
+    reference: 'Modified-Release Formulation Design'
+  },
+  {
+    id: 'q_phsci_005', domain: 'PHSCI', difficulty: 'medium',
+    question: 'What is the significance of a drug\'s volume of distribution (Vd)?',
+    options: ['A. A high Vd (e.g., >1 L/kg) indicates extensive tissue distribution and a low plasma concentration', 'B. A high Vd indicates the drug remains mostly in the bloodstream', 'C. Vd directly determines the oral bioavailability', 'D. Vd is only relevant for renally-excreted drugs'],
+    correct: 0,
+    explanation: 'Volume of distribution (Vd) is a theoretical volume relating the amount of drug in the body to plasma concentration. A large Vd (>1 L/kg, e.g., chloroquine Vd ~250-800 L/kg) indicates extensive tissue binding and distribution with low plasma concentrations. A small Vd (~0.05-0.1 L/kg, e.g., heparin) indicates the drug remains largely in the plasma. Highly protein-bound, lipophilic drugs tend to have larger Vd.',
+    reference: 'Volume of Distribution and Drug Distribution'
+  },
+  {
+    id: 'q_phsci_006', domain: 'PHSCI', difficulty: 'medium',
+    question: 'Which route of drug administration completely avoids first-pass hepatic metabolism?',
+    options: ['A. Oral (PO)', 'B. Intravenous (IV)', 'C. Rectal (PR) — though partial first-pass still occurs', 'D. B and some others (sublingual, transdermal, inhaled)'],
+    correct: 3,
+    explanation: 'Routes that avoid first-pass metabolism include intravenous (IV), intramuscular (IM), subcutaneous (SC), sublingual (drug absorbed into systemic veins via oral mucosa), transdermal (systemic absorption through skin), and inhaled (pulmonary route). Oral, rectal (partially), and buccal routes are subject to varying degrees of first-pass metabolism. This is why some drugs (e.g., GTN, buprenorphine) are given sublingually.',
+    reference: 'Routes of Administration and First-Pass Effect'
+  },
+
+  // ══════════════════════════════════════
+  // PHARMACOKINETIC CALCULATIONS
+  // ══════════════════════════════════════
+  {
+    id: 'q_pk_001', domain: 'CALC', difficulty: 'hard',
+    question: 'A patient weighing 70 kg requires a loading dose of gentamicin. The target peak concentration is 8 mg/L and the Vd is 0.25 L/kg. What loading dose (in mg) is required?',
+    options: ['A. 56 mg', 'B. 140 mg', 'C. 200 mg', 'D. 280 mg'],
+    correct: 1,
+    explanation: 'Loading dose = Vd × target concentration. Vd = 0.25 L/kg × 70 kg = 17.5 L. Loading dose = 17.5 L × 8 mg/L = 140 mg. This formula ensures the drug rapidly achieves the therapeutic target concentration at the site of action. Loading doses are particularly important for drugs with long half-lives where steady-state would otherwise take many hours to achieve.',
+    reference: 'Pharmacokinetic Loading Dose Calculation'
+  },
+  {
+    id: 'q_pk_002', domain: 'CALC', difficulty: 'medium',
+    question: 'A drug has a half-life of 8 hours. Starting from an initial concentration of 100 mg/L, what is the plasma concentration after 24 hours?',
+    options: ['A. 50 mg/L', 'B. 25 mg/L', 'C. 12.5 mg/L', 'D. 6.25 mg/L'],
+    correct: 2,
+    explanation: '24 hours represents 24/8 = 3 half-lives. After each half-life the concentration halves: 100 → 50 → 25 → 12.5 mg/L. After 3 half-lives the concentration is 100 × (1/2)³ = 100 × 0.125 = 12.5 mg/L. After 5 half-lives (~96.9% eliminated), the drug is considered essentially eliminated.',
+    reference: 'Half-Life Calculation'
+  },
+  {
+    id: 'q_pk_003', domain: 'CALC', difficulty: 'medium',
+    question: 'How many milligrams of potassium chloride (KCl) are in 500 mL of a 0.3% w/v KCl solution?',
+    options: ['A. 150 mg', 'B. 300 mg', 'C. 1500 mg', 'D. 3000 mg'],
+    correct: 2,
+    explanation: '0.3% w/v means 0.3 g per 100 mL = 300 mg per 100 mL. For 500 mL: 300 mg × (500/100) = 300 mg × 5 = 1500 mg of KCl. Always double-check IV potassium calculations as potassium errors are one of the most common fatal medication errors. Maximum IV rate is 10 mmol/hour peripherally.',
+    reference: 'IV Solution Concentration Calculations'
+  },
+  {
+    id: 'q_pk_004', domain: 'CALC', difficulty: 'hard',
+    question: 'An IV infusion of dopamine 200 mg in 250 mL NS is to be infused at 5 mcg/kg/min for a 60 kg patient. What is the infusion rate in mL/hour?',
+    options: ['A. 11.25 mL/h', 'B. 22.5 mL/h', 'C. 45 mL/h', 'D. 7.5 mL/h'],
+    correct: 1,
+    explanation: 'Step 1: Required dose = 5 mcg/kg/min × 60 kg = 300 mcg/min. Step 2: Convert to mg/min = 0.300 mg/min. Step 3: Concentration = 200 mg / 250 mL = 0.8 mg/mL. Step 4: Rate (mL/min) = 0.300 mg/min ÷ 0.8 mg/mL = 0.375 mL/min. Step 5: Convert to mL/h = 0.375 × 60 = 22.5 mL/h. Always double-check vasoactive drug infusion rates — small errors can cause haemodynamic instability.',
+    reference: 'IV Infusion Rate Calculation'
+  },
+  {
+    id: 'q_pk_005', domain: 'CALC', difficulty: 'medium',
+    question: 'A doctor orders amoxicillin 250 mg/5 mL suspension. How many mL would you give for a 375 mg dose?',
+    options: ['A. 5 mL', 'B. 7.5 mL', 'C. 10 mL', 'D. 15 mL'],
+    correct: 1,
+    explanation: '250 mg → 5 mL, so 375 mg needs: (375 / 250) × 5 mL = 1.5 × 5 = 7.5 mL. Alternatively: 250/5 = 50 mg/mL; 375/50 = 7.5 mL. Accurate oral liquid dose calculations are essential in paediatric pharmacy to avoid under- or overdosing.',
+    reference: 'Oral Liquid Dose Calculation'
+  },
+
+  // ══════════════════════════════════════
+  // PEDIATRIC PHARMACOLOGY
+  // ══════════════════════════════════════
+  {
+    id: 'q_peds_001', domain: 'CLIN', difficulty: 'easy',
+    question: 'Aspirin is contraindicated in children under 16 years with viral infections because of the risk of which serious condition?',
+    options: ['A. Peptic ulcer disease', 'B. Reye\'s syndrome (encephalopathy and hepatic failure)', 'C. Renal tubular acidosis', 'D. Aplastic anaemia'],
+    correct: 1,
+    explanation: 'Aspirin use in children with viral infections (influenza, chickenpox) is associated with Reye\'s syndrome — a potentially fatal condition involving acute non-inflammatory encephalopathy and hepatic failure with mitochondrial dysfunction. Aspirin is contraindicated in children under 16 years for this reason. Paracetamol or ibuprofen are the safe alternatives for fever and pain in children.',
+    reference: 'Reye\'s Syndrome and Aspirin'
+  },
+  {
+    id: 'q_peds_002', domain: 'CLIN', difficulty: 'medium',
+    question: 'When calculating a paediatric dose using Clark\'s rule, which patient parameter is used?',
+    options: ['A. Age in years', 'B. Body surface area (BSA)', 'C. Body weight in pounds', 'D. Creatinine clearance'],
+    correct: 2,
+    explanation: 'Clark\'s rule uses body weight in pounds: Child dose = (child\'s weight in lbs / 150 lbs) × adult dose. While BSA-based calculations (Mosteller formula) are more accurate for many drugs (especially chemotherapy), Clark\'s rule is a simple, quick approximation. The Young\'s rule uses age in years: Child dose = [age/(age+12)] × adult dose.',
+    reference: 'Paediatric Dose Calculation Rules'
+  },
+  {
+    id: 'q_peds_003', domain: 'PHARM', difficulty: 'hard',
+    question: 'Which tetracycline-class antibiotic is contraindicated in children under 8 years and in pregnant women?',
+    options: ['A. Doxycycline', 'B. Amoxicillin', 'C. Azithromycin', 'D. Cephalexin'],
+    correct: 0,
+    explanation: 'Tetracyclines (doxycycline, tetracycline) are contraindicated in children under 8 years and in pregnancy because they bind to calcium ions in developing bones and teeth, causing permanent yellow-brown discolouration of teeth ("tetracycline staining") and inhibition of bone growth. They also cross the placenta and affect fetal bone development.',
+    reference: 'Tetracycline Contraindications'
+  },
+
+  // ══════════════════════════════════════
+  // DERMATOLOGY
+  // ══════════════════════════════════════
+  {
+    id: 'q_derm_001', domain: 'THER', difficulty: 'easy',
+    question: 'What is the first-line topical treatment for mild-to-moderate plaque psoriasis?',
+    options: ['A. Topical corticosteroids (e.g., betamethasone valerate)', 'B. Topical calcineurin inhibitors (e.g., tacrolimus ointment)', 'C. Topical methotrexate', 'D. Topical antibiotics (e.g., fusidic acid)'],
+    correct: 0,
+    explanation: 'Topical corticosteroids are the first-line treatment for mild-to-moderate plaque psoriasis. They reduce inflammation, proliferation, and vasoconstriction. Potency is chosen based on body site and severity. For the scalp and thick plaques, higher-potency steroids (betamethasone, clobetasol) are used. Vitamin D analogues (calcipotriol) are often combined with steroids for additive effect.',
+    reference: 'Psoriasis Management Guidelines'
+  },
+  {
+    id: 'q_derm_002', domain: 'PHARM', difficulty: 'medium',
+    question: 'Isotretinoin (Roaccutane) is highly effective for severe acne but requires special risk management. Why is it absolutely contraindicated in pregnancy?',
+    options: ['A. It causes severe fetal dehydration', 'B. It is a potent teratogen causing characteristic craniofacial, cardiac, and CNS malformations', 'C. It causes maternal thromboembolism', 'D. It inhibits fetal thyroid development'],
+    correct: 1,
+    explanation: 'Isotretinoin is a Vitamin A derivative (retinoid) and a potent teratogen (Category X). It causes characteristic embryopathy including craniofacial defects (microcephaly, cleft palate), cardiac malformations, CNS anomalies, and limb defects. Even a single dose during pregnancy can cause severe malformations. In the UAE (as per international standards), mandatory pregnancy prevention programmes require monthly negative pregnancy tests and dual contraception.',
+    reference: 'Isotretinoin Teratogenicity — Pregnancy Prevention Programme'
+  },
+  {
+    id: 'q_derm_003', domain: 'THER', difficulty: 'medium',
+    question: 'Which antifungal agent is the treatment of choice for tinea capitis (scalp ringworm) in children?',
+    options: ['A. Topical clotrimazole cream', 'B. Oral griseofulvin or oral terbinafine', 'C. Topical ketoconazole shampoo only', 'D. Oral fluconazole single dose'],
+    correct: 1,
+    explanation: 'Tinea capitis (scalp ringworm) requires oral antifungal therapy as topical agents cannot penetrate the hair follicle. Oral griseofulvin (traditional first-line for Microsporum) or oral terbinafine (preferred for Trichophyton, now first-line in many guidelines) are used. Treatment duration is typically 4-8 weeks. Adjunctive antifungal shampoo (selenium sulphide, ketoconazole) reduces spread.',
+    reference: 'Tinea Capitis Management'
+  },
+
+  // ══════════════════════════════════════
+  // ANTICOAGULATION — ADVANCED
+  // ══════════════════════════════════════
+  {
+    id: 'q_anticoag_001', domain: 'PHARM', difficulty: 'medium',
+    question: 'Which of the following DOACs (Direct Oral Anticoagulants) directly inhibits thrombin (Factor IIa)?',
+    options: ['A. Rivaroxaban (Xarelto)', 'B. Apixaban (Eliquis)', 'C. Dabigatran (Pradaxa)', 'D. Edoxaban (Lixiana)'],
+    correct: 2,
+    explanation: 'Dabigatran is a direct thrombin (Factor IIa) inhibitor. Rivaroxaban, apixaban, and edoxaban are direct Factor Xa inhibitors. The specific reversal agent for dabigatran overdose is idarucizumab (Praxbind), while andexanet alfa (Andexxa) reverses Factor Xa inhibitors (rivaroxaban, apixaban). This distinction is critical in emergency bleeding management.',
+    reference: 'Direct Oral Anticoagulant Pharmacology'
+  },
+  {
+    id: 'q_anticoag_002', domain: 'CLIN', difficulty: 'hard',
+    question: 'A patient on warfarin has an INR of 7.2 with no active bleeding. What is the most appropriate management?',
+    options: ['A. Continue warfarin at the same dose and recheck INR in 1 week', 'B. Withhold warfarin, give oral vitamin K 1-2 mg, and recheck INR in 24 hours', 'C. Give fresh frozen plasma (FFP) 4 units IV immediately', 'D. Give IV phytomenadione (vitamin K) 10 mg immediately'],
+    correct: 1,
+    explanation: 'For a supratherapeutic INR of 5-9 with no bleeding, UK/US guidelines recommend: withhold warfarin, and if INR > 6 give low-dose oral vitamin K (1-2 mg). Recheck INR in 24-48 hours. IV vitamin K is reserved for life-threatening bleeds. High-dose IV vitamin K causes warfarin resistance for weeks. FFP is reserved for acute serious bleeding with coagulopathy.',
+    reference: 'Warfarin Supratherapeutic INR Management'
+  },
+  {
+    id: 'q_anticoag_003', domain: 'PHARM', difficulty: 'medium',
+    question: 'Heparin-induced thrombocytopenia (HIT) is a serious complication of heparin therapy. Which management is correct if HIT is suspected?',
+    options: ['A. Reduce the heparin dose by 50% and continue', 'B. Switch to low-molecular-weight heparin (LMWH, e.g., enoxaparin)', 'C. Stop all heparin immediately and switch to an alternative anticoagulant (argatroban or fondaparinux)', 'D. Give platelet transfusion and continue heparin'],
+    correct: 2,
+    explanation: 'HIT is an immune-mediated thrombocytopenia caused by antibodies against heparin-platelet factor 4 complexes, paradoxically causing thrombosis. On clinical suspicion, ALL heparin products (including LMWH and heparin flushes) must be stopped immediately. Non-heparin anticoagulants (argatroban, fondaparinux, or a DOAC) are substituted. Warfarin should not be started until platelet count recovers. Platelet transfusions worsen clotting.',
+    reference: 'Heparin-Induced Thrombocytopenia Management'
+  },
+
+  // ══════════════════════════════════════
+  // RESPIRATORY — ADVANCED
+  // ══════════════════════════════════════
+  {
+    id: 'q_resp_001', domain: 'THER', difficulty: 'medium',
+    question: 'According to GOLD guidelines, what is the treatment strategy for COPD based on?',
+    options: ['A. FEV1 alone', 'B. Symptom burden (CAT/mMRC score) and exacerbation history (ABCD grouping)', 'C. Age and smoking pack-years only', 'D. Blood eosinophil count alone'],
+    correct: 1,
+    explanation: 'The 2023 GOLD strategy classifies COPD patients based on symptom burden (CAT ≥ 10 or mMRC ≥ 2) and exacerbation history into groups A, B, and E. Group A: 0-1 exacerbations, low symptoms — SAMA or SABA. Group B: 0-1 exacerbations, high symptoms — LAMA or LABA. Group E: ≥2 exacerbations or ≥1 hospitalisation — LAMA + LABA (+ ICS if eosinophils ≥300). FEV1 determines severity staging (I-IV).',
+    reference: 'GOLD COPD Guidelines 2023'
+  },
+  {
+    id: 'q_resp_002', domain: 'PHARM', difficulty: 'medium',
+    question: 'Which inhaler device technique error is MOST common with metered-dose inhalers (MDIs)?',
+    options: ['A. Inhaling too slowly', 'B. Not shaking the inhaler before use', 'C. Pressing the canister before inhaling (poor hand-breath coordination) or inhaling too fast', 'D. Using the inhaler in a lying-down position'],
+    correct: 2,
+    explanation: 'The most critical and common MDI error is poor hand-breath coordination — actuating the inhaler too early or too late relative to inhalation, and inhaling too rapidly (requires a slow, deep inhalation of 4-5 seconds). Using a spacer device eliminates the coordination requirement and greatly improves pulmonary drug deposition, especially in children and elderly patients.',
+    reference: 'MDI Inhaler Technique Counselling'
+  },
+
+  // ══════════════════════════════════════
+  // ONCOLOGY BASICS
+  // ══════════════════════════════════════
+  {
+    id: 'q_oncol_001', domain: 'PHARM', difficulty: 'medium',
+    question: 'Cyclophosphamide is an alkylating chemotherapy agent. Which specific toxicity requires prophylactic co-administration of mesna?',
+    options: ['A. Peripheral neuropathy', 'B. Haemorrhagic cystitis (bladder toxicity)', 'C. Cardiotoxicity', 'D. Pulmonary fibrosis'],
+    correct: 1,
+    explanation: 'Cyclophosphamide and ifosfamide are metabolised to acrolein, a toxic urothelial metabolite that concentrates in the bladder and causes haemorrhagic cystitis (bladder inflammation and bleeding). Mesna (2-mercaptoethane sulphonate) is a uroprotective agent given concurrently — it is inactivated systemically and activated in urine where it binds and detoxifies acrolein.',
+    reference: 'Cyclophosphamide Toxicity and Mesna Prophylaxis'
+  },
+  {
+    id: 'q_oncol_002', domain: 'PHARM', difficulty: 'hard',
+    question: 'Which chemotherapy agent is associated with dose-limiting cardiotoxicity, particularly dilated cardiomyopathy, necessitating cumulative dose limits?',
+    options: ['A. Vincristine', 'B. Doxorubicin (anthracycline)', 'C. Bleomycin', 'D. Cisplatin'],
+    correct: 1,
+    explanation: 'Doxorubicin and other anthracyclines cause dose-dependent irreversible dilated cardiomyopathy through generation of reactive oxygen species and damage to cardiomyocytes. The cumulative lifetime dose of doxorubicin is typically limited to 450-550 mg/m² to reduce this risk. Baseline and periodic echocardiography (LVEF monitoring) is required. Liposomal doxorubicin has a lower cardiac risk.',
+    reference: 'Anthracycline Cardiotoxicity'
+  },
+  {
+    id: 'q_oncol_003', domain: 'CLIN', difficulty: 'medium',
+    question: 'A patient receiving cisplatin-based chemotherapy is at risk of severe vomiting. Which antiemetic regimen is the gold standard for highly emetogenic chemotherapy (HEC)?',
+    options: ['A. Metoclopramide alone', 'B. Ondansetron alone (5-HT3 antagonist)', 'C. Triple therapy: 5-HT3 antagonist + NK1 antagonist (aprepitant) + dexamethasone', 'D. Lorazepam + prochlorperazine'],
+    correct: 2,
+    explanation: 'For highly emetogenic chemotherapy (HEC) like cisplatin, the standard antiemetic prophylaxis is triple therapy: a 5-HT3 receptor antagonist (ondansetron, granisetron, or palonosetron) + an NK-1 receptor antagonist (aprepitant or fosaprepitant) + dexamethasone. Adding olanzapine as a 4th agent is now recommended by MASCC/ASCO for complete response rates exceeding 85%.',
+    reference: 'MASCC/ASCO Antiemetic Guidelines for HEC'
+  },
+
+  // ══════════════════════════════════════
+  // IMMUNOLOGY / ALLERGY
+  // ══════════════════════════════════════
+  {
+    id: 'q_immun_001', domain: 'PHARM', difficulty: 'medium',
+    question: 'Anaphylaxis is a life-threatening allergic emergency. What is the FIRST-LINE treatment?',
+    options: ['A. IV hydrocortisone 200 mg', 'B. IV chlorphenamine (antihistamine)', 'C. Intramuscular (IM) adrenaline (epinephrine) 0.5 mg (1:1000)', 'D. Nebulised salbutamol'],
+    correct: 2,
+    explanation: 'Intramuscular adrenaline (epinephrine) 0.5 mg (0.5 mL of 1:1000) in the anterolateral thigh is the FIRST-LINE emergency treatment for anaphylaxis. Adrenaline acts rapidly to reverse bronchospasm, vasodilation, and angioedema. IM administration is preferred over IV in non-arrested patients. Antihistamines and steroids are adjunctive treatments and must not delay epinephrine.',
+    reference: 'Anaphylaxis Emergency Management — Resuscitation Council UK'
+  },
+  {
+    id: 'q_immun_002', domain: 'PHARM', difficulty: 'easy',
+    question: 'What type of hypersensitivity reaction causes serum sickness (fever, arthralgia, urticaria) occurring 7-21 days after drug administration?',
+    options: ['A. Type I — IgE-mediated immediate hypersensitivity', 'B. Type II — cytotoxic/antibody-dependent', 'C. Type III — immune complex-mediated hypersensitivity', 'D. Type IV — delayed-type (T-cell mediated)'],
+    correct: 2,
+    explanation: 'Serum sickness is a Type III immune complex-mediated hypersensitivity reaction. Drug-antibody immune complexes deposit in blood vessel walls, joints, and kidneys, activating complement and causing inflammation. It typically occurs 7-21 days after the drug exposure. Common causative drugs include penicillins, sulphonamides, cephalosporins, and certain biologics.',
+    reference: 'Drug Hypersensitivity — Gell and Coombs Classification'
+  },
+
+  // ══════════════════════════════════════
+  // DRUG INTERACTIONS
+  // ══════════════════════════════════════
+  {
+    id: 'q_interact_001', domain: 'CLIN', difficulty: 'medium',
+    question: 'A patient on simvastatin 40 mg is prescribed clarithromycin for an infection. What is the risk?',
+    options: ['A. Reduced statin efficacy — clarithromycin induces CYP3A4', 'B. Rhabdomyolysis — clarithromycin strongly inhibits CYP3A4, dramatically increasing simvastatin levels', 'C. No clinically significant interaction', 'D. Increased clarithromycin levels causing QT prolongation only'],
+    correct: 1,
+    explanation: 'Clarithromycin is a potent CYP3A4 inhibitor. Simvastatin and lovastatin are extensively metabolised by CYP3A4. Concomitant use dramatically increases statin plasma levels (AUC increases > 10-fold), greatly increasing the risk of myopathy and potentially fatal rhabdomyolysis. Simvastatin should be temporarily withheld during clarithromycin therapy, or a non-CYP3A4 metabolised statin (pravastatin, rosuvastatin) used instead.',
+    reference: 'Statin-CYP3A4 Inhibitor Drug Interactions'
+  },
+  {
+    id: 'q_interact_002', domain: 'CLIN', difficulty: 'hard',
+    question: 'Rifampicin is a potent inducer of which drug-metabolising enzymes?',
+    options: ['A. CYP2D6 and CYP2C9 only', 'B. CYP3A4, CYP2C9, CYP2C19, and P-glycoprotein — broad-spectrum inducer', 'C. CYP1A2 only', 'D. MAO and CYP2B6 only'],
+    correct: 1,
+    explanation: 'Rifampicin is one of the most potent broad-spectrum CYP enzyme inducers known. It induces CYP3A4, CYP2C9, CYP2C19, CYP2B6, and P-glycoprotein, dramatically reducing the plasma levels of many co-administered drugs. Clinically significant interactions include: warfarin, oral contraceptives (reduced efficacy → contraception failure), ciclosporin, HIV antiretrovirals, antifungals, and benzodiazepines.',
+    reference: 'Rifampicin Drug Interactions'
+  },
+  {
+    id: 'q_interact_003', domain: 'CLIN', difficulty: 'medium',
+    question: 'Which food significantly interacts with warfarin and other oral anticoagulants by affecting their metabolism?',
+    options: ['A. Grapefruit juice — inhibits CYP1A2', 'B. Green leafy vegetables (spinach, broccoli, kale) — high vitamin K content reduces warfarin effect', 'C. Milk — binds warfarin preventing absorption', 'D. Caffeine — induces CYP2C9 speeding warfarin metabolism'],
+    correct: 1,
+    explanation: 'Vitamin K (found in high concentrations in green leafy vegetables like spinach, kale, broccoli, and Brussels sprouts) is the cofactor for warfarin\'s target enzymes. High vitamin K intake reduces warfarin\'s anticoagulant effect. Patients must be counselled to maintain a consistent daily vitamin K intake rather than avoiding it entirely. Grapefruit inhibits CYP3A4 but has minimal effect on warfarin.',
+    reference: 'Warfarin Food Interactions'
+  },
+  {
+    id: 'q_interact_004', domain: 'CLIN', difficulty: 'hard',
+    question: 'St John\'s Wort (Hypericum perforatum) is a herbal antidepressant. Which serious drug interaction does it cause?',
+    options: ['A. It inhibits CYP3A4, increasing drug levels', 'B. It induces CYP3A4 and P-glycoprotein, reducing levels of many drugs including antiretrovirals, oral contraceptives, and ciclosporin', 'C. It inhibits platelet aggregation causing bleeding', 'D. It causes serotonin syndrome only when combined with MAOIs'],
+    correct: 1,
+    explanation: 'St John\'s Wort is a potent inducer of CYP3A4 and P-glycoprotein, significantly reducing plasma concentrations of many critical drugs. Major interactions include: oral contraceptives (contraception failure), HIV antiretrovirals (treatment failure), ciclosporin (transplant rejection), warfarin (reduced anticoagulation), and anticonvulsants. It can also cause serotonin syndrome with SSRIs/SNRIs.',
+    reference: 'Herbal Medicine Drug Interactions'
+  },
+
+  // ══════════════════════════════════════
+  // PHARMACY PRACTICE & COUNSELLING
+  // ══════════════════════════════════════
+  {
+    id: 'q_practice_001', domain: 'PRAC', difficulty: 'easy',
+    question: 'A patient is prescribed methotrexate 15 mg once WEEKLY for rheumatoid arthritis. They ask why they take it once a week rather than daily. What is the correct explanation?',
+    options: ['A. Daily dosing causes kidney failure', 'B. Weekly dosing allows folic acid replenishment and reduces severe toxicity; daily dosing is intended only for cancer', 'C. The once-weekly dose is more cost-effective', 'D. Methotrexate has a 7-day half-life'],
+    correct: 1,
+    explanation: 'Methotrexate for inflammatory conditions (RA, psoriasis) is prescribed as a ONCE-WEEKLY dose. Daily dosing (intended for certain cancers) in inflammatory disease causes severe bone marrow suppression and mucositis. This is one of the most dangerous prescribing/dispensing errors — always emphasise the weekly frequency on the label. Folic acid 5 mg once weekly (on a different day) is co-prescribed to reduce toxicity.',
+    reference: 'Methotrexate — High-Risk Medication Safety'
+  },
+  {
+    id: 'q_practice_002', domain: 'PRAC', difficulty: 'medium',
+    question: 'A patient asks if they can split or crush their slow-release diltiazem (Dilzem SR) tablets to swallow them more easily. What is the correct advice?',
+    options: ['A. Acceptable — splitting only, not crushing', 'B. Acceptable — crushing ensures faster effect', 'C. Absolutely not — crushing or splitting modified-release formulations destroys the slow-release mechanism and can cause dose dumping (overdose)', 'D. Acceptable if taken with water'],
+    correct: 2,
+    explanation: 'Modified-release (MR/SR/XL) formulations must never be crushed, chewed, or split as this destroys the drug delivery mechanism causing "dose dumping" — immediate release of the full dose intended to be released over 12-24 hours, resulting in dangerously high peak plasma concentrations and toxicity. If a patient cannot swallow whole tablets, an alternative formulation or drug should be prescribed.',
+    reference: 'Modified Release Formulation Counselling'
+  },
+  {
+    id: 'q_practice_003', domain: 'PRAC', difficulty: 'easy',
+    question: 'What is the "5 Rights" of medication administration used as the basic standard of safe dispensing?',
+    options: ['A. Right drug, right dose, right time, right route, right patient', 'B. Right drug, right storage, right expiry, right patient, right pharmacist', 'C. Right drug, right dose, right label, right price, right patient', 'D. Right doctor, right drug, right dose, right patient, right pharmacy'],
+    correct: 0,
+    explanation: 'The 5 Rights (or "Five Rs") of medication administration are: Right Patient, Right Drug, Right Dose, Right Route, and Right Time. Some institutions add further rights (Right Documentation, Right Reason, Right Response). These form the foundational safety checks performed by pharmacists and nurses before every medication dispensing or administration.',
+    reference: 'Medication Safety — Five Rights of Administration'
+  },
+  {
+    id: 'q_practice_004', domain: 'PRAC', difficulty: 'medium',
+    question: 'A patient is prescribed lithium for bipolar disorder. Which counselling point is MOST critical for their safety?',
+    options: ['A. Take with food to improve absorption', 'B. Maintain adequate fluid intake and consistent salt intake — dehydration and low sodium greatly increase lithium toxicity risk', 'C. Avoid grapefruit juice as it increases lithium levels', 'D. Take at bedtime only to reduce tremor'],
+    correct: 1,
+    explanation: 'Lithium has a very narrow therapeutic index (0.6-1.2 mmol/L) and is primarily renally cleared. Sodium depletion (from low-salt diets, diarrhoea, vomiting, excessive sweating, diuretics, NSAIDs) causes lithium retention and toxicity. Patients must maintain consistent salt and fluid intake. Regular serum lithium monitoring is essential. Signs of toxicity include tremor, ataxia, confusion, and seizures.',
+    reference: 'Lithium Therapeutic Drug Monitoring and Counselling'
+  },
+  {
+    id: 'q_practice_005', domain: 'PRAC', difficulty: 'hard',
+    question: 'Which high-alert medication class requires double-checking by two qualified practitioners before dispensing in UAE hospital pharmacies?',
+    options: ['A. Antihypertensives', 'B. Antihistamines', 'C. Concentrated electrolytes (KCl >20 mmol), concentrated insulin, chemotherapy', 'D. All OTC medications'],
+    correct: 2,
+    explanation: 'ISMP (Institute for Safe Medication Practices) designates certain drugs as "high-alert medications" due to their high risk of causing significant patient harm when used in error. These include concentrated electrolyte solutions (KCl, NaCl 3%, MgSO4), concentrated insulin, anticoagulants, chemotherapy, and neuromuscular blocking agents. UAE hospital pharmacies follow ISMP standards requiring independent double-checking before dispensing.',
+    reference: 'UAE Hospital Pharmacy High-Alert Medications Policy'
+  },
+
+  // ══════════════════════════════════════
+  // HERBAL & ALTERNATIVE — ADVANCED
+  // ══════════════════════════════════════
+  {
+    id: 'q_herb_002', domain: 'HERB', difficulty: 'medium',
+    question: 'Garlic (Allium sativum) supplements have a clinically important interaction with which class of drugs?',
+    options: ['A. Beta-blockers — garlic increases heart rate', 'B. Anticoagulants and antiplatelet drugs — garlic inhibits platelet aggregation, increasing bleeding risk', 'C. Antidiabetics — garlic causes severe hypoglycaemia', 'D. Antibiotics — garlic reduces antibiotic effectiveness'],
+    correct: 1,
+    explanation: 'Garlic has antiplatelet effects by inhibiting thromboxane synthesis and platelet-activating factor. When combined with warfarin, aspirin, or other anticoagulant/antiplatelet drugs, it significantly increases the risk of bleeding. Patients should be advised to stop garlic supplements at least 2 weeks before surgery and to inform their pharmacist if taking anticoagulants.',
+    reference: 'Garlic Herb-Drug Interactions'
+  },
+  {
+    id: 'q_herb_003', domain: 'HERB', difficulty: 'medium',
+    question: 'Ginkgo biloba is taken for memory and cognitive function. What is the most important safety concern in patients taking anticoagulants?',
+    options: ['A. Ginkgo causes constipation reducing anticoagulant absorption', 'B. Ginkgo inhibits platelet-activating factor and can cause spontaneous bleeding, especially intracranial haemorrhage', 'C. Ginkgo reduces warfarin levels by inducing CYP2C9', 'D. Ginkgo causes hypertension increasing stroke risk'],
+    correct: 1,
+    explanation: 'Ginkgo biloba inhibits platelet-activating factor (PAF) and has anticoagulant properties. Multiple case reports have documented spontaneous intracranial haemorrhage (subarachnoid, intracerebral) in patients taking ginkgo, including some without concurrent anticoagulants. The risk is greatly increased when combined with warfarin, aspirin, or other antiplatelet drugs. Patients must be warned about this risk.',
+    reference: 'Ginkgo Biloba Safety'
+  },
+  {
+    id: 'q_herb_004', domain: 'HERB', difficulty: 'easy',
+    question: 'Black seed oil (Nigella sativa / habbatus sauda) is widely used in UAE and Gulf countries. What is a documented pharmacological property that requires caution with antidiabetic drugs?',
+    options: ['A. Bronchodilatory effect worsening COPD', 'B. Hypoglycaemic effect — may potentiate antidiabetic drugs causing hypoglycaemia', 'C. Diuretic effect causing electrolyte imbalance', 'D. Anticoagulant effect causing thrombocytopenia'],
+    correct: 1,
+    explanation: 'Nigella sativa (black seed) has documented hypoglycaemic effects in clinical studies, attributed to thymoquinone inhibiting alpha-glucosidase and increasing insulin secretion. When taken concurrently with antidiabetic drugs (metformin, sulfonylureas, insulin), it may potentiate the glucose-lowering effect, leading to hypoglycaemia. Diabetic patients using black seed supplements should monitor their blood glucose more frequently.',
+    reference: 'Nigella sativa Pharmacological Properties'
+  },
+
+  // ══════════════════════════════════════
+  // HAEMATOLOGY
+  // ══════════════════════════════════════
+  {
+    id: 'q_haem_001', domain: 'THER', difficulty: 'easy',
+    question: 'Iron deficiency anaemia is the most common nutritional deficiency worldwide. What is the first-line treatment?',
+    options: ['A. Blood transfusion', 'B. Oral ferrous sulphate or ferrous gluconate', 'C. Intramuscular iron dextran', 'D. Erythropoietin injections'],
+    correct: 1,
+    explanation: 'Oral ferrous sulphate (or ferrous gluconate/fumarate) is the first-line treatment for iron deficiency anaemia. It should be taken on an empty stomach (with vitamin C to enhance absorption) but may be taken with food if GI intolerance occurs. IV iron is used when oral iron fails, cannot be tolerated, or the patient needs rapid iron replenishment (e.g., pre-operatively or in CKD patients). Haemoglobin should rise by ~10-20 g/L every 2-4 weeks.',
+    reference: 'Iron Deficiency Anaemia Management'
+  },
+  {
+    id: 'q_haem_002', domain: 'PHARM', difficulty: 'medium',
+    question: 'Vitamin B12 deficiency causing megaloblastic anaemia is treated with cyanocobalamin. In which patient group is intramuscular (IM) injection preferred over oral supplementation?',
+    options: ['A. Patients with chronic kidney disease', 'B. Patients with pernicious anaemia (lack of intrinsic factor — unable to absorb oral B12)', 'C. Patients over 60 years of age', 'D. Vegetarians and vegans'],
+    correct: 1,
+    explanation: 'Pernicious anaemia is caused by autoimmune destruction of gastric parietal cells, leading to loss of intrinsic factor (IF). Oral B12 requires IF for absorption in the terminal ileum. Without IF, oral B12 cannot be adequately absorbed. Therefore, IM hydroxocobalamin (1000 mcg every 2-3 months for maintenance) bypasses the gut completely. Vegetarians/vegans with dietary deficiency can use high-dose oral B12.',
+    reference: 'B12 Deficiency Anaemia Treatment'
+  },
+
+  // ══════════════════════════════════════
+  // NEUROLOGY
+  // ══════════════════════════════════════
+  {
+    id: 'q_neuro_001', domain: 'THER', difficulty: 'medium',
+    question: 'Sodium valproate is a broad-spectrum antiepileptic drug. Why is it particularly concerning in women of childbearing age?',
+    options: ['A. It reduces oral contraceptive efficacy by inducing CYP3A4', 'B. It is a potent teratogen causing neural tube defects, and is associated with neurodevelopmental disorders in children exposed in utero', 'C. It causes amenorrhoea and infertility', 'D. It causes hypertension during pregnancy'],
+    correct: 1,
+    explanation: 'Sodium valproate is a potent teratogen causing neural tube defects (spina bifida ~1-2%), cardiovascular malformations, craniofacial defects, and cognitive/developmental impairment (lower IQ, autism spectrum disorders) in children exposed in utero. The MHRA/EMA Valproate Prevent Programme requires women to enrol in a pregnancy prevention programme with mandatory annual review and contraception use. In the UAE, similar restrictions apply under MOHAP guidance.',
+    reference: 'Valproate Teratogenicity — Pregnancy Prevention'
+  },
+  {
+    id: 'q_neuro_002', domain: 'PHARM', difficulty: 'medium',
+    question: 'What is the mechanism by which levodopa (L-DOPA) works in Parkinson\'s disease?',
+    options: ['A. It directly stimulates dopamine D2 receptors in the striatum', 'B. It is a dopamine precursor that crosses the blood-brain barrier and is decarboxylated to dopamine in the brain', 'C. It inhibits MAO-B, preventing dopamine breakdown', 'D. It blocks acetylcholine receptors restoring the dopamine-acetylcholine balance'],
+    correct: 1,
+    explanation: 'Dopamine itself cannot cross the blood-brain barrier (BBB). Levodopa (L-DOPA) is a dopamine precursor that crosses the BBB via amino acid transporters and is converted to dopamine by DOPA decarboxylase in the brain, replenishing dopamine in the striatum. It is combined with a peripheral decarboxylase inhibitor (carbidopa or benserazide) to prevent peripheral conversion and reduce side effects (nausea, hypotension).',
+    reference: 'Parkinson\'s Disease Pharmacology'
+  },
+  {
+    id: 'q_neuro_003', domain: 'CLIN', difficulty: 'hard',
+    question: 'A patient on levodopa/carbidopa for Parkinson\'s disease experiences involuntary writhing movements of the limbs after 5 years of treatment. What is this complication called?',
+    options: ['A. Tremor — worsening of Parkinsonian symptoms', 'B. Levodopa-induced dyskinesias (peak-dose choreiform movements)', 'C. Wearing-off phenomenon', 'D. Neuroleptic malignant syndrome'],
+    correct: 1,
+    explanation: 'Levodopa-induced dyskinesias are involuntary choreiform/athetoid movements occurring at peak plasma levodopa levels after several years of treatment (due to pulsatile dopaminergic stimulation sensitising receptors). Treatment includes reducing individual levodopa doses (more frequent dosing), adding amantadine (an NMDA antagonist that reduces dyskinesias), or using dopamine agonists. This is distinct from the "wearing-off" phenomenon (return of symptoms before next dose).',
+    reference: 'Levodopa Motor Complications'
+  },
+
+  // ══════════════════════════════════════
+  // UROLOGY & REPRODUCTIVE HEALTH
+  // ══════════════════════════════════════
+  {
+    id: 'q_urol_001', domain: 'PHARM', difficulty: 'medium',
+    question: 'Finasteride is used for benign prostatic hyperplasia (BPH) and male pattern baldness. What is its mechanism?',
+    options: ['A. Blocks alpha-1 adrenergic receptors in the prostate, relaxing smooth muscle', 'B. Inhibits 5-alpha reductase, reducing conversion of testosterone to dihydrotestosterone (DHT)', 'C. Blocks androgen receptors in the prostate gland', 'D. Inhibits luteinising hormone (LH) release reducing testosterone production'],
+    correct: 1,
+    explanation: 'Finasteride inhibits 5-alpha reductase (type II), the enzyme that converts testosterone to dihydrotestosterone (DHT) — the primary androgen responsible for prostate and hair follicle growth. By reducing DHT levels, finasteride shrinks the prostate over 3-6 months and reduces hair loss. Alpha-1 blockers (tamsulosin, alfuzosin) relax prostate smooth muscle for faster symptom relief but do not shrink the gland.',
+    reference: '5-Alpha Reductase Inhibitor Pharmacology'
+  },
+  {
+    id: 'q_urol_002', domain: 'CLIN', difficulty: 'medium',
+    question: 'A female patient with a UTI (uncomplicated cystitis) is prescribed trimethoprim. Which important contraindication must be checked first?',
+    options: ['A. History of penicillin allergy', 'B. Pregnancy — trimethoprim is a folate antagonist contraindicated in the first trimester', 'C. Age over 65 years', 'D. Renal impairment — trimethoprim cannot be used at any CKD stage'],
+    correct: 1,
+    explanation: 'Trimethoprim inhibits dihydrofolate reductase, interfering with folate metabolism. In the first trimester of pregnancy, folate is critical for neural tube closure. Trimethoprim is therefore contraindicated in the first trimester (risk of neural tube defects). It can also cause neonatal folate deficiency near term. Nitrofurantoin is the preferred alternative for UTIs in pregnancy (first/second trimester — avoid near term due to haemolytic risk in neonates).',
+    reference: 'Antibiotic Safety in Pregnancy'
+  },
+
+  // ══════════════════════════════════════
+  // CLINICAL TOXICOLOGY
+  // ══════════════════════════════════════
+  {
+    id: 'q_tox_001', domain: 'CLIN', difficulty: 'medium',
+    question: 'A patient presents with paracetamol (acetaminophen) overdose 4 hours ago. Which antidote should be given?',
+    options: ['A. Flumazenil', 'B. N-acetylcysteine (NAC)', 'C. Naloxone', 'D. Atropine'],
+    correct: 1,
+    explanation: 'N-acetylcysteine (NAC) is the antidote for paracetamol overdose. It replenishes glutathione, which detoxifies the toxic metabolite NAPQI (N-acetyl-p-benzoquinone imine) that accumulates when normal metabolic pathways are saturated. NAC is most effective within 8-10 hours but can be given up to 24 hours post-overdose. The Rumack-Matthew nomogram is used to determine if treatment is needed based on the plasma paracetamol level and time since ingestion.',
+    reference: 'Paracetamol Overdose Management'
+  },
+  {
+    id: 'q_tox_002', domain: 'PHARM', difficulty: 'hard',
+    question: 'Organophosphate poisoning (from pesticides) presents with which classic "cholinergic toxidrome" symptoms?',
+    options: ['A. Dry skin, tachycardia, mydriasis, urinary retention (anticholinergic toxidrome)', 'B. SLUDGE — Salivation, Lacrimation, Urination, Defecation, GI distress, Emesis + bradycardia, miosis, bronchospasm', 'C. Hyperthermia, agitation, clonus (serotonin syndrome)', 'D. Hyperthermia, lead-pipe rigidity, autonomic instability (NMS)'],
+    correct: 1,
+    explanation: 'Organophosphates irreversibly inhibit acetylcholinesterase, causing acetylcholine accumulation and excessive cholinergic stimulation. The SLUDGE syndrome (Salivation, Lacrimation, Urination, Defecation, GI distress, Emesis) characterises muscarinic effects, along with bradycardia, bronchospasm, and miosis. Nicotinic effects include muscle fasciculations and weakness. Treatment: atropine (blocks muscarinic receptors) + pralidoxime (reactivates cholinesterase — must be given before enzyme ages).',
+    reference: 'Organophosphate Poisoning Management'
   }
+
 ];
+
+
 
 // Difficulty metadata
 const DIFFICULTIES = {
