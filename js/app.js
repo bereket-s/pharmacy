@@ -532,26 +532,28 @@ const App = (() => {
 
   // ── Prometric Exam Simulation ─────────────────────────────
   const startPrometricSimulation = () => {
-    if (!confirm('Start UAE Prometric Exam Simulation?\n\n\u2022 100 questions (or all available)\n\u2022 2-hour global timer\n\u2022 All domains\n\u2022 No explanations shown during exam\n\nGood luck! 🏆')) return;
-    // Use a 2-hour global timer displayed at top
-    const session = Quiz.createSession({ domain: 'ALL', difficulty: 'ALL', count: 100, mode: 'exam', timedSeconds: 0 });
-    if (!session || !session.questions.length) { showToast('Not enough questions for a simulation yet. Extract more from your PDFs!', 'warning'); return; }
+    const EXAM_QUESTIONS = 150;
+    const EXAM_SECONDS   = 9900; // 165 minutes
+    const available = AppData.QUESTIONS.length;
+    const count = Math.min(EXAM_QUESTIONS, available);
+    if (!confirm(`Start UAE Prometric Full Exam Simulation?\n\n• ${count} questions (${available} available)\n• 165 minutes total time\n• All domains covered\n• Pass mark: 60% (${Math.ceil(count*0.6)} correct)\n• No explanations shown during exam\n\nGood luck! 🏆`)) return;
+    const session = Quiz.createSession({ domain: 'ALL', difficulty: 'ALL', count, mode: 'exam', timedSeconds: 0 });
+    if (!session || !session.questions.length) { showToast('Not enough questions for a simulation. Upload study PDFs to add more!', 'warning'); return; }
     openQuizOverlay();
-    // Show global 2-hour countdown in timer slot
     const timerEl = document.getElementById('quiz-timer');
     if (timerEl) timerEl.style.display = 'flex';
-    Quiz.startTimer(7200,
+    Quiz.startTimer(EXAM_SECONDS,
       (rem) => {
         setEl('quiz-timer-val', formatTime(rem));
-        timerEl?.classList.toggle('timer-warning', rem <= 300); // warn at 5 min
+        timerEl?.classList.toggle('timer-warning', rem <= 600); // warn at 10 min
       },
       () => {
-        showToast('⏰ Time is up! Submitting your exam...', 'warning', 4000);
+        showToast('⏰ Time is up! Submitting your exam…', 'warning', 4000);
         setTimeout(() => showResults(), 1500);
       }
     );
     renderCurrentQuestion();
-    showToast('🏆 UAE Prometric Simulation started! 2 hours • ' + session.questions.length + ' questions', 'success', 5000);
+    showToast(`🏆 UAE Prometric Simulation started! 165 min • ${session.questions.length} questions • Pass: ${Math.ceil(session.questions.length*0.6)}+`, 'success', 6000);
   };
 
 
@@ -698,7 +700,30 @@ const App = (() => {
     setEl('result-score', s.correct + '/' + s.total);
     setEl('result-accuracy', s.accuracy + '%');
     setEl('result-duration', formatDuration(s.durationMs));
-    const grade = s.accuracy>=80?'🏆 Excellent! You are exam-ready!':s.accuracy>=70?'👍 Good Work — almost there!':s.accuracy>=50?'📚 Keep Studying — focus on weak areas':'💪 Don\'t Give Up! Review and retry';
+
+    // Pass/Fail banner (60% threshold for UAE Prometric)
+    const PASS_THRESHOLD = 60;
+    const passed = s.accuracy >= PASS_THRESHOLD;
+    const passBanner = document.getElementById('result-pass-banner');
+    if (passBanner) {
+      passBanner.innerHTML = passed
+        ? `<div style="text-align:center;padding:12px 16px;background:rgba(34,197,94,0.12);border:1.5px solid #22c55e;border-radius:12px;margin-bottom:12px">
+             <div style="font-size:1.6rem">✅</div>
+             <div style="font-size:1.1rem;font-weight:800;color:#22c55e">PASS</div>
+             <div style="font-size:0.78rem;color:var(--text-secondary);margin-top:2px">${s.accuracy}% — above the 60% pass mark (${Math.ceil(s.total*0.6)}/${s.total} needed)</div>
+           </div>`
+        : `<div style="text-align:center;padding:12px 16px;background:rgba(239,68,68,0.1);border:1.5px solid #ef4444;border-radius:12px;margin-bottom:12px">
+             <div style="font-size:1.6rem">❌</div>
+             <div style="font-size:1.1rem;font-weight:800;color:#ef4444">NOT PASSED</div>
+             <div style="font-size:0.78rem;color:var(--text-secondary);margin-top:2px">${s.accuracy}% — need ${Math.ceil(s.total*0.6)}/${s.total} (60%) to pass — you got ${s.correct}/${s.total}</div>
+           </div>`;
+    }
+
+    const grade = passed
+      ? (s.accuracy>=80 ? '🏆 Excellent! You would pass the real exam!'
+                        : '👍 Good — above pass mark. Keep revising to boost your score!')
+      : (s.accuracy>=50 ? '📚 Close! Focus on weak domains and retry.'
+                        : '💪 Keep Studying — review explanations and retry');
     setEl('result-grade-msg', grade);
     const color = s.accuracy>=80?'#22c55e':s.accuracy>=60?'#f59e0b':'#ef4444';
     const sc = document.getElementById('result-score'); if (sc) sc.style.color = color;

@@ -200,11 +200,11 @@
           <div class="practice-section">
             <h3 data-i18n="lbl_num_q">Number of Questions</h3>
             <div class="count-slider-wrap">
-              <input type="range" id="question-count-slider" min="1" max="28" value="10">
+              <input type="range" id="question-count-slider" min="1" max="150" value="10">
               <span class="count-display" id="question-count-display">10</span>
             </div>
             <small style="color:var(--text-muted);font-size:0.72rem;margin-top:4px;display:block">
-              <span id="pool-count-display">28</span> questions available with selected filters
+              <span id="pool-count-display">276</span> questions available with selected filters
             </small>
           </div>
         </div>
@@ -221,12 +221,13 @@
           </div>
 
           <!-- Prometric Simulation Card -->
-          <div class="card" style="margin-top:16px; border-color:rgba(245,158,11,0.35); background:rgba(245,158,11,0.06)">
-            <h3 style="font-size:0.88rem; color:var(--gold); margin-bottom:8px">📝 UAE Prometric Simulation</h3>
-            <p style="font-size:0.8rem; color:var(--text-secondary); line-height:1.5; margin-bottom:12px">
-              Simulate the real UAE Pharmacy License exam:<br>
-              <strong style="color:var(--text-primary)">100 questions · 2 hours · All domains · Exam mode</strong>
+          <div class="card" style="margin-top:16px; border-color:rgba(245,158,11,0.45); background:rgba(245,158,11,0.08)">
+            <h3 style="font-size:0.9rem; color:var(--gold); margin-bottom:6px">🇦🇪 UAE Prometric Full Simulation</h3>
+            <p style="font-size:0.8rem; color:var(--text-secondary); line-height:1.5; margin-bottom:4px">
+              Simulate the real DHA / DOH / MOHAP exam:<br>
+              <strong style="color:var(--text-primary)">150 questions · 165 minutes · All domains · Exam mode</strong>
             </p>
+            <p style="font-size:0.75rem; color:#f59e0b; margin-bottom:12px">Pass mark: 60% (90/150 correct) · No negative marking</p>
             <button class="btn btn-full" onclick="App.startPrometricSimulation()" style="border-color:var(--gold);color:var(--gold);font-weight:600">
               🏆 Start Full Exam Simulation
             </button>
@@ -575,6 +576,9 @@
       </div>
     </div>
 
+    <!-- Pass/Fail Banner (60% UAE Prometric threshold) -->
+    <div id="result-pass-banner" style="width:100%;max-width:480px;margin-bottom:4px"></div>
+
     <div class="result-domain-breakdown" id="result-domain-breakdown">
       <!-- Domain breakdown rows -->
     </div>
@@ -611,20 +615,20 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <!-- App Scripts — v2.5 (cache-busted) -->
-<script src="js/data.js?v=2.5"></script>
-<script src="js/storage.js?v=2.5"></script>
-<script src="js/i18n.js?v=2.5"></script>
-<script src="js/supabase-config.js?v=2.5"></script>
-<script src="js/cloud-db.js?v=2.5"></script>
+<script src="js/data.js?v=2.6"></script>
+<script src="js/storage.js?v=2.6"></script>
+<script src="js/i18n.js?v=2.6"></script>
+<script src="js/supabase-config.js?v=2.6"></script>
+<script src="js/cloud-db.js?v=2.6"></script>
 <!-- Tesseract.js OCR (for scanned image PDFs) -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
-<script src="js/pdf-extractor.js?v=2.5"></script>
-<script src="js/cloud-questions.js?v=2.5"></script>
-<script src="js/quiz.js?v=2.5"></script>
-<script src="js/charts.js?v=2.5"></script>
-<script src="js/reader.js?v=2.5"></script>
-<script src="js/app.js?v=2.5"></script>
+<script src="js/pdf-extractor.js?v=2.6"></script>
+<script src="js/cloud-questions.js?v=2.6"></script>
+<script src="js/quiz.js?v=2.6"></script>
+<script src="js/charts.js?v=2.6"></script>
+<script src="js/reader.js?v=2.6"></script>
+<script src="js/app.js?v=2.6"></script>
 
 <script>
   // Set today's date in dashboard subtitle
